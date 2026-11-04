@@ -129,12 +129,15 @@
     "url": "https://doi.org/10.1093/pcp/pcaf085",
     "note": "",
     "roleNote": "",
-    "related": [
-      {
-        "label": "表紙掲載",
-        "url": "https://academic.oup.com/pcp/issue/66/9"
-      }
-    ],
+    "related": [],
+    "cover": {
+      "file": "cover-pcp.webp",
+      "width": 520,
+      "height": 694,
+      "label": "表紙掲載",
+      "labelEn": "Featured on the issue cover",
+      "credit": "Takuma Kikuchi, Daisuke Takahashi"
+    },
     "citation": "Kikuchi T, Soga K, Kotake T, Takahashi D (2025). Defective pollen meiosis in Arabidopsis due to combined arabinan and galactan insufficiency. Plant and Cell Physiology 66: 1346-1359. https://doi.org/10.1093/pcp/pcaf085"
   },
   {
@@ -504,12 +507,15 @@
     "url": "https://doi.org/10.1111/ppl.13837",
     "note": "オンライン公開：2022年",
     "roleNote": "",
-    "related": [
-      {
-        "label": "掲載特集号の表紙",
-        "url": "https://onlinelibrary.wiley.com/doi/toc/10.1111/(ISSN)1399-3054.coldhardiness"
-      }
-    ],
+    "related": [],
+    "cover": {
+      "file": "cover-wiley.webp",
+      "width": 500,
+      "height": 707,
+      "label": "掲載特集号の表紙",
+      "labelEn": "Cover of the special issue",
+      "credit": "Daisuke Takahashi"
+    },
     "citation": "Kutsuno T, Chowhan S, Kotake T, Takahashi D (2023). Temporal cell wall changes during cold acclimation and deacclimation and their potential involvement in freezing tolerance and growth. Physiologia Plantarum 175: e13837. https://doi.org/10.1111/ppl.13837"
   },
   {
