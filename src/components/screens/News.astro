@@ -12,5 +12,5 @@ const years=[...new Set(news.map(n=>n.date.slice(0,4)))];
 ---
 <Layout lang={lang} title="お知らせ" current="news" description={t('生命適応科学研究室のお知らせ。論文掲載、学術交流、受賞、研究室メンバーに関するニュースを掲載しています。','News from the Laboratory of Stress and Adaptation Biology: publications, seminars, awards and laboratory updates.')}>
  <PageHeading lang={lang} title="お知らせ" en="NEWS" sections={years.map(y=>({label:y,href:`#news-${y}`}))}/>
- <div class="news-archive section">{years.map(y=><section id={`news-${y}`}><h2 class="news-year-heading">{y}</h2>{news.filter(n=>n.date.startsWith(y)).map(n=><article class="news-detail" id={n.anchor}><div><time datetime={n.date.replaceAll('.','-')}>{n.date}</time></div><div><h3><a href={pageUrl(n.articleSlug,lang)}>{n.heading} <span aria-hidden="true">→</span></a></h3><p>{n.text}</p></div></article>)}</section>)}</div>
+ <div class="news-archive section">{years.map(y=><section id={`news-${y}`}><h2 class="news-year-heading">{y}</h2>{news.filter(n=>n.date.startsWith(y)).map(n=><article class="news-detail" id={n.anchor}><div><time datetime={n.date.replaceAll('.','-')}>{n.date}</time></div><div><h3><a href={pageUrl(n.articleSlug,lang)}>{n.heading} <span aria-hidden="true">→</span></a></h3><p class="news-excerpt">{n.text}{n.continues?'…':''}</p></div></article>)}</section>)}</div>
 </Layout>

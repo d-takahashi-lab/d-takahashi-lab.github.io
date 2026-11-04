@@ -13,5 +13,5 @@ const en=lang==='en',news=en?enNews:jaNews;
   <div class="editorial-title"><h1 id="hero-title">{en?<>Laboratory of<br/>Stress and<br/>Adaptation Biology</>:<>生命適応科学<br/>研究室</>}</h1><p class="home-affiliation">{en?'Graduate School of Science and Engineering, Saitama University':'埼玉大学大学院理工学研究科'}</p></div>
   <PhotoSlideshow lang={lang}/>
  </section>
- <section id="news" class="home-news"><div class="news-heading"><h2>News</h2></div><div>{news.slice(0,4).map(n=><article class="home-news-row"><time datetime={n.date.replaceAll('.','-')}>{n.date}</time><p><a href={pageUrl(n.articleSlug,lang)}>{n.text}</a></p></article>)}<a class="text-link" href={pageUrl('news',lang)}>{en?'All news':'すべてのお知らせ'} →</a></div></section>
+ <section id="news" class="home-news"><div class="news-heading"><h2>News</h2></div><div>{news.slice(0,4).map(n=><article class="home-news-row"><time datetime={n.date.replaceAll('.','-')}>{n.date}</time><p><a href={pageUrl(n.articleSlug,lang)}>{n.heading}</a></p></article>)}<a class="text-link" href={pageUrl('news',lang)}>{en?'All news':'すべてのお知らせ'} →</a></div></section>
 </Layout>

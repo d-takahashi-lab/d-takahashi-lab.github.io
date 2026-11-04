@@ -1,18 +1,19 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import {pageUrl,type Language} from '../lib/i18n';
-import {publishedNews,type NewsRecord} from '../data/news';
+import {newsOpening,publishedNews,type NewsRecord} from '../data/news';
 interface Props{article:NewsRecord;lang?:Language;}
 const {article:n,lang='ja'}=Astro.props;
 const en=lang==='en',text=n[lang],base=import.meta.env.BASE_URL;
 const hasEnglish=publishedNews('en').some(p=>p.id===n.id);
+const originalNews=n.link.startsWith('https://www.adaptationbiology.com/#comp-');
 const related=n.link?(n.link.startsWith('https://')?n.link:`${pageUrl('',lang)}${n.link}`):'';
 ---
-<Layout lang={lang} title={text.title} current="news" description={text.summary||text.title} alternateSlug={`news/${n.id}`} languageSlugs={{ja:`news/${n.id}`,en:hasEnglish?`news/${n.id}`:'news'}} hasEnglishArticle={hasEnglish}>
+<Layout lang={lang} title={text.title} current="news" description={newsOpening(text.body)||text.title} alternateSlug={`news/${n.id}`} languageSlugs={{ja:`news/${n.id}`,en:hasEnglish?`news/${n.id}`:'news'}} hasEnglishArticle={hasEnglish}>
  <header class="page-heading"><div class="page-heading-row"><h1>{text.title}</h1></div><nav class="page-sections" aria-label={en?'News navigation':'お知らせの移動'}><a href={pageUrl('news',lang)}>← {en?'All news':'お知らせ一覧'}</a><time datetime={n.date}>{n.date.replaceAll('-','.')}</time></nav></header>
  <article class="section news-article">
  {n.image&&<figure><img src={`${base}${n.image}`} alt={en?n.imageAltEn||n.imageAlt:n.imageAlt} width="1400" height="900"/>{(en?n.imageCaptionEn:n.imageCaption)&&<figcaption>{en?n.imageCaptionEn:n.imageCaption}</figcaption>}</figure>}
  <div class="news-article-body">{text.body.split(/\n\s*\n/).filter(Boolean).map(paragraph=><p>{paragraph}</p>)}</div>
- {related&&<a class="text-link" href={related}>{en?'Related information':'関連情報'} →</a>}
+ {related&&<a class="text-link" href={related}>{originalNews?(en?'Original announcement (Japanese)':'旧サイトのお知らせ'):(en?'Related information':'関連情報')} →</a>}
  </article>
 </Layout>

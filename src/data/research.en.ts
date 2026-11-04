@@ -18,7 +18,7 @@ const translations=[
   {heading:'Current questions',paragraphs:[
    'By comparing cold acclimation, deacclimation and reacclimation, we investigate the relationships among soluble sugars, cell wall polysaccharides, freezing tolerance and growth. We aim to determine how environmental history is retained in structure, and how that persistence affects subsequent tolerance acquisition and the resumption of growth.',
   ]},
- ],keywords:['Cold acclimation','Deacclimation','Reacclimation','Environmental memory'],figure:'cold-acclimation-schematic-en.svg',caption:'Original schematic of cold acclimation, deacclimation and reacclimation. It summarizes reported responses and questions for further investigation; it does not represent quantitative data.',alt:'A schematic linking non-acclimated, cold-acclimated and deacclimated states, with a return to cold conditions. Some wall changes persist after soluble sugars decline; their contribution to later tolerance remains a research question.'},
+ ],keywords:['Cold acclimation','Deacclimation','Reacclimation','Environmental memory'],figure:'cold-acclimation-schematic-en.svg',caption:'Cold acclimation, deacclimation and reacclimation',alt:'Changes in freezing tolerance under cold and warm conditions.'},
  {title:'Polysaccharides in Adaptation',lead:'We connect polysaccharide structure, tissue mechanics and survival after freezing to investigate the role of cell walls in cold adaptation.',
  sections:[
   {heading:'Polysaccharides in the cell wall',paragraphs:[
@@ -36,8 +36,8 @@ const translations=[
   {heading:'Storage polysaccharides and adaptation',paragraphs:[
    'Remodelling of cell wall polysaccharides, together with the turnover of storage polysaccharides such as starch and fructans, contributes to osmotic adjustment and structural stability. By integrating cell wall remodelling, polysaccharide metabolism and morphology, we aim to clarify the mechanisms of plant adaptation to low-temperature environments.',
   ]},
- ],keywords:['Cell walls','β-1,4-Galactan','Tissue mechanics','Starch and fructans'],figure:'cell-wall-schematic-en.svg',caption:'Original schematic connecting cell wall polysaccharides with freezing tolerance. Polymer shapes and positions are conceptual and are not a molecular-scale structural model.',alt:'Conceptual cell wall with cellulose bundles, hemicellulose and pectin side chains. Cold-induced β-1,4-galactan accumulation contributes to freezing tolerance. Polysaccharide structure, tissue mechanics and survival are studied together.'},
- {title:'Plant Desiccation Tolerance',lead:'Comparisons between Selaginella tamariscina and a related species help us investigate how cells are protected during extreme dehydration and recover after rehydration.',
+ ],keywords:['Cell walls','β-1,4-Galactan','Tissue mechanics','Starch and fructans'],figure:'cell-wall-schematic-en.svg',caption:'Cold-induced galactan accumulation',alt:'Galactan accumulation and testing in mutants.'},
+ {title:'Desiccation tolerance and sugars in resurrection plants',lead:'We compare Selaginella tamariscina with a related species to study how trehalose, other sugars and cell walls contribute to protection during drying and recovery after rehydration.',
  sections:[
   {heading:'What are resurrection plants?',paragraphs:[
    'Severe drying damages membranes and deforms cell walls in many land plants, making recovery difficult. Resurrection plants can maintain cellular structure through extreme drying and resume biological activity when water becomes available again. Selaginella tamariscina is one example of a plant with this exceptional desiccation tolerance.',
@@ -51,6 +51,12 @@ const translations=[
    'As cells lose volume during dehydration, their walls and membranes undergo substantial deformation. Surviving drying requires tolerance of that deformation and the capacity to regain function after rehydration. We focus on how cell wall polysaccharide composition and structure affect deformation and tissue protection.',
    'Our laboratory investigates desiccation tolerance by comparing S. tamariscina and S. moellendorffii, with a particular focus on the cell wall’s role in stress resistance. This work contributes to understanding the evolutionary survival strategies of land plants, including shared and distinct features of dehydration caused by freezing and by drying.',
   ]},
- ],keywords:['Selaginella','Drying and rehydration','Cell wall deformation','Comparative physiology'],figure:'',caption:'Time-lapse of morphological changes in Selaginella tamariscina during drying and rehydration.',alt:''},
+ ],keywords:['Selaginella','Trehalose','Drying and rehydration','Cell wall deformation','Comparative physiology'],figure:'',caption:'Time-lapse of morphological changes in Selaginella tamariscina during drying and rehydration.',alt:''},
+ {title:'An ESM landscape of intrinsically disordered proteins',
+ lead:'We use the ESM-2 protein language model to compare disordered proteins across species and select candidates for experiments on desiccation tolerance.',
+ sections:[
+  {heading:'From sequences to a comparative map',paragraphs:['Intrinsically disordered proteins (IDPs) do not adopt a single stable three-dimensional structure under physiological conditions. Some, including members of the LEA family, help protect cells during dehydration. Similar protective roles can occur in proteins with quite different sequences.','ESM-2 converts amino acid sequences into numerical representations that capture sequence context. Comparing these representations gives us a landscape of candidates from different species. We use expression during drying and predicted disorder to guide candidate selection.']},
+  {heading:'Testing function',paragraphs:['Closeness in this landscape suggests a relationship worth testing. We examine whether selected proteins help maintain protein solubility or protect membranes during dehydration and rehydration, and whether combinations have different effects from individual proteins.']},
+ ],keywords:['ESM-2','IDPs','Desiccation tolerance'],figure:'esm-landscape-en.svg',caption:'From sequence comparison to experimental tests',alt:'Four steps: collect sequences, encode them with ESM-2, compare candidates with expression data, and test protective activity.'},
 ];
 export const themes=originals.map((theme,i)=>({...theme,...translations[i]}));
