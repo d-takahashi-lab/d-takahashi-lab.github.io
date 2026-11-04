@@ -1,0 +1,12 @@
+---
+interface Props {
+ title: string;
+}
+const { title } = Astro.props;
+
+// Latin taxon names and gene names occurring in the publication titles.
+// XTH19 denotes the enzyme in its title and stays in roman type.
+const scientificName = /\b(Arabidopsis thaliana|Arabidopsis|Chitiniphilus shinanonensis|Solanum lycopersicum|Beta vulgaris|Pisum sativum|Citrus|Xanthomonas|BRITTLE CULM 4|DRP1E)\b/g;
+const parts = title.split(scientificName);
+---
+{parts.map((part, index) => index % 2 ? <i>{part}</i> : part)}
