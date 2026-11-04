@@ -12,17 +12,16 @@ const en=lang==='en',themes=en?enThemes:jaThemes;
 const t=(ja:string,english:string)=>choose(lang,ja,english);
 const base=import.meta.env.BASE_URL;
 ---
-<Layout lang={lang} title="研究紹介" current="research" description={t('低温馴化と脱馴化、細胞壁・多糖による凍結耐性、復活植物の乾燥耐性と糖、天然変性タンパク質のESM解析を、実験図や動画、関連論文とともに紹介します。','Our research on cold acclimation, cell wall polysaccharides and freezing tolerance, desiccation tolerance in resurrection plants, and ESM analysis of intrinsically disordered proteins, with diagrams and related publications.')}>
+<Layout lang={lang} title="研究紹介" current="research" description={t('低温馴化と脱馴化、細胞壁・多糖による凍結耐性、復活植物の乾燥耐性と糖、タンパク質言語モデルによる天然変性タンパク質の比較を、実験図や動画、関連論文とともに紹介します。','Our research on cold acclimation, cell wall polysaccharides and freezing tolerance, desiccation tolerance in resurrection plants, and comparisons of intrinsically disordered proteins using a protein language model, with diagrams and related publications.')}>
  <PageHeading lang={lang} title="研究紹介" en="RESEARCH" sections={[
   {label:t('01 凍結適応と脱馴化','01 Cold acclimation'),href:'#cold-acclimation'},
   {label:t('02 細胞壁・多糖','02 Cell walls & polysaccharides'),href:'#cell-walls'},
   {label:t('03 乾燥耐性と糖','03 Desiccation tolerance and sugars'),href:'#desiccation'},
-  {label:t('04 ESMランドスケープ','04 ESM landscape'),href:'#esm-landscape'},
+  {label:t('04 タンパク質言語モデル','04 Protein language models'),href:'#esm-landscape'},
  ]}/>
  <p class="research-overview">{t('植物の低温・凍結・乾燥への適応を、細胞壁と多糖の構造・機能から研究しています。','We study plant adaptation to cold, freezing and desiccation through the structure and function of cell walls and polysaccharides.')}</p>
  <div class="research-content">{themes.map((theme,i)=><section class="research-theme" id={theme.id} aria-labelledby={`${theme.id}-title`}><header class="theme-header"><span class="section-kicker" aria-hidden="true">0{i+1}</span><h2 id={`${theme.id}-title`}>{theme.title}</h2><p>{theme.lead}</p></header><div class="theme-layout"><div class="theme-text">{theme.sections.map(section=><section class="research-subsection"><h3>{section.heading}</h3>{section.paragraphs.map(p=><p>{p}</p>)}</section>)}</div><figure class={`science-figure ${theme.id==='cold-acclimation'?'tall-figure':''}`}>
  {theme.figure?<a href={`${base}images/${theme.figure}`} aria-label={en?`Enlarge diagram: ${theme.title}`:`${theme.title}の図を拡大`}><img src={`${base}images/${theme.figure}`} alt={theme.alt} loading="lazy"/></a>:<video controls playsinline preload="none" poster={`${base}images/selaginella-poster.jpg`} aria-label={t('イワヒバの乾燥・吸水に伴う形態変化のタイムラプス','Time-lapse of Selaginella tamariscina during drying and rehydration')}><source src={`${base}videos/selaginella-rehydration.mp4`} type="video/mp4"/><a href={`${base}videos/selaginella-rehydration.mp4`}>{t('動画を開く','Open video')}</a></video>}
  <figcaption>{theme.caption}</figcaption></figure></div>
  {theme.references.length>0&&<aside class="theme-references" aria-label={t('関連論文','Related publications')}><h3>{t('関連論文','Related publications')}</h3>{theme.references.map(doi=>{const p=findPaper(doi);return <a href={`${pageUrl('publications',lang)}#${p.id}`}><span>{p.year} / {p.journal}</span><p><PublicationTitle title={p.title} /> →</p></a>;})}</aside>}</section>)}</div>
- <section class="section study-inquiry"><h2>{t('研究内容に関するお問い合わせ','Research enquiries')}</h2><p>{t('研究室の見学や大学院での研究については、担当教員へお問い合わせください。','Please contact us if you would like to visit the laboratory or discuss graduate research.')}</p><a class="text-link" href={pageUrl('contact',lang)}>{t('連絡先・アクセス','Contact & access')} →</a></section>
 </Layout>

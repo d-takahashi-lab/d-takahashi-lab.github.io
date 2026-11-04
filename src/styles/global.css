@@ -66,6 +66,7 @@ html[lang=en] .lab-identity { font-size: 14px; letter-spacing: 0; }
 .menu-toggle { display: none; align-items: center; gap: var(--space-3); background: none; border: 0; padding: var(--space-2) 0; color: var(--text); font-size: var(--text-small); }
 /* Shared page rhythm and link treatment. */
 .page-heading { margin: 0 var(--gutter); padding: var(--space-7) 0 var(--space-6); border-bottom: var(--rule); }
+.page-heading-no-sections { padding-bottom: calc(var(--space-6) + var(--space-5) + 1.85 * var(--text-small)); }
 .page-heading h1 { font-size: var(--text-page); }
 .page-heading-row { display:flex;align-items:baseline;justify-content:space-between;gap:var(--space-5); }
 .page-meta {font-size:var(--text-meta);color:var(--muted);line-height:1.85;}
@@ -119,7 +120,6 @@ figcaption { font-family: var(--font-sans); font-size: var(--text-meta); color: 
 .theme-references>a { display: block; grid-column: 2; }
 .theme-references a>span { font-size: var(--text-meta); color: var(--muted); line-height: 1.85; }
 .theme-references a>p { font-size: var(--text-body); line-height: 1.65; margin-top: var(--space-2); }
-.study-inquiry p { font-size: var(--text-body); color: var(--body); line-height: var(--leading-body); margin-top: var(--space-4); }
 /* People: names are content, so faculty/students/alumni all use the same sans family. */
 .faculty-profile { display: grid; grid-template-columns: 160px minmax(0,1fr); gap: var(--space-7); margin-top: var(--space-6); align-items: start; }
 .faculty-profile figure { width: 160px; height: 180px; overflow: hidden; }

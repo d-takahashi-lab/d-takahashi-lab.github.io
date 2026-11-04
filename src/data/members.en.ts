@@ -9,7 +9,7 @@ const topics:Record<string,string>={
  'コムギクラウンの低温による組織形態変化':'Cold-induced morphological changes in wheat crown',
  'デンプンの糖鎖構造の日周変化':'Diurnal changes in starch glycan structure',
  '寒締めコマツナ成熟葉の細胞分裂解析':'Cold-induced cell division in mature leaves',
- 'ESMに基づくIDP構造ランドスケープ':'ESM-based structural landscape of IDPs',
+ 'タンパク質言語モデルによる天然変性タンパク質の比較':'Comparing intrinsically disordered proteins with a protein language model',
 };
 const roles:Record<string,string>={'博士後期2年':'2nd-year PhD','博士前期2年':'2nd-year MSc','博士前期1年':'1st-year MSc','学部4年':'4th-year BSc','学部3年':'3rd-year BSc'};
 export const names:Record<string,string>={

@@ -52,11 +52,21 @@ const translations=[
    'Our laboratory investigates desiccation tolerance by comparing S. tamariscina and S. moellendorffii, with a particular focus on the cell wall’s role in stress resistance. This work contributes to understanding the evolutionary survival strategies of land plants, including shared and distinct features of dehydration caused by freezing and by drying.',
   ]},
  ],keywords:['Selaginella','Trehalose','Drying and rehydration','Cell wall deformation','Comparative physiology'],figure:'',caption:'Time-lapse of morphological changes in Selaginella tamariscina during drying and rehydration.',alt:''},
- {title:'An ESM landscape of intrinsically disordered proteins',
- lead:'We use the ESM-2 protein language model to compare disordered proteins across species and select candidates for experiments on desiccation tolerance.',
+ {title:'Exploring stress adaptation with protein language models',
+ lead:'Intrinsically disordered proteins (IDPs) help diverse organisms, including plants and animals, adapt to stresses such as freezing and desiccation. We ask what kinds of proteins protect cells across these different organisms.',
  sections:[
-  {heading:'From sequences to a comparative map',paragraphs:['Intrinsically disordered proteins (IDPs) do not adopt a single stable three-dimensional structure under physiological conditions. Some, including members of the LEA family, help protect cells during dehydration. Similar protective roles can occur in proteins with quite different sequences.','ESM-2 converts amino acid sequences into numerical representations that capture sequence context. Comparing these representations gives us a landscape of candidates from different species. We use expression during drying and predicted disorder to guide candidate selection.']},
-  {heading:'Testing function',paragraphs:['Closeness in this landscape suggests a relationship worth testing. We examine whether selected proteins help maintain protein solubility or protect membranes during dehydration and rehydration, and whether combinations have different effects from individual proteins.']},
- ],keywords:['ESM-2','IDPs','Desiccation tolerance'],figure:'esm-landscape-en.svg',caption:'From sequence comparison to experimental tests',alt:'Four steps: collect sequences, encode them with ESM-2, compare candidates with expression data, and test protective activity.'},
+  {heading:'Protecting cells as they lose water',paragraphs:[
+   'Freezing and drying are distinct processes, but both can draw water out of cells. As cellular components become more concentrated, proteins can aggregate and membranes can be damaged. Limiting this damage helps cells resume activity when water returns.',
+   'IDPs can adopt many shapes rather than settling into a single stable structure. Different organisms use different proteins, from plant dehydrins to proteins involved in tardigrade desiccation tolerance. We study how flexibility and interactions with nearby molecules can help protect cells under different conditions.',
+  ]},
+  {heading:'Comparing proteins across species',paragraphs:[
+   'Proteins that perform similar roles can have quite different amino acid sequences. Direct sequence comparisons may miss those similarities. We use a protein language model that has learned patterns from large collections of amino acid sequences.',
+   'We use the patterns identified by the model to build a map in which proteins with similar sequence features sit near one another. We look for candidates near known protective proteins and ask which candidates are produced during stress. This helps us decide what to test in the laboratory.',
+  ]},
+  {heading:'Testing the predictions',paragraphs:[
+   'Closeness on the map gives us a hypothesis to test. We measure whether individual candidates prevent other proteins from aggregating or protect membranes during water loss and rehydration.',
+   'We also compare individual proteins with combinations. The aim is to distinguish mechanisms that help in both freezing and drying from those that are specific to a particular organism or environment.',
+  ]},
+ ],keywords:['Protein language models','IDPs','Freezing','Desiccation'],figure:'esm-landscape-en.svg',caption:'From sequence comparison to experimental tests',alt:'Four steps: collect protein sequences, compare them using a language model, select candidates and test their protective activity.'},
 ];
 export const themes=originals.map((theme,i)=>({...theme,...translations[i]}));

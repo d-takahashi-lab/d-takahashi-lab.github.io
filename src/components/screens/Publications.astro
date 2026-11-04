@@ -11,10 +11,7 @@ const t=(ja:string,english:string)=>choose(lang,ja,english);
 const publicationTypes=en?{article:'Research articles',review:'Reviews',chapter:'Book chapters'}:jaTypes;
 ---
 <Layout lang={lang} title="研究業績" current="publications" description={t('生命適応科学研究室の研究業績。原著論文・総説・書籍章を年別に掲載しています。','Research articles, reviews and book chapters from the laboratory, with direct DOI links, organized by year.')}>
- <PageHeading lang={lang} title="研究業績" en="PUBLICATIONS" sections={[
-  {label:t('検索','Search'),href:'#pub-filters'},{label:t('掲載年','Years'),href:'#publication-years'},
-  {label:t('文献一覧','Publications'),href:'#publication-list'},
- ]}/>
+ <PageHeading lang={lang} title="研究業績" en="PUBLICATIONS"/>
  <section class="publication-archive section" aria-label={t('論文一覧','Publications')}>
 
   <form id="pub-filters" class="pub-filters" hidden role="search" aria-label={t('研究業績の検索','Search publications')} data-empty-message={t('該当する文献はありません。','No publications match your search.')} data-applied-message={t('検索条件を適用しました。','Search filters applied.')}>
