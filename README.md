@@ -24,7 +24,7 @@ npm run preview
 
 `actions/configure-pages` のorigin/base_pathを使用するため、リポジトリ配下・ユーザーサイト・独自ドメインに対応します。独自ドメインはPages設定・DNSの設定に加え、必要なら **`site-public/CNAME`** にドメインを記載してください。
 
-GitHubへのpush、公開、既存DNSの変更はまだ行っていません。
+GitHub Pagesへの初回公開は2026-11-04に完了しました。公開URLは https://d-takahashi-lab.github.io/ です。既存ドメインのDNSは変更していません。
 
 ## 情報の更新
 
@@ -107,7 +107,7 @@ Home / Research / News / People / Works / Contact に統一。見出しは各ペ
 - アカウント：`d-takahashi-lab`
 - リポジトリ：`d-takahashi-lab.github.io`
 - 公開ブランチ：`main`
-- 予定URL：`https://d-takahashi-lab.github.io/`
-- 予定投稿画面：`https://d-takahashi-lab.github.io/admin/`
+- 公開URL：`https://d-takahashi-lab.github.io/`
+- 投稿画面：`https://d-takahashi-lab.github.io/admin/`
 
-投稿画面の初期値は `scripts/news-editor/github-config.json` に保存しています。認証情報は含めません。リポジトリの作成・ソースのpush・Pagesの有効化が完了するまでは、予定URLは公開されません。
+投稿画面の初期値は `scripts/news-editor/github-config.json` に保存しています。認証情報は含めません。リポジトリ作成・ソースのpush・GitHub ActionsによるPages公開を確認済みです。Newsの投稿には、このリポジトリに限定したGitHubトークンによる接続が必要です。
