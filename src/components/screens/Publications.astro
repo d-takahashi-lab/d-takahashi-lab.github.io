@@ -1,0 +1,55 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import PageHeading from '../PageHeading.astro';
+import PublicationEntry from '../PublicationEntry.astro';
+import {publications,publicationTypes as jaTypes,years} from '../../data/publications';
+import {choose,type Language} from '../../lib/i18n';
+interface Props{lang?:Language;}
+const {lang='ja'}=Astro.props;
+const en=lang==='en';
+const t=(ja:string,english:string)=>choose(lang,ja,english);
+const publicationTypes=en?{article:'Research articles',review:'Reviews',chapter:'Book chapters'}:jaTypes;
+---
+<Layout lang={lang} title="研究業績" current="publications" description={t('生命適応科学研究室の研究業績。原著論文・総説・書籍章を年別に掲載しています。','Research articles, reviews and book chapters from the laboratory, with direct DOI links, organized by year.')}>
+ <PageHeading lang={lang} title="研究業績" en="PUBLICATIONS" sections={[
+  {label:t('検索','Search'),href:'#pub-filters'},{label:t('掲載年','Years'),href:'#publication-years'},
+  {label:t('文献一覧','Publications'),href:'#publication-list'},
+ ]}/>
+ <section class="publication-archive section" aria-label={t('論文一覧','Publications')}>
+
+  <form id="pub-filters" class="pub-filters" hidden role="search" aria-label={t('研究業績の検索','Search publications')} data-empty-message={t('該当する文献はありません。','No publications match your search.')} data-applied-message={t('検索条件を適用しました。','Search filters applied.')}>
+   <label class="search-field">{t('検索','Search')}<input name="q" type="search" placeholder={t('タイトル・著者・キーワード・DOI','Title, author, keyword or DOI')} autocomplete="off" /></label>
+   <label>{t('種別','Type')}<select name="type"><option value="">{t('すべての種別','All types')}</option>{Object.entries(publicationTypes).map(([key,label])=><option value={key}>{label}</option>)}</select></label>
+   <label>{t('掲載年','Year')}<select name="year"><option value="">{t('すべての年','All years')}</option>{years.map(y=><option value={y}>{y}{en?'':'年'}</option>)}</select></label>
+   <button type="reset">{t('条件をクリア','Clear filters')}</button>
+  </form>
+  <p class="sr-only" id="search-status" aria-live="polite"></p>
+  <noscript><p class="muted-note">{t('すべての文献を掲載しています。ページ内検索もご利用いただけます。','All publications are displayed. You can also use your browser’s find function.')}</p></noscript>
+  <div class="archive-layout"><nav id="publication-years" class="year-index" aria-label={t('掲載年から移動','Browse by year')}>{years.map(y=><a href={`#year-${y}`} data-year-link={y}>{y}</a>)}</nav><div class="year-results" id="publication-list">{years.map(y=><section class="pub-year" id={`year-${y}`} data-year-group><h2>{y}</h2>{publications.filter(p=>p.year===y).map(p=><PublicationEntry paper={p} lang={lang}/>)}</section>)}<div id="no-results" class="empty-state" hidden><h2>{t('該当する文献がありません','No matching publications')}</h2><p>{t('別のキーワードを入力するか、検索条件をクリアしてください。','Try another keyword or clear your filters.')}</p></div></div></div>
+  <p class="archive-footnote">{t('掲載年は巻号の年を使用し、オンライン公開年が異なる文献には公開年を併記しています。著者の貢献に関する注記は各文献に記載しています。','Publications are listed by volume year. An earlier online publication year is noted where applicable. Author-contribution notes are given with each record.')}</p>
+ </section>
+</Layout>
+<script>
+const form=document.querySelector<HTMLFormElement>('#pub-filters');
+if(form){
+const emptyMessage=form.dataset.emptyMessage!;
+const appliedMessage=form.dataset.appliedMessage!;
+const search=form.elements.namedItem('q') as HTMLInputElement;
+const type=form.elements.namedItem('type') as HTMLSelectElement;
+const year=form.elements.namedItem('year') as HTMLSelectElement;
+const entries=[...document.querySelectorAll<HTMLElement>('[data-publication]')];
+const groups=[...document.querySelectorAll<HTMLElement>('[data-year-group]')];
+const status=document.querySelector('#search-status')!;
+const empty=document.querySelector<HTMLElement>('#no-results')!;
+const normalize=(s:string)=>s.normalize('NFKC').toLocaleLowerCase().replace(/[‐‑–—−]/g,'-');
+function apply(sync=true){
+ const terms=normalize(search.value).trim().split(/\s+/).filter(Boolean);let n=0;
+ entries.forEach(el=>{const text=normalize(el.dataset.search||'');const matches=(!type.value||el.dataset.type===type.value)&&(!year.value||el.dataset.year===year.value)&&terms.every(t=>text.includes(t));el.hidden=!matches;if(matches)n++;});
+ groups.forEach(g=>{const visible=[...g.querySelectorAll<HTMLElement>('[data-publication]')].filter(el=>!el.hidden).length;g.hidden=visible===0;const link=document.querySelector<HTMLElement>(`[data-year-link="${g.id.replace('year-','')}"]`);if(link)link.hidden=!visible;});
+ status.textContent=n===0?emptyMessage:appliedMessage;empty.hidden=n!==0;
+ if(sync){const u=new URL(location.href);for(const [key,value] of [['q',search.value],['type',type.value],['year',year.value]]){if(value)u.searchParams.set(key,value);else u.searchParams.delete(key);}history.replaceState(null,'',u);}
+}
+function readURL(){const q=new URLSearchParams(location.search);search.value=q.get('q')||'';type.value=q.get('type')||'';year.value=q.get('year')||'';apply(false);}
+form.hidden=false;readURL();form.addEventListener('input',()=>apply());form.addEventListener('change',()=>apply());form.addEventListener('submit',e=>{e.preventDefault();apply();});form.addEventListener('reset',()=>{search.value='';type.value='';year.value='';apply();});window.addEventListener('popstate',readURL);
+}
+</script>

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="720" viewBox="0 0 840 720" role="img" aria-labelledby="title desc">
+<title id="title">低温馴化・脱馴化・再馴化の模式図</title><desc id="desc">未馴化、低温馴化、脱馴化の順に成長と凍結耐性が変化する。脱馴化では可溶性糖が減少しても細胞壁成分の一部が維持される。再馴化時の耐性向上と、残存する構造変化の関係が検証課題。</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1L9 5L1 9" fill="none" stroke="#697a7d" stroke-width="1.5"/></marker>
+<g id="plant" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"><path d="M0 44V-31M0 14C-41 13-53-18-49-35C-23-35-3-14 0 14ZM0 2C35-1 51-25 47-47C22-44 2-27 0 2ZM0 36C-27 35-38 17-37 1C-20 1-4 16 0 36ZM0 28C27 23 38 7 35-9C19-5 4 8 0 28Z"/><path d="M-62 47H61" stroke="#9ba49d" stroke-width="1.5"/></g></defs>
+<rect width="840" height="720" fill="#ffffff"/>
+<g font-family="Arial, Hiragino Kaku Gothic ProN, Yu Gothic, sans-serif" fill="#171717">
+<text x="28" y="42" font-size="17" letter-spacing="2" fill="#626262">01 / COLD ACCLIMATION</text><text x="28" y="84" font-size="29">低温馴化と脱馴化の切り替え</text>
+<g fill="#f6f6f4" stroke="#bdc4bf" stroke-width="1"><rect x="20" y="115" width="242" height="345"/><rect x="299" y="115" width="242" height="345" stroke="#60828a"/><rect x="578" y="115" width="242" height="345"/></g>
+<g text-anchor="middle"><text x="141" y="157" font-size="26">未馴化</text><text x="141" y="185" font-size="17" fill="#626262">通常温度</text><text x="420" y="157" font-size="26" fill="#35616a">低温馴化</text><text x="420" y="185" font-size="17" fill="#626262">低温を経験</text><text x="699" y="157" font-size="26">脱馴化</text><text x="699" y="185" font-size="17" fill="#626262">暖かい環境へ</text></g>
+<use href="#plant" transform="translate(141 265)" color="#46594b"/><use href="#plant" transform="translate(420 265) scale(.85)" color="#35616a"/><use href="#plant" transform="translate(699 265)" color="#46594b"/>
+<g stroke="#697a7d" stroke-width="2" fill="none"><path d="M268 253H290"/><path d="M547 253H569"/></g>
+<path d="M282 247L290 253L282 259M561 247L569 253L561 259M413 483L420 475L427 483" fill="none" stroke="#697a7d" stroke-width="2"/>
+<g text-anchor="middle" font-size="22"><text x="141" y="345">成長が進む</text><text x="141" y="378" fill="#626262">凍結耐性は低い</text><text x="420" y="345">成長は抑制</text><text x="420" y="378" fill="#35616a">凍結耐性が上昇</text><text x="699" y="345">成長が再開</text><text x="699" y="378" fill="#626262">凍結耐性が低下</text></g>
+<path d="M38 397H244M317 397H523M596 397H802" stroke="#d6dbd7"/>
+<g text-anchor="middle" font-size="17" fill="#4f5852"><text x="141" y="430">比較の基準となる状態</text><text x="420" y="422">可溶性糖・</text><text x="420" y="446">細胞壁成分が変化</text><text x="699" y="422">糖は減少、細胞壁は</text><text x="699" y="446">一部の変化を維持</text></g>
+<path d="M699 470V505H420V475" fill="none" stroke="#697a7d" stroke-width="2"/><rect x="500" y="486" width="117" height="32" fill="#ffffff"/><text x="559" y="509" text-anchor="middle" font-size="22" fill="#35616a">再馴化</text>
+<text x="420" y="559" text-anchor="middle" font-size="21">初回より高い凍結耐性を示す応答を観察</text>
+<rect x="20" y="590" width="800" height="105" fill="#f6f6f4" stroke="#8a948d" stroke-dasharray="5 6"/>
+<text x="43" y="621" font-size="17" fill="#626262">検証課題</text><text x="43" y="658" font-size="23">残存する細胞壁の変化は、次の耐性獲得にどう関わるか？</text>
+</g></svg>

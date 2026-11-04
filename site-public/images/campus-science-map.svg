@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="640" viewBox="0 0 800 640" role="img" aria-labelledby="title desc"><title id="title">理学部3号館への案内</title><desc id="desc">大学公式地図と同じ向きの正門周辺の簡略図。11番の理学部3号館を強調。北は図の下方向です。</desc>
+ <rect width="800" height="640" fill="#fff"/>
+ <g font-family="Arial, Hiragino Kaku Gothic ProN, Yu Gothic, sans-serif" fill="#171717">
+ <text x="28" y="40" font-size="24">11 / 理学部3号館への案内</text>
+ <path d="M100 80H690V535L270 606L100 505Z" fill="#f5f5f3" stroke="#c5c5c0" stroke-width="2"/>
+ <g stroke="#fff" stroke-width="20" fill="none"><path d="M102 182H685M105 310H687M105 421H685M365 184V423M475 310V535M198 310V510"/></g>
+ <g fill="#e0e0dc" stroke="#babbb5" stroke-width="1.5">
+ <rect x="140" y="118" width="205" height="40"/><rect x="450" y="118" width="180" height="40"/>
+ <rect x="365" y="204" width="36" height="88"/><rect x="428" y="335" width="202" height="43"/>
+ <rect x="135" y="345" width="28" height="45"/><rect x="210" y="360" width="160" height="34"/>
+ <rect x="238" y="435" width="130" height="30"/><rect x="420" y="433" width="175" height="28"/>
+ <rect x="155" y="477" width="70" height="34"/><rect x="330" y="477" width="80" height="34"/>
+ <rect x="255" y="530" width="170" height="34"/><rect x="570" y="510" width="50" height="27"/>
+ </g>
+ <g font-size="18" text-anchor="middle" fill="#53534f">
+ <text x="242" y="146">14 / 理学部1号館</text>
+ <text x="540" y="146">13 / 理学部2号館</text>
+ <text x="383" y="253">12</text><text x="529" y="364">10 / 全学講義棟</text>
+ <text x="149" y="375">8</text><text x="290" y="384">9</text><text x="303" y="456">6</text><text x="507" y="454">5</text>
+ <text x="190" y="501">7</text><text x="370" y="501">3</text>
+ <text x="340" y="554">1 / 事務局</text><text x="595" y="530">2</text>
+ </g>
+ <rect x="215" y="216" width="112" height="76" fill="#171717" rx="2"/>
+ <text x="271" y="268" fill="#fff" text-anchor="middle" font-size="42">11</text>
+ <path d="M211 254H161" stroke="#171717" stroke-width="2"/>
+ <text x="155" y="237" font-size="19" text-anchor="end">理学部</text><text x="155" y="264" font-size="19" text-anchor="end">3号館</text>
+ <path d="M633 543l12 19h-24Z" fill="#171717"/>
+ <text x="656" y="564" font-size="21">正門</text>
+ <path d="M564 590L738 551" stroke="#b6b6b0" stroke-width="10"/>
+ <text x="515" y="626" font-size="18" fill="#626262">国道463号線・バス停方面</text>
+ <g stroke="#171717" stroke-width="2" fill="none"><path d="M741 103V151M734 141L741 153L748 141"/></g><text x="741" y="91" font-size="18" text-anchor="middle">N</text>
+ <text x="28" y="626" font-size="15" fill="#626262">大学公式配置図と同じ向き・縮尺省略</text>
+ </g></svg>

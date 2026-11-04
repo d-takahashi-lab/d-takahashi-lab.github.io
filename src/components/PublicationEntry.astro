@@ -1,0 +1,21 @@
+---
+import {publicationTypes,type Publication} from '../data/publications';
+import {type Language} from '../lib/i18n';
+interface Props{paper:Publication;lang?:Language;}
+const {paper:p,lang='ja'}=Astro.props;
+const en=lang==='en';
+const types={article:'Research article',review:'Review',chapter:'Book chapter'};
+const label=en?types[p.type as keyof typeof types]:publicationTypes[p.type as keyof typeof publicationTypes];
+const authorParts=p.authors.split(/(Takahashi D\*?)/g);
+const roleNotes:Record<string,string>={'*共同責任著者・同等貢献':'*Co-corresponding authors; equal contribution','*共同責任著者':'*Co-corresponding authors','*共同第一著者':'*Co-first authors'};
+const sources:Record<string,string>={'埼玉大学プレスリリース':'Saitama University release (Japanese)','JST Science Japan':'JST Science Japan','JST 客観日本':'JST Science Portal China','科学新聞':'Science News (Japanese)','サイエンスポータル':'Science Portal (Japanese)','特集号カバーページ':'Special issue','カバーイメージ':'Issue cover','基礎生物学研究所プレスリリース':'NIBB release (Japanese)'};
+const note=en?p.note.replace('オンライン公開：','First online: ').replace('年',''):p.note;
+---
+<article class="pub-entry" id={p.id} data-publication data-year={p.year} data-type={p.type} data-search={`${p.title} ${p.authors} ${p.reference} ${p.doi}`.toLowerCase()}>
+ <div class="pub-meta"><span>{label}</span>{note&&<span>{note}</span>}</div>
+ <h3><a href={p.url}>{p.title}<span class="external-arrow" aria-hidden="true"> ↗</span></a></h3>
+ <p class="pub-authors">{authorParts.map(part=>part.startsWith('Takahashi D')?<strong>{part}</strong>:part)}</p><p class="pub-reference">{p.reference}</p>
+ {p.roleNote&&<p class="pub-note">{en?roleNotes[p.roleNote]||p.roleNote:p.roleNote}</p>}
+ <div class="pub-actions"><a href={p.url} class="doi-link">{p.doi?`DOI: ${p.doi}`:en?'Publisher page':'出版社のページ'} <span aria-hidden="true">↗</span></a></div>
+ {p.related.length>0&&<div class="related-links">{p.related.map(l=><a href={l.url}>{en?sources[l.label]||l.label:l.label} ↗</a>)}</div>}
+</article>

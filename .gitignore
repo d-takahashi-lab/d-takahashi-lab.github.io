@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.astro/
+.DS_Store
+
+# Large source photographs and videos; publish only site-public assets.
+public/images/
+work/
+outputs/
+
+# Local news editor backups (never deployed)
+.news-editor/

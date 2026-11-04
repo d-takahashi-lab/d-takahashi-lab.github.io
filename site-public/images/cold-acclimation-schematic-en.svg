@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="720" viewBox="0 0 840 720" role="img" aria-labelledby="title desc">
+<title id="title">Cold acclimation, deacclimation and reacclimation</title><desc id="desc">Growth and freezing tolerance change during cold acclimation and deacclimation. Some cell wall changes persist after soluble sugars decline. Their role in subsequent tolerance remains a research question.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1L9 5L1 9" fill="none" stroke="#697a7d" stroke-width="1.5" /></marker>
+<g id="plant" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"><path d="M0 44V-31M0 14C-41 13-53-18-49-35C-23-35-3-14 0 14ZM0 2C35-1 51-25 47-47C22-44 2-27 0 2ZM0 36C-27 35-38 17-37 1C-20 1-4 16 0 36ZM0 28C27 23 38 7 35-9C19-5 4 8 0 28Z" /><path d="M-62 47H61" stroke="#9ba49d" stroke-width="1.5" /></g></defs>
+<rect width="840" height="720" fill="#ffffff" />
+<g font-family="Arial, Hiragino Kaku Gothic ProN, Yu Gothic, sans-serif" fill="#171717">
+<text x="28" y="42" font-size="17" letter-spacing="2" fill="#626262">01 / COLD ACCLIMATION</text><text x="28" y="84" font-size="29">Transitions in cold acclimation</text>
+<g fill="#f6f6f4" stroke="#bdc4bf" stroke-width="1"><rect x="20" y="115" width="242" height="345" /><rect x="299" y="115" width="242" height="345" stroke="#60828a" /><rect x="578" y="115" width="242" height="345" /></g>
+<g text-anchor="middle"><text x="141" y="157" font-size="23">Non-acclimated</text><text x="141" y="185" font-size="17" fill="#626262">Warm conditions</text><text x="420" y="157" font-size="23" fill="#35616a">Cold acclimation</text><text x="420" y="185" font-size="17" fill="#626262">Exposure to cold</text><text x="699" y="157" font-size="23">Deacclimation</text><text x="699" y="185" font-size="17" fill="#626262">Return to warmth</text></g>
+<use href="#plant" transform="translate(141 265)" color="#46594b" /><use href="#plant" transform="translate(420 265) scale(.85)" color="#35616a" /><use href="#plant" transform="translate(699 265)" color="#46594b" />
+<g stroke="#697a7d" stroke-width="2" fill="none"><path d="M268 253H290" /><path d="M547 253H569" /></g>
+<path d="M282 247L290 253L282 259M561 247L569 253L561 259M413 483L420 475L427 483" fill="none" stroke="#697a7d" stroke-width="2" />
+<g text-anchor="middle" font-size="22"><text x="141" y="345">Active growth</text><text x="141" y="378" fill="#626262">Low freezing tolerance</text><text x="420" y="345">Growth suppressed</text><text x="420" y="378" fill="#35616a">Tolerance increases</text><text x="699" y="345">Growth resumes</text><text x="699" y="378" fill="#626262">Tolerance declines</text></g>
+<path d="M38 397H244M317 397H523M596 397H802" stroke="#d6dbd7" />
+<g text-anchor="middle" font-size="17" fill="#4f5852"><text x="141" y="430">Reference state</text><text x="420" y="422">Soluble sugars and</text><text x="420" y="446">wall components change</text><text x="699" y="422">Sugars decline; some</text><text x="699" y="446">wall changes persist</text></g>
+<path d="M699 470V505H420V475" fill="none" stroke="#697a7d" stroke-width="2" /><rect x="500" y="486" width="117" height="32" fill="#ffffff" /><text x="559" y="509" text-anchor="middle" font-size="16" fill="#35616a">Reacclimation</text>
+<text x="420" y="559" text-anchor="middle" font-size="21">Enhanced tolerance observed after reacclimation</text>
+<rect x="20" y="590" width="800" height="105" fill="#f6f6f4" stroke="#8a948d" stroke-dasharray="5 6" />
+<text x="43" y="621" font-size="17" fill="#626262">Research question</text><text x="43" y="658" font-size="23">How do retained wall changes affect later tolerance?</text>
+</g></svg>

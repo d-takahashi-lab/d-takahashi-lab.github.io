@@ -1,0 +1,35 @@
+---
+import Layout from '../layouts/Layout.astro';
+const base=import.meta.env.BASE_URL;
+const idpOptions=[
+ {file:'14-idp-loose',name:'A ゆるい折り返し',text:'鎖の端をずらし、大きさの異なる二つの折り返しで構成。余白を多く取り、小さな表示でも線が分かれる。'},
+ {file:'15-idp-fold',name:'B 大きさの異なる折り返し',text:'大小の折り返しを組み合わせ、上下に端を開く。六角形の内側に鎖の広がりを持たせる。'},
+ {file:'16-idp-diagonal',name:'C 不規則なコイル',text:'斜めに進みながら不規則に折り返す。一定周期の波形を避け、鎖の自由さを強める。'},
+];
+const iceOptions=[
+ {file:'11-ice-tip',name:'A 頂点に氷の枝',text:'04の上の頂点だけに、結晶の枝を加える。元の輪郭を最も残す控えめな案。'},
+ {file:'12-ice-edge',name:'B 輪郭に氷の枝',text:'直線側の三つの頂点に結晶の枝を加え、右側の柔らかな曲線と対にする。'},
+ {file:'13-ice-within',name:'C 内側に氷の結晶',text:'04の輪郭の内側に小さな結晶を置く。三つのモチーフをそれぞれ読み取れる案。'},
+];
+const options=[
+ {file:'05-sugar-ring',name:'糖の環',text:'ヘキソースの六員環を手がかりにした抽象形。置換基を思わせる短い線を添え、単純な六角形から少し外す。'},
+ {file:'06-ice',name:'氷の結晶',text:'六方向に伸びる結晶を、少ない枝で構成。低温・凍結の研究を最も直接的に表す。'},
+ {file:'07-flexible',name:'柔軟な鎖',text:'IDPを手がかりに、一続きの曲線で描く。固定した折り畳み構造を描かず、柔らかな形そのものをマークにする。'},
+ {file:'08-ring-chain',name:'環から曲線へ',text:'糖を思わせる六角形の一辺が、柔らかな鎖に変わる。幾何学と曲線を一つの輪郭にまとめた案。'},
+ {file:'09-ice-chain',name:'結晶と柔軟性',text:'結晶の一方向だけを、柔らかな曲線に置き換える。凍結とIDPの二つの研究テーマを組み合わせる。'},
+ {file:'10-three-motifs',name:'糖・氷・IDP',text:'六角形の環、六方向の突起、内側の柔らかな鎖。三つのモチーフを一つのマークに収める。'},
+];
+---
+<Layout title="ロゴ案" current="logos" noindex>
+ <header class="page-heading"><h1>ロゴ案</h1><p class="page-intro">ヘキソース・氷の結晶・IDPの柔軟性を手がかりにした6案。構造式や分子構造の模式図ではなく、ロゴとして抽象化しています。</p></header>
+ <section class="ice-variants"><h2>06 の IDP を描き直す</h2><div class="logo-options">{idpOptions.map(o=><article><div class="logo-view"><img src={`${base}images/logo-options/${o.file}.svg`} alt={o.name} width="140" height="140"/></div><h3>{o.name}</h3><p>{o.text}</p><div class="logo-lockup"><img src={`${base}images/logo-options/${o.file}.svg`} alt="" width="32" height="32"/><span>生命適応科学研究室</span></div></article>)}</div></section>
+ <section class="ice-variants"><h2>04 ＋ 氷のモチーフ</h2><div class="logo-options">{iceOptions.map(o=><article><div class="logo-view"><img src={`${base}images/logo-options/${o.file}.svg`} alt={o.name} width="140" height="140"/></div><h3>{o.name}</h3><p>{o.text}</p><div class="logo-lockup"><img src={`${base}images/logo-options/${o.file}.svg`} alt="" width="32" height="32"/><span>生命適応科学研究室</span></div></article>)}</div></section>
+ <div class="logo-options">{options.map((o,i)=><article><div class="logo-view"><img src={`${base}images/logo-options/${o.file}.svg`} alt={`${o.name}のロゴ案`} width="140" height="140"/></div><h2><span>0{i+1}</span>{o.name}</h2><p>{o.text}</p><div class="logo-lockup"><img src={`${base}images/logo-options/${o.file}.svg`} alt="" width="32" height="32"/><span>生命適応科学研究室</span></div></article>)}</div>
+</Layout>
+<style>
+.logo-options img{filter:brightness(0)}
+
+.ice-variants>h2{margin:45px 7% 0;font-size:22px}.ice-variants .logo-options{grid-template-columns:repeat(3,minmax(0,1fr));gap:30px}.ice-variants h3{font-size:17px}.ice-variants .logo-lockup{font-size:12px;gap:8px}@media(max-width:850px){.ice-variants .logo-options{grid-template-columns:1fr}}
+
+.logo-options{margin:45px 7% 70px;display:grid;grid-template-columns:1fr 1fr;gap:45px}.logo-options article{border-top:1px solid var(--line);padding-top:20px}.logo-view{display:flex;align-items:center;justify-content:center;height:240px}.logo-options h2{font-family:inherit;font-size:18px;display:flex;gap:18px;align-items:center}.logo-options h2>span{font-size:12px;color:var(--muted)}.logo-options p{font-size:14px;line-height:1.9;color:var(--muted);margin-top:14px;max-width:430px}.logo-lockup{display:flex;align-items:center;gap:12px;margin-top:28px;font-size:14px;padding-top:20px;border-top:1px solid var(--line)}.logo-lockup img{flex-shrink:0}@media(max-width:650px){.logo-options{grid-template-columns:1fr}.logo-view{height:200px}}
+</style>

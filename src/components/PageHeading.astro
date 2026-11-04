@@ -1,0 +1,14 @@
+---
+import { navigation } from '../data/navigation';
+import { type Language } from '../lib/i18n';
+interface Props {
+ title: string; en: string; lang?: Language; meta?: string;
+ sections?: {label:string;href:string}[];
+}
+const {en,lang='ja',meta,sections=[]}=Astro.props;
+const label=navigation.find(p=>p.key===en)?.label || en;
+---
+<header class="page-heading">
+ <div class="page-heading-row"><h1 lang="en">{label}</h1>{meta&&<p class="page-meta">{meta}</p>}</div>
+ {sections.length>0&&<nav class="page-sections" aria-label={lang==='en'?'On this page':'このページの項目'}>{sections.map(s=><a href={s.href}>{s.label}</a>)}</nav>}
+</header>

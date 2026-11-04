@@ -1,0 +1,36 @@
+---
+import {type Language} from '../lib/i18n';
+interface Props {lang?:Language;}
+const {lang='ja'}=Astro.props;
+const en=lang==='en';
+// Simple harvesting deterrent, not a secret or an access-control mechanism.
+const encoded='55,39,50,56,50,59,50,32,59,58,19,62,50,58,63,125,32,50,58,39,50,62,50,126,38,125,50,48,125,57,35';
+---
+<div class="email-contact" data-email-contact data-email-payload={encoded}>
+ <button class="email-reveal" type="button" data-email-reveal aria-expanded="false">{en?'Show email address':'メールアドレスを表示'} <span aria-hidden="true">＋</span></button>
+ <div class="email-details" data-email-details hidden>
+  <a class="email-address" data-email-link></a>
+  <button class="email-copy" type="button" data-email-copy data-label={en?'Copy':'コピー'} data-done={en?'Copied':'コピーしました'} data-error={en?'Select and copy the address':'アドレスを選択してコピーしてください'}>{en?'Copy':'コピー'}</button>
+ </div>
+ <p class="sr-only" data-email-status role="status"></p>
+ <noscript><p class="body-note">{en?'Enable JavaScript to reveal the email address, or contact us by phone.':'メールアドレスの表示にはJavaScriptを有効にしてください。電話でもお問い合わせいただけます。'}</p></noscript>
+</div>
+<script>
+ document.querySelectorAll<HTMLElement>('[data-email-contact]').forEach(root=>{
+  const reveal=root.querySelector<HTMLButtonElement>('[data-email-reveal]')!;
+  const details=root.querySelector<HTMLElement>('[data-email-details]')!;
+  const link=root.querySelector<HTMLAnchorElement>('[data-email-link]')!;
+  const copy=root.querySelector<HTMLButtonElement>('[data-email-copy]')!;
+  const status=root.querySelector<HTMLElement>('[data-email-status]')!;
+  let address='';
+  reveal.addEventListener('click',()=>{
+   address=root.dataset.emailPayload!.split(',').map(c=>String.fromCharCode(Number(c)^83)).join('');
+   link.textContent=address+' ↗';link.href='mailto:'+address;
+   details.hidden=false;reveal.setAttribute('aria-expanded','true');reveal.hidden=true;link.focus();
+  });
+  copy.addEventListener('click',async()=>{
+   try{await navigator.clipboard.writeText(address);status.textContent=copy.dataset.done!;copy.textContent=copy.dataset.done!;}
+   catch{status.textContent=copy.dataset.error!;}
+  });
+ });
+</script>

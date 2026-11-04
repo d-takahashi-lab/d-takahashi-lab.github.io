@@ -1,0 +1,186 @@
+[
+  {
+    "id": "2026-09-12-new-members",
+    "date": "2026-09-12",
+    "status": "published",
+    "type": "LAB",
+    "anchor": "news-20260912",
+    "link": "members/",
+    "image": "",
+    "imageAlt": "",
+    "imageAltEn": "",
+    "imageCaption": "",
+    "imageCaptionEn": "",
+    "ja": {
+      "title": "新メンバー",
+      "summary": "学部3年生が研究室に加わりました。",
+      "body": "学部3年生が新たに研究室メンバーに加わりました。"
+    },
+    "en": {
+      "title": "New members",
+      "summary": "Third-year undergraduates have joined the laboratory.",
+      "body": "New third-year undergraduate students have joined the laboratory."
+    }
+  },
+  {
+    "id": "2026-03-27-joint-seminar",
+    "date": "2026-03-27",
+    "status": "published",
+    "type": "EVENT",
+    "anchor": "news-20260327",
+    "link": "",
+    "image": "",
+    "imageAlt": "",
+    "imageAltEn": "",
+    "imageCaption": "",
+    "imageCaptionEn": "",
+    "ja": {
+      "title": "横浜市立大学との合同セミナー",
+      "summary": "横浜市立大学との合同セミナーに参加しました。",
+      "body": "埼玉大学と横浜市立大学の包括連携協定に基づき開催された合同セミナーに参加しました。"
+    },
+    "en": {
+      "title": "Joint seminar with Yokohama City University",
+      "summary": "Daisuke Takahashi participated in a joint seminar with Yokohama City University.",
+      "body": "Daisuke Takahashi participated in a joint seminar held under the comprehensive collaboration agreement between Saitama University and Yokohama City University."
+    }
+  },
+  {
+    "id": "2026-03-25-graduation",
+    "date": "2026-03-25",
+    "status": "published",
+    "type": "LAB",
+    "anchor": "news-20260325",
+    "link": "members/#alumni",
+    "image": "",
+    "imageAlt": "",
+    "imageAltEn": "",
+    "imageCaption": "",
+    "imageCaptionEn": "",
+    "ja": {
+      "title": "卒業・修了",
+      "summary": "当研究室から2名が大学院を修了しました。",
+      "body": "埼玉大学卒業式・大学院修了式が行われ、当研究室から泉義紀さんと大橋桃花さんの2名が修了しました。"
+    },
+    "en": {
+      "title": "Graduation",
+      "summary": "Two members completed their graduate degrees.",
+      "body": "Yoshiki Izumi and Momoka Ohashi completed their graduate degrees at the Saitama University ceremony."
+    }
+  },
+  {
+    "id": "2025-10-31-cell-wall-memory",
+    "date": "2025-10-31",
+    "status": "published",
+    "type": "PAPER",
+    "anchor": "news-20251031",
+    "link": "publications/#pub-2025-09",
+    "image": "",
+    "imageAlt": "",
+    "imageAltEn": "",
+    "imageCaption": "",
+    "imageCaptionEn": "",
+    "ja": {
+      "title": "細胞壁と環境記憶",
+      "summary": "植物細胞壁と環境記憶に関する総説が公開されました。",
+      "body": "植物細胞壁の構造や組成の変化が環境の履歴を保持する可能性について論じた総説「Memory in the wall」がNew Phytologistにオンライン公開されました（巻号掲載は2026年）。"
+    },
+    "en": {
+      "title": "Cell wall memory",
+      "summary": "Our review on plant cell walls and environmental memory is now online.",
+      "body": "“Memory in the wall”, a review discussing how structural and compositional changes in plant cell walls may retain environmental history, was published online in New Phytologist. It appears in the 2026 volume."
+    }
+  },
+  {
+    "id": "2025-10-21-presentation-award",
+    "date": "2025-10-21",
+    "status": "published",
+    "type": "AWARD",
+    "anchor": "news-20251021",
+    "link": "",
+    "image": "",
+    "imageAlt": "",
+    "imageAltEn": "",
+    "imageCaption": "",
+    "imageCaptionEn": "",
+    "ja": {
+      "title": "優秀発表賞",
+      "summary": "大橋桃花さんが優秀発表賞を受賞しました。",
+      "body": "大橋桃花さんが植物細胞壁研究者ネットワーク第19回定例研究会で優秀発表賞を受賞しました。"
+    },
+    "en": {
+      "title": "Outstanding Presentation Award",
+      "summary": "Momoka Ohashi received a presentation award.",
+      "body": "Momoka Ohashi received the Outstanding Presentation Award at the 19th Annual Meeting of the Plant Cell Wall Researcher Network."
+    }
+  },
+  {
+    "id": "2025-07-25-pollen-development",
+    "date": "2025-07-25",
+    "status": "published",
+    "type": "PAPER",
+    "anchor": "news-20250725",
+    "link": "publications/#pub-2025-18",
+    "image": "",
+    "imageAlt": "",
+    "imageAltEn": "",
+    "imageCaption": "",
+    "imageCaptionEn": "",
+    "ja": {
+      "title": "花粉形成に関する研究",
+      "summary": "花粉形成に関する研究成果が掲載されました。",
+      "body": "菊地拓真さんらによる、アラビナンとガラクタンの不足がシロイヌナズナの花粉減数分裂に及ぼす影響の研究がPlant & Cell Physiologyに掲載されました。"
+    },
+    "en": {
+      "title": "Pollen development",
+      "summary": "Research on pollen formation was published.",
+      "body": "A study by Takuma Kikuchi and colleagues on the effects of combined arabinan and galactan insufficiency on Arabidopsis pollen meiosis was published in Plant & Cell Physiology."
+    }
+  },
+  {
+    "id": "2025-07-01-research-visit",
+    "date": "2025-07-01",
+    "status": "published",
+    "type": "LAB",
+    "anchor": "news-20250701",
+    "link": "",
+    "image": "",
+    "imageAlt": "",
+    "imageAltEn": "",
+    "imageCaption": "",
+    "imageCaptionEn": "",
+    "ja": {
+      "title": "Ulm大学からの研究滞在",
+      "summary": "Ulm大学のJan Gehrkeさんが研究室に滞在しました。",
+      "body": "ドイツUlm大学のJan Gehrkeさんが、7月1日から31日まで植物糖鎖・生命適応科学研究室に滞在しました。"
+    },
+    "en": {
+      "title": "Research visit from Ulm University",
+      "summary": "Jan Gehrke from Ulm University visited the laboratory.",
+      "body": "Jan Gehrke from Ulm University in Germany stayed at the Plant Glycobiology and Environmental Adaptation Laboratory for one month in July."
+    }
+  },
+  {
+    "id": "2025-04-01-website-launch",
+    "date": "2025-04-01",
+    "status": "published",
+    "type": "LAB",
+    "anchor": "news-20250401",
+    "link": "",
+    "image": "",
+    "imageAlt": "",
+    "imageAltEn": "",
+    "imageCaption": "",
+    "imageCaptionEn": "",
+    "ja": {
+      "title": "ウェブサイト公開",
+      "summary": "生命適応科学研究室のウェブサイトを開設しました。",
+      "body": "生命適応科学研究室のウェブサイトを開設しました。"
+    },
+    "en": {
+      "title": "Website launch",
+      "summary": "The laboratory website was launched.",
+      "body": "The website of the Laboratory of Stress and Adaptation Biology was launched."
+    }
+  }
+]

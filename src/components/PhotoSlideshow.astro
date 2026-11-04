@@ -1,0 +1,72 @@
+---
+import { slides as jaSlides } from '../data/slides';
+import { slides as enSlides } from '../data/slides.en';
+import { type Language } from '../lib/i18n';
+interface Props{lang?:Language;}
+const {lang='ja'}=Astro.props;
+const en=lang==='en';
+const slides=en?enSlides:jaSlides;
+const base = import.meta.env.BASE_URL;
+---
+<script is:inline>
+ document.documentElement.classList.add('photo-js');
+ // Keep the first photograph available if the main script cannot initialize.
+ setTimeout(()=>document.documentElement.classList.remove('photo-js'),5000);
+</script>
+<figure class="photo-slideshow" data-slideshow data-lang={lang} role="region" aria-roledescription={en?'slideshow':'スライドショー'} aria-label={en?'Plants and landscapes':'植物と自然の写真'}>
+ <div class="slideshow-stage">
+  {slides.map((slide,i)=><div class:list={['photo-slide',{'is-active':i===0}]} data-slide aria-hidden={i!==0} role="group" aria-roledescription={en?'slide':'スライド'} aria-label={`${i+1} / ${slides.length}`}>
+   <img src={i===0?`${base}images/${slide.file}`:undefined} data-src={`${base}images/${slide.file}`} alt={slide.alt} style={`object-position:${slide.position}`} fetchpriority={i===0?'high':'low'} loading="eager" decoding="async" />
+  </div>)}
+ </div>
+ <div class="slideshow-toolbar"><div class="slideshow-controls" hidden><span class="slide-count" data-slide-count aria-live="off">01 / {String(slides.length).padStart(2,'0')}</span><button type="button" data-previous aria-label={en?'Previous photograph':'前の写真'}>←</button><button type="button" data-play aria-label={en?'Pause slideshow':'スライドショーを一時停止'}><span aria-hidden="true" data-play-icon>Ⅱ</span></button><button type="button" data-next aria-label={en?'Next photograph':'次の写真'}>→</button></div></div>
+ <p class="sr-only" role="status" aria-live="polite" data-slide-status></p>
+</figure>
+<script>
+import { shuffleCycle } from '../lib/shuffle';
+const root=document.querySelector<HTMLElement>('[data-slideshow]');
+if(root){
+ const english=root.dataset.lang==='en';
+ const originals=[...root.querySelectorAll<HTMLElement>('[data-slide]')];
+ const count=root.querySelector<HTMLElement>('[data-slide-count]')!;
+ const play=root.querySelector<HTMLButtonElement>('[data-play]')!;
+ const playIcon=root.querySelector<HTMLElement>('[data-play-icon]')!;
+ const announcement=root.querySelector<HTMLElement>('[data-slide-status]')!;
+ let lastFirst:HTMLElement|undefined;
+ try{const previous=sessionStorage.getItem('lab-photo-first');lastFirst=originals.find(p=>p.querySelector('img')!.dataset.src===previous);}catch{/* Storage is optional. */}
+ let photos=shuffleCycle(originals,lastFirst);
+ let index=-1,playing=true,inView=true,ready=false,timer:ReturnType<typeof setTimeout>|undefined,ticket=0;
+ function clear(){if(timer!==undefined){clearTimeout(timer);timer=undefined;}}
+ function updatePlay(){play.setAttribute('aria-label',playing?(english?'Pause slideshow':'スライドショーを一時停止'):(english?'Play slideshow':'スライドショーを再生'));playIcon.textContent=playing?'Ⅱ':'▶';root!.dataset.playing=String(playing);}
+ function schedule(){clear();if(ready&&playing&&inView&&!document.hidden)timer=setTimeout(()=>{void show(index+1,false);},6000);}
+ async function loadPhoto(n:number){
+  const img=photos[n].querySelector('img')!;
+  if(!img.getAttribute('src'))img.src=img.dataset.src!;
+  await img.decode();
+ }
+ async function show(next:number,manual:boolean){
+  clear();const request=++ticket;
+  if(next>=photos.length){photos=shuffleCycle(photos,photos[index]);next=0;}
+  const target=(next+photos.length)%photos.length;
+  try{await loadPhoto(target);}catch{if(!ready){root!.dataset.ready='true';}schedule();return;}
+  if(request!==ticket)return;
+  index=target;ready=true;
+  photos.forEach((photo,i)=>{photo.classList.toggle('is-active',i===index);photo.setAttribute('aria-hidden',String(i!==index));photo.setAttribute('aria-label',`${i+1} / ${photos.length}`);});
+  count.textContent=`${String(index+1).padStart(2,'0')} / ${String(photos.length).padStart(2,'0')}`;
+  root!.dataset.ready='true';
+  if(manual)announcement.textContent=english?`Photograph ${index+1} of ${photos.length}`:`${photos.length}枚中${index+1}枚目`;
+  if(index===0){try{sessionStorage.setItem('lab-photo-first',photos[index].querySelector('img')!.dataset.src!);}catch{/* Storage is optional. */}}
+  void loadPhoto((index+1)%photos.length).catch(()=>{});
+  schedule();
+ }
+ root.querySelector<HTMLButtonElement>('[data-previous]')!.addEventListener('click',()=>{void show(index-1,true);});
+ root.querySelector<HTMLButtonElement>('[data-next]')!.addEventListener('click',()=>{void show(index+1,true);});
+ play.addEventListener('click',()=>{playing=!playing;updatePlay();schedule();});
+ root.addEventListener('focusin',e=>{if(e.target===play||!(e.target instanceof HTMLElement)||!e.target.matches(':focus-visible'))return;playing=false;clear();updatePlay();});
+ root.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();void show(index+(e.key==='ArrowRight'?1:-1),true);}});
+ document.addEventListener('visibilitychange',schedule);
+ window.addEventListener('pageshow',e=>{if(e.persisted){playing=true;updatePlay();schedule();}});
+ const observer=new IntersectionObserver(([entry])=>{inView=entry.isIntersecting;schedule();},{threshold:.2});observer.observe(root);
+ root.querySelector<HTMLElement>('.slideshow-controls')!.hidden=false;updatePlay();void show(0,false);
+}
+</script>

@@ -1,0 +1,24 @@
+{
+  "name": "adaptation-biology",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "news": "node scripts/news-editor/server.mjs",
+    "prebuild": "node scripts/news-editor/prepare-assets.mjs && node scripts/news-editor/package-admin.mjs"
+  },
+  "dependencies": {
+    "astro": "^7.4.4"
+  },
+  "engines": {
+    "node": ">=22.23.4"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "typescript": "^6.0.3"
+  }
+}

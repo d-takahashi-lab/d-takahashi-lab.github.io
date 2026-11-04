@@ -1,0 +1,13 @@
+---
+import Home from '../../components/screens/Home.astro';
+import Research from '../../components/screens/Research.astro';
+import News from '../../components/screens/News.astro';
+import Members from '../../components/screens/Members.astro';
+import Publications from '../../components/screens/Publications.astro';
+import Contact from '../../components/screens/Contact.astro';
+export function getStaticPaths(){return [undefined,'research','news','members','publications','contact'].map(page=>({params:{page}}));}
+const pages={home:Home,research:Research,news:News,members:Members,publications:Publications,contact:Contact};
+const route=(Astro.params.page||'home') as keyof typeof pages;
+const Page=pages[route];
+---
+<Page lang="en"/>

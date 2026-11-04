@@ -1,0 +1,16 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import PageHeading from '../PageHeading.astro';
+import {news as jaNews} from '../../data/content';
+import {news as enNews} from '../../data/content.en';
+import {pageUrl,choose,type Language} from '../../lib/i18n';
+interface Props{lang?:Language;}
+const {lang='ja'}=Astro.props;
+const en=lang==='en',news=en?enNews:jaNews;
+const t=(ja:string,english:string)=>choose(lang,ja,english);
+const years=[...new Set(news.map(n=>n.date.slice(0,4)))];
+---
+<Layout lang={lang} title="お知らせ" current="news" description={t('生命適応科学研究室のお知らせ。論文掲載、学術交流、受賞、研究室メンバーに関するニュースを掲載しています。','News from the Laboratory of Stress and Adaptation Biology: publications, seminars, awards and laboratory updates.')}>
+ <PageHeading lang={lang} title="お知らせ" en="NEWS" sections={years.map(y=>({label:y,href:`#news-${y}`}))}/>
+ <div class="news-archive section">{years.map(y=><section id={`news-${y}`}><h2 class="news-year-heading">{y}</h2>{news.filter(n=>n.date.startsWith(y)).map(n=><article class="news-detail" id={n.anchor}><div><time datetime={n.date.replaceAll('.','-')}>{n.date}</time></div><div><h3><a href={pageUrl(n.articleSlug,lang)}>{n.heading} <span aria-hidden="true">→</span></a></h3><p>{n.text}</p></div></article>)}</section>)}</div>
+</Layout>
