@@ -28,12 +28,6 @@
     "status": "published",
     "type": "EVENT",
     "anchor": "news-20260327",
-    "link": "",
-    "image": "",
-    "imageAlt": "",
-    "imageAltEn": "",
-    "imageCaption": "",
-    "imageCaptionEn": "",
     "ja": {
       "title": "横浜市立大学との合同セミナーに参加しました",
       "summary": "横浜市立大学との合同セミナーに参加しました。",
@@ -43,7 +37,13 @@
       "title": "Joint seminar with Yokohama City University",
       "summary": "Daisuke Takahashi participated in a joint seminar with Yokohama City University.",
       "body": "Daisuke Takahashi participated in a joint seminar held under the comprehensive collaboration agreement between Saitama University and Yokohama City University."
-    }
+    },
+    "link": "https://www.saitama-u.ac.jp/news_archives/202603301400.html",
+    "image": "",
+    "imageAlt": "",
+    "imageAltEn": "",
+    "imageCaption": "",
+    "imageCaptionEn": ""
   },
   {
     "id": "2026-03-25-graduation",
