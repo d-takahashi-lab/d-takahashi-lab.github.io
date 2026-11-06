@@ -97,12 +97,6 @@
     "status": "published",
     "type": "AWARD",
     "anchor": "news-20251021",
-    "link": "",
-    "image": "",
-    "imageAlt": "",
-    "imageAltEn": "",
-    "imageCaption": "",
-    "imageCaptionEn": "",
     "ja": {
       "title": "大橋桃花さんが優秀発表賞を受賞",
       "summary": "大橋桃花さんが優秀発表賞を受賞しました。",
@@ -112,7 +106,13 @@
       "title": "Momoka Ohashi receives an Outstanding Presentation Award",
       "summary": "Momoka Ohashi received a presentation award.",
       "body": "Momoka Ohashi received the Outstanding Presentation Award at the 19th Annual Meeting of the Plant Cell Wall Researcher Network."
-    }
+    },
+    "link": "https://plantcellwall.wixsite.com/cellwall/大会記録",
+    "image": "",
+    "imageAlt": "大橋桃花さんが優秀発表賞を受賞",
+    "imageAltEn": "Momoka Ohashi receives an Outstanding Presentation Award",
+    "imageCaption": "",
+    "imageCaptionEn": ""
   },
   {
     "id": "2025-07-25-pollen-development",
