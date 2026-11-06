@@ -5,22 +5,22 @@
     "status": "published",
     "type": "LAB",
     "anchor": "news-20260912",
-    "link": "",
-    "image": "",
-    "imageAlt": "",
-    "imageAltEn": "",
-    "imageCaption": "",
-    "imageCaptionEn": "",
     "ja": {
       "title": "学部3年生が研究室に加わりました",
       "summary": "学部3年生が研究室に加わりました。",
-      "body": "学部3年生が新たに研究室メンバーに加わりました。"
+      "body": "学部3年生が新たに生命適応科学研究室に加わりました。これから植物の環境適応に関する研究に取り組んでいきます。新しいメンバーを迎え、今年度の研究活動を進めていきます。"
     },
     "en": {
       "title": "New undergraduate students join the laboratory",
       "summary": "Third-year undergraduates have joined the laboratory.",
-      "body": "New third-year undergraduate students have joined the laboratory."
-    }
+      "body": "New third-year undergraduate students have joined the Laboratory of Stress and Adaptation Biology. They will begin exploring how plants adapt to their environment. We look forward to working with our new members throughout the academic year."
+    },
+    "link": "",
+    "image": "",
+    "imageAlt": "学部3年生が研究室に加わりました",
+    "imageAltEn": "New undergraduate students join the laboratory",
+    "imageCaption": "",
+    "imageCaptionEn": ""
   },
   {
     "id": "2026-03-27-joint-seminar",
