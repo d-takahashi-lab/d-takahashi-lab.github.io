@@ -166,21 +166,21 @@
     "status": "published",
     "type": "LAB",
     "anchor": "news-20250401",
-    "link": "",
-    "image": "",
-    "imageAlt": "",
-    "imageAltEn": "",
-    "imageCaption": "",
-    "imageCaptionEn": "",
     "ja": {
       "title": "生命適応科学研究室のウェブサイトを開設",
       "summary": "生命適応科学研究室のウェブサイトを開設しました。",
-      "body": "生命適応科学研究室のウェブサイトを開設しました。"
+      "body": "生命適応科学研究室のウェブサイトを開設しました。研究内容、メンバー、研究業績などを紹介しています。研究室の活動や研究成果についても、Newsでお知らせしていきます。"
     },
     "en": {
       "title": "Laboratory website launched",
       "summary": "The laboratory website was launched.",
-      "body": "The website of the Laboratory of Stress and Adaptation Biology was launched."
-    }
+      "body": "The website of the Laboratory of Stress and Adaptation Biology is now online. It introduces our research, members, and publications. Updates on laboratory activities and research findings will be posted in the News section."
+    },
+    "link": "",
+    "image": "",
+    "imageAlt": "生命適応科学研究室のウェブサイトを開設",
+    "imageAltEn": "Laboratory website launched",
+    "imageCaption": "",
+    "imageCaptionEn": ""
   }
 ]
