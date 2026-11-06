@@ -323,3 +323,21 @@ html[lang=en] .editorial-title h1 { font-size:clamp(25px,3.4vw,44px); }
  .faculty-identity { align-items:start; }
  .home-affiliation span { display:block; margin-left:0; }
 }
+
+.identity-copy { display:flex; flex-direction:column; gap:2px; }
+.identity-affiliation { font-size:11px; line-height:1.4; color:var(--muted); letter-spacing:0; }
+.faculty-identity .position { margin-top:var(--space-2); margin-bottom:0; }
+.faculty-identity .affiliation { max-width:360px; }
+.faculty-profile,.student { align-items:center; }
+.faculty-details .profile-links { margin-top:0; }
+.alumni-year li { display:grid; grid-template-columns:minmax(0,8em) 4em; align-items:baseline; gap:var(--space-3); }
+.alumni-year li span,.alumni-year li small { line-height:1.85; }
+.alumni-year li small { justify-self:start; font-size:var(--text-body); }
+@media(max-width:750px) {
+ .identity-affiliation { font-size:10px; }
+ .alumni-year li { grid-template-columns:minmax(0,8em) 4em; }
+}
+
+html[lang=en] .alumni-year li { grid-template-columns:minmax(0,12em) 4em; }
+
+.faculty-identity .affiliation span { display:block; }

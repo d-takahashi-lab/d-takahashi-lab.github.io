@@ -18,25 +18,22 @@ const translations=[
   {heading:'Current questions',paragraphs:[
    'By comparing cold acclimation, deacclimation and reacclimation, we investigate the relationships among soluble sugars, cell wall polysaccharides, freezing tolerance and growth. We aim to determine how environmental history is retained in structure, and how that persistence affects subsequent tolerance acquisition and the resumption of growth.',
   ]},
- ],keywords:['Cold acclimation','Deacclimation','Reacclimation','Environmental memory'],figure:'cold-acclimation-schematic-en.svg',caption:'Cold acclimation, deacclimation and reacclimation',alt:'Changes in freezing tolerance under cold and warm conditions.'},
- {title:'Polysaccharides in Adaptation',lead:'We connect polysaccharide structure, tissue mechanics and survival after freezing to investigate the role of cell walls in cold adaptation.',
+ ],keywords:['Cold acclimation','Deacclimation','Reacclimation','Environmental memory'],figure:'cold-acclimation.webp',caption:'Cold acclimation and deacclimation.',alt:'Plant responses to freezing and changes in leaf area during cold acclimation and deacclimation.'},
+ {title:'Cell wall and storage polysaccharides in plant adaptation',lead:'We study the structure and metabolism of cell wall and storage polysaccharides and their possible roles in environmentally induced changes in growth and morphology.',
  sections:[
   {heading:'Polysaccharides in the cell wall',paragraphs:[
-   'Plant cell walls contain polysaccharides including cellulose, hemicelluloses and pectins. Their abundance, linkage patterns and arrangement affect wall strength and deformability. The wall supports cell shape while also being remodelled as the plant grows.',
-   'During freezing, extracellular ice grows and cells deform as they lose water. Cell wall properties are therefore likely to influence responses to freezing and dehydration. Alongside measuring changes in polysaccharide composition, we investigate how those changes relate to tissue mechanics and tolerance.',
-  ]},
-  {heading:'β-1,4-Galactan during cold acclimation',paragraphs:[
-   'Our work has shown that β-1,4-galactan, a side-chain component of pectin, increases during cold acclimation. This response has been observed in Arabidopsis and several vegetables. Mutants with reduced β-1,4-galactan synthesis show lower freezing tolerance after cold acclimation, together with differences in the mechanical changes observed in wild-type tissues.',
-   'These findings demonstrate that changes in cell wall polysaccharides contribute to the acquisition of freezing tolerance. The physical processes through which polysaccharide accumulation alleviates freezing injury still require further investigation.',
-  ]},
-  {heading:'Connecting structure with function',paragraphs:[
-   'We analyse the monosaccharide composition of cell walls and use glycosidic linkage analysis to examine how the sugars are connected. We combine these approaches with antibody-based localization of particular polysaccharides, analyses of genes involved in their synthesis, and measurements of the physical properties of leaves.',
-   'By comparing these measurements with survival after freezing and tissue morphology, we investigate how polysaccharide abundance and structure relate to physiological function. Visible changes, such as the uneven leaf surfaces of cold-treated komatsuna, are also part of our research.',
+   'Plant cell walls contain cellulose, hemicelluloses and pectins. The sugars they contain, the bonds between them and the arrangement of the polymers affect wall strength and deformability. Cell walls support cell shape and are remodelled as plants grow.',
+   'We measure sugar composition and linkage patterns and examine where polysaccharides occur in tissues. Together with analyses of genes involved in their synthesis and breakdown, these approaches help us understand how walls change with the environment.',
   ]},
   {heading:'Storage polysaccharides and adaptation',paragraphs:[
-   'Remodelling of cell wall polysaccharides, together with the turnover of storage polysaccharides such as starch and fructans, contributes to osmotic adjustment and structural stability. By integrating cell wall remodelling, polysaccharide metabolism and morphology, we aim to clarify the mechanisms of plant adaptation to low-temperature environments.',
+   'Storage polysaccharides such as starch and fructans allow plants to store sugars and use them when needed. Their accumulation and breakdown contribute to energy supply for growth and regulation of cellular sugar levels.',
+   'We compare changes in their abundance and structure in leaves and crowns under cold conditions and day–night temperature fluctuations. Studying storage metabolism alongside wall remodelling helps us connect sugar use with stress adaptation.',
   ]},
- ],keywords:['Cell walls','β-1,4-Galactan','Tissue mechanics','Starch and fructans'],figure:'cell-wall-schematic-en.svg',caption:'Cold-induced galactan accumulation',alt:'Galactan accumulation and testing in mutants.'},
+  {heading:'Cold-induced changes in plant morphology',paragraphs:[
+   'Cold-treated komatsuna can develop thicker leaves and uneven leaf surfaces. Such changes may involve sugar accumulation, cell expansion and division, and cell wall properties.',
+   'We investigate how polysaccharide structure and metabolism relate to the shape and physical properties of cells and tissues. These observations connect molecular responses with visible changes in plants exposed to cold.',
+  ]},
+ ],keywords:['Cell walls','Starch','Fructans','Cold-induced morphology'],figure:'komatsuna.webp',caption:'Komatsuna grown under cold conditions.',alt:'Komatsuna growing under cold conditions, with uneven leaf surfaces.'},
  {title:'Desiccation tolerance and sugars in resurrection plants',lead:'We compare Selaginella tamariscina with a related species to study how trehalose, other sugars and cell walls contribute to protection during drying and recovery after rehydration.',
  sections:[
   {heading:'What are resurrection plants?',paragraphs:[
