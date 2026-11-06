@@ -15,7 +15,7 @@
 <section class="preview" id="preview" hidden aria-label="記事プレビュー"><div class="inline"><span class="note">保存前プレビュー</span><select id="preview-language" aria-label="プレビューの言語"><option value="ja">日本語</option><option value="en">English</option></select></div><h2 id="preview-title"></h2><time id="preview-date"></time><figure id="preview-figure" hidden><img id="preview-photo" alt=""><figcaption id="preview-caption"></figcaption></figure><div id="preview-body"></div></section>
 <section class="preview"><div class="inline"><button id="build" type="button">公開状況を見る</button><a href="../news/" target="_blank" rel="noopener">Newsを開く ↗</a></div><p class="note">下書きはこのブラウザ内だけに保存されます。別のMacでも公開済みの記事を編集・投稿できます。</p><p id="build-message" role="status" aria-live="polite"></p></section></main></div>
 <script type="module">
-import {GitHubBackend} from "./github.mjs";
+import {GitHubBackend} from "./github.mjs?v=cf32f8ef2376";
 window.NewsBackend=new GitHubBackend();
 const $=s=>document.querySelector(s),form=$('#form'),token=$('meta[name=news-token]').content;
 const backend=window.NewsBackend||null;

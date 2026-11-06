@@ -15,7 +15,9 @@ export class GitHubBackend {
  get prefix(){return this.owner+'/'+this.repo;}
  get actionsURL(){return 'https://github.com/'+this.prefix+'/actions';}
  async github(path,data,method=data?'POST':'GET'){
-  const response=await fetch('https://api.github.com/repos/'+this.prefix+path,{method,headers:{Accept:'application/vnd.github+json',Authorization:'Bearer '+this.accessToken,'X-GitHub-Api-Version':'2026-03-10','Content-Type':'application/json'},...(data?{body:JSON.stringify(data)}:{})});
+  // Branch refs change after each save. A cached ref can falsely conflict with our own commit.
+  const freshPath=method==='GET'&&path.startsWith('/git/ref/heads/')?path+(path.includes('?')?'&':'?')+'editor_read='+crypto.randomUUID():path;
+  const response=await fetch('https://api.github.com/repos/'+this.prefix+freshPath,{method,...(method==='GET'?{cache:'no-store'}:{}),headers:{Accept:'application/vnd.github+json',Authorization:'Bearer '+this.accessToken,'X-GitHub-Api-Version':'2026-03-10','Content-Type':'application/json'},...(data?{body:JSON.stringify(data)}:{})});
   const result=await response.json();if(!response.ok){if(response.status===401||response.status===403)throw Error('GitHubの認証・権限を確認してください。対象リポジトリのContents: Read and writeが必要です。');if(response.status===404)throw Error('リポジトリ・ブランチ・記事データを確認してください。新サイトのソースを先にGitHubへ配置する必要があります。');if(response.status===422)throw Error('別の更新が先に保存されたか、ブランチが保護されています。下書きを保存して接続し直してください。');throw Error('GitHub: '+(result.message||response.status));}return result;
  }
  async connect(){const form=document.querySelector('#github-connect'),status=document.querySelector('#connection-status'),button=form.querySelector('button[type="submit"]');button.disabled=true;status.textContent='GitHubへ接続しています…';
