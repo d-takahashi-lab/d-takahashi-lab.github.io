@@ -1,4 +1,4 @@
-// Original photographs stay in public/images; only optimized WebP assets are deployed.
+// Published slideshow photographs, shared by the Japanese and English pages.
 export const slides = [
   {
     "file": "top-flowers.webp",
@@ -85,25 +85,11 @@ export const slides = [
     "altEn": "A bare tree on a snowy slope"
   },
   {
-    "file": "slideshow-mist-waterfall.webp",
-    "alt": "霧に包まれた森林の斜面を流れる滝",
-    "position": "50% 50%",
-    "original": "DSC_0584.jpeg",
-    "altEn": "A waterfall on a misty forested slope"
-  },
-  {
     "file": "slideshow-branches.webp",
     "alt": "手前の木の枝と遠くの山並み",
     "position": "50% 50%",
     "original": "R0000333.jpeg",
     "altEn": "Branches in front of distant mountains"
-  },
-  {
-    "file": "slideshow-snow-grass.webp",
-    "alt": "地面に積もった雪の間からのぞく草",
-    "position": "50% 55%",
-    "original": "DSC_79992.jpeg",
-    "altEn": "Grass emerging between patches of snow"
   },
   {
     "file": "slideshow-rocky-snow.webp",
@@ -155,32 +141,11 @@ export const slides = [
     "original": "DSC_0874.jpeg"
   },
   {
-    "file": "slideshow-23.webp",
-    "alt": "光が差す細い谷",
-    "altEn": "Light falling into a narrow ravine",
-    "position": "50% 50%",
-    "original": "DSC_1287.jpeg"
-  },
-  {
-    "file": "slideshow-24.webp",
-    "alt": "皿に盛られた料理",
-    "altEn": "Food served on a plate",
-    "position": "50% 50%",
-    "original": "DSC_4031.jpeg"
-  },
-  {
     "file": "slideshow-25.webp",
     "alt": "茅葺きの建物",
     "altEn": "Thatched buildings",
     "position": "50% 50%",
     "original": "FP000171.jpeg"
-  },
-  {
-    "file": "slideshow-26.webp",
-    "alt": "山のふもとの街並み",
-    "altEn": "Buildings at the foot of a mountain",
-    "position": "50% 50%",
-    "original": "FP000624.jpeg"
   },
   {
     "file": "slideshow-27.webp",
@@ -204,32 +169,11 @@ export const slides = [
     "original": "FP001212.jpeg"
   },
   {
-    "file": "slideshow-30.webp",
-    "alt": "石畳の路地",
-    "altEn": "A cobbled alley",
-    "position": "50% 50%",
-    "original": "G4000079.jpeg"
-  },
-  {
     "file": "slideshow-31.webp",
     "alt": "海辺に立つ人々の遠景",
     "altEn": "Distant figures on a beach",
     "position": "50% 50%",
     "original": "GR000517.jpeg"
-  },
-  {
-    "file": "slideshow-32.webp",
-    "alt": "海岸の岩柱と波",
-    "altEn": "Sea stacks and waves along the coast",
-    "position": "50% 50%",
-    "original": "GR000573.jpeg"
-  },
-  {
-    "file": "slideshow-33.webp",
-    "alt": "山あいの岩場を流れる水",
-    "altEn": "Water flowing through rocks in a mountain valley",
-    "position": "50% 50%",
-    "original": "GR001371.jpeg"
   },
   {
     "file": "slideshow-34.webp",
@@ -260,13 +204,6 @@ export const slides = [
     "original": "IMG_7547.jpeg"
   },
   {
-    "file": "slideshow-38.webp",
-    "alt": "林の向こうの岩山",
-    "altEn": "Rocky cliffs above woodland",
-    "position": "50% 50%",
-    "original": "NDF_9764.jpeg"
-  },
-  {
     "file": "slideshow-39.webp",
     "alt": "高台から見下ろす街と空",
     "altEn": "A city and sky seen from above",
@@ -288,25 +225,11 @@ export const slides = [
     "original": "R0000859.jpeg"
   },
   {
-    "file": "slideshow-42.webp",
-    "alt": "建物に囲まれた石畳",
-    "altEn": "A paved lane between buildings",
-    "position": "50% 50%",
-    "original": "R0000944.jpeg"
-  },
-  {
     "file": "slideshow-43.webp",
     "alt": "建物が並ぶ薄暗い通り",
     "altEn": "A dim street lined with buildings",
     "position": "50% 50%",
     "original": "R0000981.jpeg"
-  },
-  {
-    "file": "slideshow-44.webp",
-    "alt": "石壁を照らす街灯",
-    "altEn": "A lamp illuminating a stone wall",
-    "position": "50% 50%",
-    "original": "R0000989.jpeg"
   },
   {
     "file": "slideshow-45.webp",
@@ -328,27 +251,6 @@ export const slides = [
     "altEn": "Distant silhouettes against the sky",
     "position": "50% 50%",
     "original": "R1001540.jpeg"
-  },
-  {
-    "file": "slideshow-48.webp",
-    "alt": "水辺と遠くの斜面",
-    "altEn": "A stretch of water below a distant hillside",
-    "position": "50% 50%",
-    "original": "R1002903.jpeg"
-  },
-  {
-    "file": "slideshow-49.webp",
-    "alt": "細い茎が重なる草の接写",
-    "altEn": "A close view of overlapping grass stems",
-    "position": "50% 50%",
-    "original": "R1003143.jpeg"
-  },
-  {
-    "file": "slideshow-50.webp",
-    "alt": "窓越しに見える山並み",
-    "altEn": "Mountain ridges seen through windows",
-    "position": "50% 50%",
-    "original": "R1003426.jpeg"
   },
   {
     "file": "slideshow-51.webp",
