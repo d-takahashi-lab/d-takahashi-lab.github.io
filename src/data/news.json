@@ -1,5 +1,28 @@
 [
   {
+    "id": "2026-11-07-430f57fd",
+    "date": "2026-11-09",
+    "status": "published",
+    "type": "LAB",
+    "anchor": "news-2026-11-07-430f57fd",
+    "ja": {
+      "title": "研究室ウェブサイトをリニューアルしました",
+      "summary": "",
+      "body": "生命適応科学研究室のウェブサイトを全面的にリニューアルしました。写真と余白を生かした、落ち着いて読めるデザインを目指しました。\n研究紹介では、凍結適応、細胞壁・多糖、乾燥耐性、タンパク質言語モデルの4つのテーマを、模式図やタイムラプス動画とともに紹介しています。研究業績はキーワードや種類、年で絞り込めるようにし、各論文の掲載先へ直接移動できるようにしました。また、全ページを日本語と英語の両方で閲覧でき、スマートフォンでも読みやすい構成にしています。\n今後も研究成果や研究室の様子を発信していきます。"
+    },
+    "en": {
+      "title": "Our laboratory website has been renewed",
+      "summary": "",
+      "body": "We have completely renewed the website of the Laboratory of Stress and Adaptation Biology. The new design aims for a calm, readable layout that lets photographs and white space speak for themselves.\nThe Research page introduces our four research themes — cold acclimation, cell walls and polysaccharides, desiccation tolerance, and protein language models — with diagrams and time-lapse videos. Publications can be searched by keyword, type and year, with direct links to each article. All pages are available in both Japanese and English and are designed to be easy to read on smartphones.\nWe will continue to share our research and laboratory activities here."
+    },
+    "link": "",
+    "image": "",
+    "imageAlt": "研究室ウェブサイトをリニューアルしました",
+    "imageAltEn": "Our laboratory website has been renewed",
+    "imageCaption": "",
+    "imageCaptionEn": ""
+  },
+  {
     "id": "2026-09-12-new-members",
     "date": "2026-09-12",
     "status": "published",
