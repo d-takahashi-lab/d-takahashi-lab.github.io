@@ -33,7 +33,7 @@ export const themes=[
     '低温に置かれたコマツナでは、葉が厚くなったり、葉面に凹凸が生じたりすることがあります。このような寒締めに伴う形態変化には、糖の蓄積、細胞の成長や分裂、細胞壁の性質など、複数の過程が関わると考えられます。',
     '多糖の構造や代謝の変化が、細胞・組織の形や物理的な性質にどうつながるかを調べています。寒締めによる変化を観察し、環境への適応を分子の変化と植物体の姿の両方から理解することを目指します。',
    ]},
-  ],keywords:['細胞壁','デンプン','フルクタン','寒締め'],figure:'',video:'komatsuna-cold-2x.mp4',poster:'komatsuna-poster.webp',autoplay:true,caption:'低温条件で栽培したコマツナ（タイムラプス）。',alt:'低温条件で栽培中のコマツナのタイムラプス。葉の表面に凹凸が見られる。',references:[]},
+  ],keywords:['細胞壁','デンプン','フルクタン','寒締め'],figure:'',video:'komatsuna-cold.mp4',poster:'komatsuna-poster.webp',autoplay:true,caption:'低温条件で栽培したコマツナ（タイムラプス）。',alt:'低温条件で栽培中のコマツナのタイムラプス。葉の表面に凹凸が見られる。',references:[]},
  {id:'desiccation',en:'Desiccation tolerance and sugars',title:'復活植物の乾燥耐性と糖',
   lead:'イワヒバと近縁種を比較し、トレハロースなどの糖と細胞壁が、乾燥中の細胞保護や吸水後の回復にどう関わるかを調べています。',
   sections:[
