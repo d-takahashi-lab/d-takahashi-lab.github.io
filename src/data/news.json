@@ -51,12 +51,6 @@
     "status": "published",
     "type": "LAB",
     "anchor": "news-20260325",
-    "link": "",
-    "image": "",
-    "imageAlt": "",
-    "imageAltEn": "",
-    "imageCaption": "",
-    "imageCaptionEn": "",
     "ja": {
       "title": "泉義紀さんと大橋桃花さんが修了しました",
       "summary": "当研究室から2名が大学院を修了しました。",
@@ -66,7 +60,13 @@
       "title": "Yoshiki Izumi and Momoka Ohashi complete their degrees",
       "summary": "Two members completed their graduate degrees.",
       "body": "Yoshiki Izumi and Momoka Ohashi completed their graduate degrees at the Saitama University ceremony."
-    }
+    },
+    "link": "https://www.saitama-u.ac.jp/news_archives/202603301300.html",
+    "image": "",
+    "imageAlt": "泉義紀さんと大橋桃花さんが修了しました",
+    "imageAltEn": "Yoshiki Izumi and Momoka Ohashi complete their degrees",
+    "imageCaption": "",
+    "imageCaptionEn": ""
   },
   {
     "id": "2025-10-31-cell-wall-memory",
