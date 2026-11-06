@@ -33,7 +33,7 @@ const translations=[
    'Cold-treated komatsuna can develop thicker leaves and uneven leaf surfaces. Such changes may involve sugar accumulation, cell expansion and division, and cell wall properties.',
    'We investigate how polysaccharide structure and metabolism relate to the shape and physical properties of cells and tissues. These observations connect molecular responses with visible changes in plants exposed to cold.',
   ]},
- ],keywords:['Cell walls','Starch','Fructans','Cold-induced morphology'],figure:'komatsuna.webp',caption:'Komatsuna grown under cold conditions.',alt:'Komatsuna growing under cold conditions, with uneven leaf surfaces.'},
+ ],keywords:['Cell walls','Starch','Fructans','Cold-induced morphology'],figure:'',video:'komatsuna-cold.mp4',poster:'komatsuna-poster.webp',autoplay:true,caption:'Komatsuna grown under cold conditions (time-lapse).',alt:'Time-lapse of komatsuna growing under cold conditions, with uneven leaf surfaces.'},
  {title:'Desiccation tolerance and sugars in resurrection plants',lead:'We compare Selaginella tamariscina with a related species to study how trehalose, other sugars and cell walls contribute to protection during drying and recovery after rehydration.',
  sections:[
   {heading:'What are resurrection plants?',paragraphs:[
@@ -48,7 +48,7 @@ const translations=[
    'As cells lose volume during dehydration, their walls and membranes undergo substantial deformation. Surviving drying requires tolerance of that deformation and the capacity to regain function after rehydration. We focus on how cell wall polysaccharide composition and structure affect deformation and tissue protection.',
    'Our laboratory investigates desiccation tolerance by comparing S. tamariscina and S. moellendorffii, with a particular focus on the cell wall’s role in stress resistance. This work contributes to understanding the evolutionary survival strategies of land plants, including shared and distinct features of dehydration caused by freezing and by drying.',
   ]},
- ],keywords:['Selaginella','Trehalose','Drying and rehydration','Cell wall deformation','Comparative physiology'],figure:'',caption:'Time-lapse of morphological changes in Selaginella tamariscina during drying and rehydration.',alt:''},
+ ],keywords:['Selaginella','Trehalose','Drying and rehydration','Cell wall deformation','Comparative physiology'],figure:'',video:'selaginella-rehydration.mp4',poster:'selaginella-poster.jpg',autoplay:false,caption:'Time-lapse of morphological changes in Selaginella tamariscina during drying and rehydration.',alt:'Time-lapse of Selaginella tamariscina during drying and rehydration'},
  {title:'Exploring stress adaptation with protein language models',
  lead:'Intrinsically disordered proteins (IDPs) help diverse organisms, including plants and animals, adapt to stresses such as freezing and desiccation. We ask what kinds of proteins protect cells across these different organisms.',
  sections:[
