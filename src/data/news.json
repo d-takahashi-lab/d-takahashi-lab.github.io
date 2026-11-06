@@ -12,12 +12,12 @@
     "imageCaption": "",
     "imageCaptionEn": "",
     "ja": {
-      "title": "新メンバー",
+      "title": "学部3年生が研究室に加わりました",
       "summary": "学部3年生が研究室に加わりました。",
       "body": "学部3年生が新たに研究室メンバーに加わりました。"
     },
     "en": {
-      "title": "New members",
+      "title": "New undergraduate students join the laboratory",
       "summary": "Third-year undergraduates have joined the laboratory.",
       "body": "New third-year undergraduate students have joined the laboratory."
     }
@@ -35,7 +35,7 @@
     "imageCaption": "",
     "imageCaptionEn": "",
     "ja": {
-      "title": "横浜市立大学との合同セミナー",
+      "title": "横浜市立大学との合同セミナーに参加しました",
       "summary": "横浜市立大学との合同セミナーに参加しました。",
       "body": "埼玉大学と横浜市立大学の包括連携協定に基づき開催された合同セミナーに参加しました。"
     },
@@ -58,12 +58,12 @@
     "imageCaption": "",
     "imageCaptionEn": "",
     "ja": {
-      "title": "卒業・修了",
+      "title": "泉義紀さんと大橋桃花さんが修了しました",
       "summary": "当研究室から2名が大学院を修了しました。",
       "body": "埼玉大学卒業式・大学院修了式が行われ、当研究室から泉義紀さんと大橋桃花さんの2名が修了しました。"
     },
     "en": {
-      "title": "Graduation",
+      "title": "Yoshiki Izumi and Momoka Ohashi complete their degrees",
       "summary": "Two members completed their graduate degrees.",
       "body": "Yoshiki Izumi and Momoka Ohashi completed their graduate degrees at the Saitama University ceremony."
     }
@@ -81,12 +81,12 @@
     "imageCaption": "",
     "imageCaptionEn": "",
     "ja": {
-      "title": "細胞壁と環境記憶",
+      "title": "細胞壁による環境記憶の総説がNew Phytologistに掲載",
       "summary": "植物細胞壁と環境記憶に関する総説が公開されました。",
       "body": "植物細胞壁の構造や組成の変化が環境の履歴を保持する可能性について論じた総説「Memory in the wall」がNew Phytologistにオンライン公開されました（巻号掲載は2026年）。"
     },
     "en": {
-      "title": "Cell wall memory",
+      "title": "Review on cell wall memory published in New Phytologist",
       "summary": "Our review on plant cell walls and environmental memory is now online.",
       "body": "“Memory in the wall”, a review discussing how structural and compositional changes in plant cell walls may retain environmental history, was published online in New Phytologist. It appears in the 2026 volume."
     }
@@ -104,12 +104,12 @@
     "imageCaption": "",
     "imageCaptionEn": "",
     "ja": {
-      "title": "優秀発表賞",
+      "title": "大橋桃花さんが優秀発表賞を受賞",
       "summary": "大橋桃花さんが優秀発表賞を受賞しました。",
       "body": "大橋桃花さんが植物細胞壁研究者ネットワーク第19回定例研究会で優秀発表賞を受賞しました。"
     },
     "en": {
-      "title": "Outstanding Presentation Award",
+      "title": "Momoka Ohashi receives an Outstanding Presentation Award",
       "summary": "Momoka Ohashi received a presentation award.",
       "body": "Momoka Ohashi received the Outstanding Presentation Award at the 19th Annual Meeting of the Plant Cell Wall Researcher Network."
     }
@@ -127,12 +127,12 @@
     "imageCaption": "",
     "imageCaptionEn": "",
     "ja": {
-      "title": "花粉形成に関する研究",
+      "title": "菊地拓真さんの花粉形成の研究がPlant and Cell Physiologyに掲載",
       "summary": "花粉形成に関する研究成果が掲載されました。",
       "body": "菊地拓真さんらによる、アラビナンとガラクタンの不足がシロイヌナズナの花粉減数分裂に及ぼす影響の研究がPlant & Cell Physiologyに掲載されました。"
     },
     "en": {
-      "title": "Pollen development",
+      "title": "Takuma Kikuchi’s pollen development study published in Plant and Cell Physiology",
       "summary": "Research on pollen formation was published.",
       "body": "A study by Takuma Kikuchi and colleagues on the effects of combined arabinan and galactan insufficiency on Arabidopsis pollen meiosis was published in Plant & Cell Physiology."
     }
@@ -150,12 +150,12 @@
     "imageCaption": "",
     "imageCaptionEn": "",
     "ja": {
-      "title": "Ulm大学からの研究滞在",
+      "title": "Ulm大学のJan Gehrkeさんが研究室に滞在",
       "summary": "Ulm大学のJan Gehrkeさんが研究室に滞在しました。",
       "body": "ドイツUlm大学のJan Gehrkeさんが、7月1日から31日まで植物糖鎖・生命適応科学研究室に滞在しました。"
     },
     "en": {
-      "title": "Research visit from Ulm University",
+      "title": "Jan Gehrke from Ulm University visits the laboratory",
       "summary": "Jan Gehrke from Ulm University visited the laboratory.",
       "body": "Jan Gehrke from Ulm University in Germany stayed at the Plant Glycobiology and Environmental Adaptation Laboratory for one month in July."
     }
@@ -173,12 +173,12 @@
     "imageCaption": "",
     "imageCaptionEn": "",
     "ja": {
-      "title": "ウェブサイト公開",
+      "title": "生命適応科学研究室のウェブサイトを開設",
       "summary": "生命適応科学研究室のウェブサイトを開設しました。",
       "body": "生命適応科学研究室のウェブサイトを開設しました。"
     },
     "en": {
-      "title": "Website launch",
+      "title": "Laboratory website launched",
       "summary": "The laboratory website was launched.",
       "body": "The website of the Laboratory of Stress and Adaptation Biology was launched."
     }

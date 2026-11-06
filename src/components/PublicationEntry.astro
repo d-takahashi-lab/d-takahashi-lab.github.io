@@ -16,7 +16,7 @@ const note=en?p.note.replace('オンライン公開：','First online: ').replac
 <article class:list={['pub-entry', {'pub-entry-with-cover': cover}]} id={p.id} data-publication data-year={p.year} data-type={p.type} data-search={`${p.title} ${p.authors} ${p.reference} ${p.pages} ${p.doi}`.toLowerCase()}>
  <div>
  <div class="pub-meta"><span>{label}</span>{note&&<span>{note}</span>}</div>
- <h3><a href={p.url}><PublicationTitle title={p.title} /><span class="external-arrow" aria-hidden="true"> ↗</span></a></h3>
+ <h3><a href={p.url}><PublicationTitle title={p.title} italics={p.titleItalics} /><span class="external-arrow" aria-hidden="true"> ↗</span></a></h3>
  <p class="pub-authors">{authors.map((author,index)=><>{index>0&&', '}{/^Takahashi D\*?$/.test(author)?<strong>{author}</strong>:author}</>)}</p>
  <p class="pub-reference">{p.reference}</p>
  {p.roleNote&&<p class="pub-note">{en?roleNotes[p.roleNote]||p.roleNote:p.roleNote}</p>}

@@ -1,4 +1,5 @@
 ---
+import ScientificText from '../ScientificText.astro';
 import PublicationTitle from '../PublicationTitle.astro';
 import Layout from '../../layouts/Layout.astro';
 import PageHeading from '../PageHeading.astro';
@@ -19,9 +20,8 @@ const base=import.meta.env.BASE_URL;
   {label:t('03 乾燥耐性と糖','03 Desiccation tolerance and sugars'),href:'#desiccation'},
   {label:t('04 タンパク質言語モデル','04 Protein language models'),href:'#esm-landscape'},
  ]}/>
- <p class="research-overview">{t('植物の低温・凍結・乾燥への適応を、細胞壁と多糖の構造・機能から研究しています。','We study plant adaptation to cold, freezing and desiccation through the structure and function of cell walls and polysaccharides.')}</p>
- <div class="research-content">{themes.map((theme,i)=><section class="research-theme" id={theme.id} aria-labelledby={`${theme.id}-title`}><header class="theme-header"><span class="section-kicker" aria-hidden="true">0{i+1}</span><h2 id={`${theme.id}-title`}>{theme.title}</h2><p>{theme.lead}</p></header><div class="theme-layout"><div class="theme-text">{theme.sections.map(section=><section class="research-subsection"><h3>{section.heading}</h3>{section.paragraphs.map(p=><p>{p}</p>)}</section>)}</div><figure class={`science-figure ${theme.id==='cold-acclimation'?'tall-figure':''}`}>
+ <div class="research-content">{themes.map((theme,i)=><section class="research-theme" id={theme.id} aria-labelledby={`${theme.id}-title`}><header class="theme-header"><span class="section-kicker" aria-hidden="true">0{i+1}</span><h2 id={`${theme.id}-title`}>{theme.title}</h2><p><ScientificText text={theme.lead}/></p></header><div class="theme-layout"><div class="theme-text">{theme.sections.map(section=><section class="research-subsection"><h3>{section.heading}</h3>{section.paragraphs.map(p=><p><ScientificText text={p}/></p>)}</section>)}</div><figure class={`science-figure ${theme.id==='cold-acclimation'?'tall-figure':''}`}>
  {theme.figure?<a href={`${base}images/${theme.figure}`} aria-label={en?`Enlarge diagram: ${theme.title}`:`${theme.title}の図を拡大`}><img src={`${base}images/${theme.figure}`} alt={theme.alt} loading="lazy"/></a>:<video controls playsinline preload="none" poster={`${base}images/selaginella-poster.jpg`} aria-label={t('イワヒバの乾燥・吸水に伴う形態変化のタイムラプス','Time-lapse of Selaginella tamariscina during drying and rehydration')}><source src={`${base}videos/selaginella-rehydration.mp4`} type="video/mp4"/><a href={`${base}videos/selaginella-rehydration.mp4`}>{t('動画を開く','Open video')}</a></video>}
- <figcaption>{theme.caption}</figcaption></figure></div>
- {theme.references.length>0&&<aside class="theme-references" aria-label={t('関連論文','Related publications')}><h3>{t('関連論文','Related publications')}</h3>{theme.references.map(doi=>{const p=findPaper(doi);return <a href={`${pageUrl('publications',lang)}#${p.id}`}><span>{p.year} / {p.journal}</span><p><PublicationTitle title={p.title} /> →</p></a>;})}</aside>}</section>)}</div>
+ <figcaption><ScientificText text={theme.caption}/></figcaption></figure></div>
+ {theme.references.length>0&&<aside class="theme-references" aria-label={t('関連論文','Related publications')}><h3>{t('関連論文','Related publications')}</h3>{theme.references.map(doi=>{const p=findPaper(doi);return <a href={`${pageUrl('publications',lang)}#${p.id}`}><span>{p.year} / {p.journal}</span><p><PublicationTitle title={p.title} italics={p.titleItalics} /> →</p></a>;})}</aside>}</section>)}</div>
 </Layout>

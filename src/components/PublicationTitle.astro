@@ -1,16 +1,15 @@
 ---
 interface Props {
  title: string;
+ italics?: string[];
 }
-const { title } = Astro.props;
-
-// Latin taxon names and gene names occurring in the publication titles.
-// XTH19 denotes the enzyme in its title and stays in roman type.
-const scientificName = /\b(Arabidopsis thaliana|Arabidopsis|Chitiniphilus shinanonensis|Solanum lycopersicum|Beta vulgaris|Pisum sativum|Citrus|Xanthomonas|BRITTLE CULM 4|DRP1E)\b/g;
-const parts = title.split(scientificName);
+const { title, italics = [] } = Astro.props;
+const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const pattern = italics.length ? new RegExp('(' + italics.map(escapeRegExp).join('|') + ')', 'g') : null;
+const parts = pattern ? title.split(pattern) : [title];
 const stereochemicalPrefix = /\b([DL])(?=-[a-z])/g;
 ---
-{parts.map((part, index) => index % 2 ? <i>{part}</i> : part.split(stereochemicalPrefix).map((text, index) => index % 2 ? <span class="stereochemical-prefix">{text}</span> : text))}
+{parts.map((part, index) => pattern && index % 2 ? <i>{part}</i> : part.split(stereochemicalPrefix).map((text, index) => index % 2 ? <span class="stereochemical-prefix">{text}</span> : text))}
 
 <style>
  .stereochemical-prefix { font-size: calc(1em - 2pt); }

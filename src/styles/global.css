@@ -82,7 +82,7 @@ html[lang=en] .lab-identity { font-size: 14px; letter-spacing: 0; }
 .profile-links { display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-5); margin-top: var(--space-5); font-size: var(--text-small); line-height: 1.8; }
 .profile-links a { text-decoration: underline; text-decoration-color: var(--control-line); text-underline-offset: 5px; }
 /* Home and photograph sequence. */
-.editorial-hero { display: grid; grid-template-columns: .85fr 1.3fr; gap: 5%; margin: var(--space-8) var(--gutter) 0; align-items: center; }
+.editorial-hero { display: block; margin: var(--space-8) var(--gutter) 0; align-items: center; }
 .editorial-title h1 { font-size: var(--text-hero); line-height: 1.5; letter-spacing: .075em; margin-bottom: var(--space-5); }
 html[lang=en] .editorial-title h1 { font-size: clamp(36px,3.2vw,52px); line-height: 1.35; letter-spacing: 0; }
 .home-affiliation { font-size: var(--text-small); line-height: var(--leading-body); color: var(--muted); max-width: 410px; }
@@ -121,7 +121,7 @@ figcaption { font-family: var(--font-sans); font-size: var(--text-meta); color: 
 .theme-references a>span { font-size: var(--text-meta); color: var(--muted); line-height: 1.85; }
 .theme-references a>p { font-size: var(--text-body); line-height: 1.65; margin-top: var(--space-2); }
 /* People: names are content, so faculty/students/alumni all use the same sans family. */
-.faculty-profile { display: grid; grid-template-columns: 160px minmax(0,1fr); gap: var(--space-7); margin-top: var(--space-6); align-items: start; }
+.faculty-profile { display: grid; grid-template-columns: 1fr 1.4fr; gap: var(--space-6); margin-top: var(--space-6); align-items: center; }
 .faculty-profile figure { width: 160px; height: 180px; overflow: hidden; }
 .faculty-profile img { width: 100%; height: 100%; object-fit: cover; object-position: 65% center; }
 .faculty-profile .position { font-size: var(--text-small); color: var(--muted); margin-bottom: var(--space-2); }
@@ -247,7 +247,7 @@ footer { margin: 0 var(--edge); padding: var(--space-6) 0; border-top: var(--rul
  .header-actions { gap: var(--space-4); width:100%; justify-content:flex-end; }
  .page-heading { padding-top: var(--space-6); }
  .section { padding-block: var(--space-6) var(--space-7); }
- .editorial-hero { margin-top: var(--space-6); grid-template-columns: 1fr; gap: var(--space-6); }
+ .editorial-hero { margin-top: var(--space-6); }
  html[lang=en] .editorial-title h1 { font-size: 38px; }
  .slideshow-stage { height: 270px; }
  .home-news { grid-template-columns: 1fr; gap: var(--space-4); margin-block: var(--space-7); }
@@ -259,7 +259,7 @@ footer { margin: 0 var(--edge); padding: var(--space-6) 0; border-top: var(--rul
  .theme-references { grid-template-columns: 1fr; gap: var(--space-4); }
  .theme-references h3 { grid-row: auto; }
  .theme-references>a { grid-column: 1; }
- .faculty-profile { grid-template-columns: 100px minmax(0,1fr); gap: var(--space-5); }
+ .faculty-profile { gap: var(--space-5); }
  .faculty-profile figure { width: 100px; height: 120px; }
  .faculty-profile h3 { font-size: var(--text-subsection); }
  .faculty-profile h3 small { font-size: var(--text-small); }
@@ -303,3 +303,23 @@ footer { margin: 0 var(--edge); padding: var(--space-6) 0; border-top: var(--rul
 
 .news-detail .news-excerpt { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .news-detail > div { min-width:0; }
+
+/* Home masthead and aligned profile information. */
+.editorial-hero { display:block; }
+.editorial-title { margin-bottom:var(--space-6); }
+.editorial-title h1 { font-size:clamp(24px,4vw,48px); line-height:1.4; letter-spacing:.04em; margin:var(--space-2) 0 0; }
+html[lang=en] .editorial-title h1 { font-size:clamp(25px,3.4vw,44px); }
+.home-affiliation { max-width:none; }
+.home-affiliation span { margin-left:1em; }
+.slideshow-stage { height:clamp(300px,45vw,580px); }
+.theme-header .section-kicker { font-size:clamp(36px,5vw,64px); line-height:1; font-weight:400; color:var(--text); margin-bottom:var(--space-4); }
+
+.faculty-identity { display:flex; align-items:center; gap:var(--space-5); min-width:0; }
+.faculty-identity figure { flex-shrink:0; }
+.faculty-details .affiliation { margin-top:0; }
+.alumni-year li { justify-content:flex-start; }
+@media(max-width:800px) {
+ .faculty-profile { grid-template-columns:1fr; }
+ .faculty-identity { align-items:start; }
+ .home-affiliation span { display:block; margin-left:0; }
+}

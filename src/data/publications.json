@@ -60,7 +60,8 @@
     "note": "",
     "roleNote": "",
     "related": [],
-    "citation": "Kikuchi A, Sato E, Yoshimi Y, Takasaki H, Nishigaki N, Atsuzawa K, Kaneko Y, Yamaguchi M, Takahashi D, Dupree P, Kotake T (2026). Atypical endo-β-1,4-mannanases are necessary for normal glucomannan synthesis in Arabidopsis. Plant Physiology 201: kiag174. https://doi.org/10.1093/plphys/kiag174"
+    "citation": "Kikuchi A, Sato E, Yoshimi Y, Takasaki H, Nishigaki N, Atsuzawa K, Kaneko Y, Yamaguchi M, Takahashi D, Dupree P, Kotake T (2026). Atypical endo-β-1,4-mannanases are necessary for normal glucomannan synthesis in Arabidopsis. Plant Physiology 201: kiag174. https://doi.org/10.1093/plphys/kiag174",
+    "titleItalics": []
   },
   {
     "id": "pub-2025-09",
@@ -95,7 +96,8 @@
     "note": "オンライン公開：2025年",
     "roleNote": "*共同責任著者・同等貢献",
     "related": [],
-    "citation": "Shikata H, Yoshinari A, Asaoka M, Takahashi D (2026). Memory in the wall: expanding our understanding of the roles of plant cell walls. New Phytologist 249: 56-72. https://doi.org/10.1111/nph.70677"
+    "citation": "Shikata H, Yoshinari A, Asaoka M, Takahashi D (2026). Memory in the wall: expanding our understanding of the roles of plant cell walls. New Phytologist 249: 56-72. https://doi.org/10.1111/nph.70677",
+    "titleItalics": []
   },
   {
     "id": "pub-2025-18",
@@ -138,7 +140,8 @@
       "labelEn": "Featured on the issue cover",
       "credit": "Takuma Kikuchi, Daisuke Takahashi"
     },
-    "citation": "Kikuchi T, Soga K, Kotake T, Takahashi D (2025). Defective pollen meiosis in Arabidopsis due to combined arabinan and galactan insufficiency. Plant and Cell Physiology 66: 1346-1359. https://doi.org/10.1093/pcp/pcaf085"
+    "citation": "Kikuchi T, Soga K, Kotake T, Takahashi D (2025). Defective pollen meiosis in Arabidopsis due to combined arabinan and galactan insufficiency. Plant and Cell Physiology 66: 1346-1359. https://doi.org/10.1093/pcp/pcaf085",
+    "titleItalics": []
   },
   {
     "id": "pub-2025-19",
@@ -181,7 +184,10 @@
     "note": "",
     "roleNote": "",
     "related": [],
-    "citation": "Rani TS, Takahashi D, Mukherjee S, Uemura M, Madhuprakash J, Podile AR (2025). Secretome analysis of the chitinolytic machinery of Chitiniphilus shinanonensis and its implication in chitooligosaccharide production. Carbohydrate Polymers 353: 123272. https://doi.org/10.1016/j.carbpol.2025.123272"
+    "citation": "Rani TS, Takahashi D, Mukherjee S, Uemura M, Madhuprakash J, Podile AR (2025). Secretome analysis of the chitinolytic machinery of Chitiniphilus shinanonensis and its implication in chitooligosaccharide production. Carbohydrate Polymers 353: 123272. https://doi.org/10.1016/j.carbpol.2025.123272",
+    "titleItalics": [
+      "Chitiniphilus shinanonensis"
+    ]
   },
   {
     "id": "pub-2025-17",
@@ -256,7 +262,10 @@
     "note": "",
     "roleNote": "",
     "related": [],
-    "citation": "Yamaguchi M, Sato A, Takahashi D, Mori K, Fujimoto R, Miyagi A, Sato E, Ishikawa T, Sano R, Kurata T, Suzuki S, Kaneko Y, Kawai-Yamada M, Kotake T (2025). The rice BRITTLE CULM 4 gene encodes a membrane protein affecting cellulose synthesis in the secondary cell wall. Plant and Cell Physiology 66: 1444-1453. https://doi.org/10.1093/pcp/pcaf096"
+    "citation": "Yamaguchi M, Sato A, Takahashi D, Mori K, Fujimoto R, Miyagi A, Sato E, Ishikawa T, Sano R, Kurata T, Suzuki S, Kaneko Y, Kawai-Yamada M, Kotake T (2025). The rice BRITTLE CULM 4 gene encodes a membrane protein affecting cellulose synthesis in the secondary cell wall. Plant and Cell Physiology 66: 1444-1453. https://doi.org/10.1093/pcp/pcaf096",
+    "titleItalics": [
+      "BRITTLE CULM 4"
+    ]
   },
   {
     "id": "pub-2024-20",
@@ -303,7 +312,8 @@
     "note": "",
     "roleNote": "",
     "related": [],
-    "citation": "Chowhan S, Kikuchi T, Ohashi M, Kutsuno T, Handa H, Kotake T, Takahashi D (2024). Soluble sugars make a greater contribution than cell wall components to the variability of freezing tolerance in wheat cultivars. Plant Biotechnology 41: 401-415. https://doi.org/10.5511/plantbiotechnology.24.0801a"
+    "citation": "Chowhan S, Kikuchi T, Ohashi M, Kutsuno T, Handa H, Kotake T, Takahashi D (2024). Soluble sugars make a greater contribution than cell wall components to the variability of freezing tolerance in wheat cultivars. Plant Biotechnology 41: 401-415. https://doi.org/10.5511/plantbiotechnology.24.0801a",
+    "titleItalics": []
   },
   {
     "id": "pub-2024-22",
@@ -391,7 +401,8 @@
         "url": "https://scienceportal.jst.go.jp/newsflash/20240307_n01/"
       }
     ],
-    "citation": "Takahashi D, Soga K, Kikuchi T, Kutsuno T, Hao P, Sasaki K, Nishiyama Y, Kidokoro S, Sampathkumar A, Bacic A, Johnson KL, Kotake T (2024). Structural changes in cell wall pectic polymers contribute to freezing tolerance induced by cold acclimation in plants. Current Biology 34: 958-968.e5. https://doi.org/10.1016/j.cub.2024.01.045"
+    "citation": "Takahashi D, Soga K, Kikuchi T, Kutsuno T, Hao P, Sasaki K, Nishiyama Y, Kidokoro S, Sampathkumar A, Bacic A, Johnson KL, Kotake T (2024). Structural changes in cell wall pectic polymers contribute to freezing tolerance induced by cold acclimation in plants. Current Biology 34: 958-968.e5. https://doi.org/10.1016/j.cub.2024.01.045",
+    "titleItalics": []
   },
   {
     "id": "pub-2024-21",
@@ -446,7 +457,8 @@
     "note": "",
     "roleNote": "",
     "related": [],
-    "citation": "Umezawa A, Matsumoto M, Handa H, Nakazawa K, Miyagawa M, Seifert GJ, Takahashi D, Fushinobu S, Kotake T (2024). Cytosolic UDP-L-arabinose synthesis by bifunctional UDP-glucose 4-epimerases in Arabidopsis. The Plant Journal 119: 508-524. https://doi.org/10.1111/tpj.16779"
+    "citation": "Umezawa A, Matsumoto M, Handa H, Nakazawa K, Miyagawa M, Seifert GJ, Takahashi D, Fushinobu S, Kotake T (2024). Cytosolic UDP-L-arabinose synthesis by bifunctional UDP-glucose 4-epimerases in Arabidopsis. The Plant Journal 119: 508-524. https://doi.org/10.1111/tpj.16779",
+    "titleItalics": []
   },
   {
     "id": "pub-2024-10",
@@ -473,7 +485,8 @@
     "note": "",
     "roleNote": "",
     "related": [],
-    "citation": "Kotake T, Takahashi D (2024). On the separate metabolisms of UDP-sugars and GDP-sugars in plants. Trends in Glycoscience and Glycotechnology 36: E6-E11. https://doi.org/10.4052/tigg.2303.1e"
+    "citation": "Kotake T, Takahashi D (2024). On the separate metabolisms of UDP-sugars and GDP-sugars in plants. Trends in Glycoscience and Glycotechnology 36: E6-E11. https://doi.org/10.4052/tigg.2303.1e",
+    "titleItalics": []
   },
   {
     "id": "pub-2023-25",
@@ -516,7 +529,8 @@
       "labelEn": "Cover of the special issue",
       "credit": "Daisuke Takahashi"
     },
-    "citation": "Kutsuno T, Chowhan S, Kotake T, Takahashi D (2023). Temporal cell wall changes during cold acclimation and deacclimation and their potential involvement in freezing tolerance and growth. Physiologia Plantarum 175: e13837. https://doi.org/10.1111/ppl.13837"
+    "citation": "Kutsuno T, Chowhan S, Kotake T, Takahashi D (2023). Temporal cell wall changes during cold acclimation and deacclimation and their potential involvement in freezing tolerance and growth. Physiologia Plantarum 175: e13837. https://doi.org/10.1111/ppl.13837",
+    "titleItalics": []
   },
   {
     "id": "pub-2023-24",
@@ -567,7 +581,8 @@
     "note": "",
     "roleNote": "",
     "related": [],
-    "citation": "Lonsdale A, Ceballos-Laita L, Takahashi D, Uemura M, Abadía J, Davis M, Bacic A, Doblin MS (2023). LSPpred suite: tools for leaderless secretory protein prediction in plants. Plants 12: 1428. https://doi.org/10.3390/plants12071428"
+    "citation": "Lonsdale A, Ceballos-Laita L, Takahashi D, Uemura M, Abadía J, Davis M, Bacic A, Doblin MS (2023). LSPpred suite: tools for leaderless secretory protein prediction in plants. Plants 12: 1428. https://doi.org/10.3390/plants12071428",
+    "titleItalics": []
   },
   {
     "id": "pub-2023-23",
@@ -642,7 +657,8 @@
     "note": "",
     "roleNote": "",
     "related": [],
-    "citation": "Takahashi H, Kono T, Sawada K, Kumano S, Tsuri Y, Maruyama M, Yoshimura M, Takahashi D, Kawamura Y, Uemura M, Nakabayashi S, Mori Y, Hosokawa Y, Yoshikawa H (2023). Spatiotemporal control of ice crystallization in supercooled water via an ultrashort laser impulse. The Journal of Physical Chemistry Letters 14: 4394-4402. https://doi.org/10.1021/acs.jpclett.3c00414"
+    "citation": "Takahashi H, Kono T, Sawada K, Kumano S, Tsuri Y, Maruyama M, Yoshimura M, Takahashi D, Kawamura Y, Uemura M, Nakabayashi S, Mori Y, Hosokawa Y, Yoshikawa H (2023). Spatiotemporal control of ice crystallization in supercooled water via an ultrashort laser impulse. The Journal of Physical Chemistry Letters 14: 4394-4402. https://doi.org/10.1021/acs.jpclett.3c00414",
+    "titleItalics": []
   },
   {
     "id": "pub-2023-12",
@@ -678,7 +694,8 @@
         "url": "https://onlinelibrary.wiley.com/doi/toc/10.1111/(ISSN)1399-3054.coldhardiness"
       }
     ],
-    "citation": "Charrier G, Willick IR, Takahashi D (2023). Cross-disciplinary insights into the mechanisms of plant cold hardiness: from molecules to ecosystems. Physiologia Plantarum 175: e13901. https://doi.org/10.1111/ppl.13901"
+    "citation": "Charrier G, Willick IR, Takahashi D (2023). Cross-disciplinary insights into the mechanisms of plant cold hardiness: from molecules to ecosystems. Physiologia Plantarum 175: e13901. https://doi.org/10.1111/ppl.13901",
+    "titleItalics": []
   },
   {
     "id": "pub-2023-11",
@@ -709,7 +726,8 @@
     "note": "",
     "roleNote": "",
     "related": [],
-    "citation": "Ghosh K, Takahashi D, Kotake T (2023). Plant type II arabinogalactan: structural features and modification to increase functionality. Carbohydrate Research 529: 108828. https://doi.org/10.1016/j.carres.2023.108828"
+    "citation": "Ghosh K, Takahashi D, Kotake T (2023). Plant type II arabinogalactan: structural features and modification to increase functionality. Carbohydrate Research 529: 108828. https://doi.org/10.1016/j.carres.2023.108828",
+    "titleItalics": []
   },
   {
     "id": "pub-2022-29",
@@ -752,7 +770,10 @@
     "note": "",
     "roleNote": "",
     "related": [],
-    "citation": "Ceballos-Laita L, Takahashi D, Uemura M, Abadía J, López-Millán AF, Rodríguez-Celma J (2022). Effects of Fe and Mn deficiencies on the root protein profiles of tomato (Solanum lycopersicum) using two-dimensional electrophoresis and label-free shotgun analyses. International Journal of Molecular Sciences 23: 3719. https://doi.org/10.3390/ijms23073719"
+    "citation": "Ceballos-Laita L, Takahashi D, Uemura M, Abadía J, López-Millán AF, Rodríguez-Celma J (2022). Effects of Fe and Mn deficiencies on the root protein profiles of tomato (Solanum lycopersicum) using two-dimensional electrophoresis and label-free shotgun analyses. International Journal of Molecular Sciences 23: 3719. https://doi.org/10.3390/ijms23073719",
+    "titleItalics": [
+      "Solanum lycopersicum"
+    ]
   },
   {
     "id": "pub-2022-28",
@@ -795,7 +816,10 @@
     "note": "",
     "roleNote": "",
     "related": [],
-    "citation": "Kikuchi A, Hara K, Yoshimi Y, Soga K, Takahashi D, Kotake T (2022). In vivo structural modification of type II arabinogalactans with fungal endo-β-1,6-galactanase in Arabidopsis. Frontiers in Plant Science 13: 1010492. https://doi.org/10.3389/fpls.2022.1010492"
+    "citation": "Kikuchi A, Hara K, Yoshimi Y, Soga K, Takahashi D, Kotake T (2022). In vivo structural modification of type II arabinogalactans with fungal endo-β-1,6-galactanase in Arabidopsis. Frontiers in Plant Science 13: 1010492. https://doi.org/10.3389/fpls.2022.1010492",
+    "titleItalics": [
+      "In vivo"
+    ]
   },
   {
     "id": "pub-2022-26",
@@ -899,7 +923,8 @@
         "url": "https://www.nibb.ac.jp/press/2022/12/28.html"
       }
     ],
-    "citation": "Oikawa K, Goto-Yamada S, Hayashi Y, Takahashi D, Kimori Y, Shibata M, Yoshimoto K, Takemiya A, Kondo M, Hikino K, Kato A, Shimoda K, Ueda H, Uemura M, Numata K, Ohsumi Y, Hara-Nishimura I, Mano S, Yamada K, Nishimura M (2022). Pexophagy suppresses ROS-induced damage in leaf cells under high-intensity light. Nature Communications 13: 7493. https://doi.org/10.1038/s41467-022-35138-z"
+    "citation": "Oikawa K, Goto-Yamada S, Hayashi Y, Takahashi D, Kimori Y, Shibata M, Yoshimoto K, Takemiya A, Kondo M, Hikino K, Kato A, Shimoda K, Ueda H, Uemura M, Numata K, Ohsumi Y, Hara-Nishimura I, Mano S, Yamada K, Nishimura M (2022). Pexophagy suppresses ROS-induced damage in leaf cells under high-intensity light. Nature Communications 13: 7493. https://doi.org/10.1038/s41467-022-35138-z",
+    "titleItalics": []
   },
   {
     "id": "pub-2022-27",
@@ -947,7 +972,10 @@
         "url": "https://onlinelibrary.wiley.com/doi/toc/10.1111/(ISSN)1399-3054.coldhardiness"
       }
     ],
-    "citation": "Watanabe E, Kondo M, Md Mostafa K, Uemura M, Takahashi D, Kawamura Y (2022). Plasma membrane proteomic changes of Arabidopsis DRP1E during cold acclimation in association with the enhancement of freezing tolerance. Physiologia Plantarum 174: e13820. https://doi.org/10.1111/ppl.13820"
+    "citation": "Watanabe E, Kondo M, Md Mostafa K, Uemura M, Takahashi D, Kawamura Y (2022). Plasma membrane proteomic changes of Arabidopsis DRP1E during cold acclimation in association with the enhancement of freezing tolerance. Physiologia Plantarum 174: e13820. https://doi.org/10.1111/ppl.13820",
+    "titleItalics": [
+      "Arabidopsis"
+    ]
   },
   {
     "id": "pub-2021-30",
@@ -1002,7 +1030,8 @@
     "note": "",
     "roleNote": "",
     "related": [],
-    "citation": "Nishigaki N, Yoshimi Y, Kuki H, Kunieda T, Hara-Nishimura I, Tsumuraya Y, Takahashi D, Dupree P, Kotake T (2021). Galactoglucomannan structure of Arabidopsis seed-coat mucilage in GDP-mannose synthesis impaired mutants. Physiologia Plantarum 173: 1244-1252. https://doi.org/10.1111/ppl.13519"
+    "citation": "Nishigaki N, Yoshimi Y, Kuki H, Kunieda T, Hara-Nishimura I, Tsumuraya Y, Takahashi D, Dupree P, Kotake T (2021). Galactoglucomannan structure of Arabidopsis seed-coat mucilage in GDP-mannose synthesis impaired mutants. Physiologia Plantarum 173: 1244-1252. https://doi.org/10.1111/ppl.13519",
+    "titleItalics": []
   },
   {
     "id": "pub-2021-31",
@@ -1077,7 +1106,8 @@
     "note": "オンライン公開：2020年",
     "roleNote": "*共同責任著者",
     "related": [],
-    "citation": "Takahashi D, Johnson K, Hao P, Tuong T, Erban A, Sampathkumar A, Bacic A, Livingston III DP, Kopka J, Kuroha T, Yokoyama R, Nishitani K, Zuther E, Hincha DK (2021). Cell wall modification by the xyloglucan endotransglucosylase/hydrolase XTH19 influences freezing tolerance after cold and sub-zero acclimation. Plant, Cell & Environment 44: 915-930. https://doi.org/10.1111/pce.13953"
+    "citation": "Takahashi D, Johnson K, Hao P, Tuong T, Erban A, Sampathkumar A, Bacic A, Livingston III DP, Kopka J, Kuroha T, Yokoyama R, Nishitani K, Zuther E, Hincha DK (2021). Cell wall modification by the xyloglucan endotransglucosylase/hydrolase XTH19 influences freezing tolerance after cold and sub-zero acclimation. Plant, Cell & Environment 44: 915-930. https://doi.org/10.1111/pce.13953",
+    "titleItalics": []
   },
   {
     "id": "pub-2021-13",
@@ -1112,7 +1142,8 @@
     "note": "",
     "roleNote": "*共同責任著者・同等貢献",
     "related": [],
-    "citation": "Takahashi D, Willick IR, Kasuga J, Livingston III DP (2021). Responses of the plant cell wall to sub-zero temperatures: a brief update. Plant and Cell Physiology 62: 1858-1866. https://doi.org/10.1093/pcp/pcab103"
+    "citation": "Takahashi D, Willick IR, Kasuga J, Livingston III DP (2021). Responses of the plant cell wall to sub-zero temperatures: a brief update. Plant and Cell Physiology 62: 1858-1866. https://doi.org/10.1093/pcp/pcab103",
+    "titleItalics": []
   },
   {
     "id": "pub-2020-33",
@@ -1171,7 +1202,10 @@
     "note": "",
     "roleNote": "",
     "related": [],
-    "citation": "Ceballos-Laita L, Gutierrez-Carbonell E, Takahashi D, Lonsdale A, Abadía A, Doblin MS, Bacic A, Uemura M, Abadía J, López-Millán AF (2020). Effects of excess manganese on the xylem sap protein profile of tomato (Solanum lycopersicum) as revealed by shotgun proteomic analysis. International Journal of Molecular Sciences 21: 8863. https://doi.org/10.3390/ijms21228863"
+    "citation": "Ceballos-Laita L, Gutierrez-Carbonell E, Takahashi D, Lonsdale A, Abadía A, Doblin MS, Bacic A, Uemura M, Abadía J, López-Millán AF (2020). Effects of excess manganese on the xylem sap protein profile of tomato (Solanum lycopersicum) as revealed by shotgun proteomic analysis. International Journal of Molecular Sciences 21: 8863. https://doi.org/10.3390/ijms21228863",
+    "titleItalics": [
+      "Solanum lycopersicum"
+    ]
   },
   {
     "id": "pub-2020-32",
@@ -1226,7 +1260,8 @@
     "note": "",
     "roleNote": "",
     "related": [],
-    "citation": "Ito K, Fukuoka K, Nishigaki N, Hara K, Yoshimi Y, Kuki H, Takahashi D, Tsumuraya Y, Kotake T (2020). Structural features conserved in subclass of type II arabinogalactan. Plant Biotechnology 37: 459-463. https://doi.org/10.5511/plantbiotechnology.20.0721a"
+    "citation": "Ito K, Fukuoka K, Nishigaki N, Hara K, Yoshimi Y, Kuki H, Takahashi D, Tsumuraya Y, Kotake T (2020). Structural features conserved in subclass of type II arabinogalactan. Plant Biotechnology 37: 459-463. https://doi.org/10.5511/plantbiotechnology.20.0721a",
+    "titleItalics": []
   },
   {
     "id": "pub-2020-34",
@@ -1261,7 +1296,10 @@
     "note": "",
     "roleNote": "",
     "related": [],
-    "citation": "Li B, Takahashi D, Kawamura Y, Uemura M (2020). Plasma membrane proteome analyses of Arabidopsis thaliana suspension-cultured cells during cold or ABA treatment: relationship with freezing tolerance and growth phase. Journal of Proteomics 211: 103528. https://doi.org/10.1016/j.jprot.2019.103528"
+    "citation": "Li B, Takahashi D, Kawamura Y, Uemura M (2020). Plasma membrane proteome analyses of Arabidopsis thaliana suspension-cultured cells during cold or ABA treatment: relationship with freezing tolerance and growth phase. Journal of Proteomics 211: 103528. https://doi.org/10.1016/j.jprot.2019.103528",
+    "titleItalics": [
+      "Arabidopsis thaliana"
+    ]
   },
   {
     "id": "pub-2020-01",
@@ -1306,7 +1344,8 @@
     "related": [],
     "booktitle": "Plant Cold Acclimation",
     "publisher": "Springer US",
-    "citation": "Md Mostafa K, Takahashi D, Nakayama T, Miki Y, Kawamura Y, Uemura M (2020). Proteomic approaches to identify cold-regulated plasma membrane proteins. Plant Cold Acclimation: Methods in Molecular Biology, Eds. Hincha DK, Zuther E (Humana, New York, NY), 171-186 (ISBN-978-1-0716-0659-9). https://doi.org/10.1007/978-1-0716-0660-5_13"
+    "citation": "Md Mostafa K, Takahashi D, Nakayama T, Miki Y, Kawamura Y, Uemura M (2020). Proteomic approaches to identify cold-regulated plasma membrane proteins. Plant Cold Acclimation: Methods in Molecular Biology, Eds. Hincha DK, Zuther E (Humana, New York, NY), 171-186 (ISBN-978-1-0716-0659-9). https://doi.org/10.1007/978-1-0716-0660-5_13",
+    "titleItalics": []
   },
   {
     "id": "pub-2020-03",
@@ -1347,7 +1386,8 @@
     "related": [],
     "booktitle": "Plant Proteomics",
     "publisher": "Springer US",
-    "citation": "Takahashi D, Li B, Nakayama T, Kawamura Y, Uemura M (2020). Shotgun proteomics of plant plasma membrane and microdomain proteins using nano-LC-MS/MS. Plant Proteomics: Methods in Molecular Biology, Eds. Jorrin-Novo J, Valledor L, Castillejo M, Rey MD (Humana, New York, NY),89-106 (ISBN-978-1-0716-0527-1). https://doi.org/10.1007/978-1-0716-0528-8_7"
+    "citation": "Takahashi D, Li B, Nakayama T, Kawamura Y, Uemura M (2020). Shotgun proteomics of plant plasma membrane and microdomain proteins using nano-LC-MS/MS. Plant Proteomics: Methods in Molecular Biology, Eds. Jorrin-Novo J, Valledor L, Castillejo M, Rey MD (Humana, New York, NY),89-106 (ISBN-978-1-0716-0527-1). https://doi.org/10.1007/978-1-0716-0528-8_7",
+    "titleItalics": []
   },
   {
     "id": "pub-2020-02",
@@ -1380,7 +1420,8 @@
     "related": [],
     "booktitle": "Plant Cold Acclimation",
     "publisher": "Springer US",
-    "citation": "Takahashi D, Zuther E, Hincha DK (2020). Analysis of changes in plant cell wall composition and structure during cold acclimation. Plant Cold Acclimation: Methods in Molecular Biology, Eds. Hincha DK, Zuther E (Humana, New York, NY), 255-268 (ISBN-978-1-0716-0659-9). https://doi.org/10.1007/978-1-0716-0660-5_17"
+    "citation": "Takahashi D, Zuther E, Hincha DK (2020). Analysis of changes in plant cell wall composition and structure during cold acclimation. Plant Cold Acclimation: Methods in Molecular Biology, Eds. Hincha DK, Zuther E (Humana, New York, NY), 255-268 (ISBN-978-1-0716-0659-9). https://doi.org/10.1007/978-1-0716-0660-5_17",
+    "titleItalics": []
   },
   {
     "id": "pub-2018-36",
@@ -1415,7 +1456,8 @@
     "note": "",
     "roleNote": "*共同第一著者",
     "related": [],
-    "citation": "Miki Y, Takahashi D, Kawamura Y, Uemura M (2019). Temporal proteomics of Arabidopsis plasma membrane during cold- and de-acclimation. Journal of Proteomics 197: 71-81. https://doi.org/10.1016/j.jprot.2018.11.008"
+    "citation": "Miki Y, Takahashi D, Kawamura Y, Uemura M (2019). Temporal proteomics of Arabidopsis plasma membrane during cold- and de-acclimation. Journal of Proteomics 197: 71-81. https://doi.org/10.1016/j.jprot.2018.11.008",
+    "titleItalics": []
   },
   {
     "id": "pub-2019-35",
@@ -1462,7 +1504,10 @@
     "note": "",
     "roleNote": "",
     "related": [],
-    "citation": "Takahashi D, Gorka M, Erban A, Graf A, Kopka J, Zuther E, Hincha DK (2019). Both cold and sub-zero acclimation induce cell wall modification and changes in the extracellular proteome in Arabidopsis thaliana. Scientific Reports 9: 2289. https://doi.org/10.1038/s41598-019-38688-3"
+    "citation": "Takahashi D, Gorka M, Erban A, Graf A, Kopka J, Zuther E, Hincha DK (2019). Both cold and sub-zero acclimation induce cell wall modification and changes in the extracellular proteome in Arabidopsis thaliana. Scientific Reports 9: 2289. https://doi.org/10.1038/s41598-019-38688-3",
+    "titleItalics": [
+      "Arabidopsis thaliana"
+    ]
   },
   {
     "id": "pub-2017-38",
@@ -1509,7 +1554,8 @@
     "note": "",
     "roleNote": "",
     "related": [],
-    "citation": "Ceballos-Laita L, Gutierrez-Carbonell E, Takahashi D, Abadía A, Uemura M, Abadía J, López-Millán AF (2018). Data on xylem sap proteins from Mn- and Fe-deficient tomato plants obtained using shotgun proteomics. Data in Brief 17: 512-516. https://doi.org/10.1016/j.dib.2018.01.034"
+    "citation": "Ceballos-Laita L, Gutierrez-Carbonell E, Takahashi D, Abadía A, Uemura M, Abadía J, López-Millán AF (2018). Data on xylem sap proteins from Mn- and Fe-deficient tomato plants obtained using shotgun proteomics. Data in Brief 17: 512-516. https://doi.org/10.1016/j.dib.2018.01.034",
+    "titleItalics": []
   },
   {
     "id": "pub-2017-39",
@@ -1556,7 +1602,10 @@
     "note": "",
     "roleNote": "",
     "related": [],
-    "citation": "Ceballos-Laita L, Gutierrez-Carbonell E, Takahashi D, Abadía A, Uemura M, Abadía J, López-Millán AF (2018). Effects of Fe and Mn deficiencies on the protein profiles of tomato (Solanum lycopersicum) xylem sap as revealed by shotgun analyses. Journal of Proteomics 170: 117-129. https://doi.org/10.1016/j.jprot.2017.08.018"
+    "citation": "Ceballos-Laita L, Gutierrez-Carbonell E, Takahashi D, Abadía A, Uemura M, Abadía J, López-Millán AF (2018). Effects of Fe and Mn deficiencies on the protein profiles of tomato (Solanum lycopersicum) xylem sap as revealed by shotgun analyses. Journal of Proteomics 170: 117-129. https://doi.org/10.1016/j.jprot.2017.08.018",
+    "titleItalics": [
+      "Solanum lycopersicum"
+    ]
   },
   {
     "id": "pub-2018-37",
@@ -1595,7 +1644,8 @@
     "note": "",
     "roleNote": "",
     "related": [],
-    "citation": "Willick IR, Takahashi D, Fowler DB, Uemura M, Tanino KK (2018). Tissue-specific changes in apoplastic proteins and cell wall structure during cold acclimation of winter wheat crowns. Journal of Experimental Botany 69: 1221-1234. https://doi.org/10.1093/jxb/erx450"
+    "citation": "Willick IR, Takahashi D, Fowler DB, Uemura M, Tanino KK (2018). Tissue-specific changes in apoplastic proteins and cell wall structure during cold acclimation of winter wheat crowns. Journal of Experimental Botany 69: 1221-1234. https://doi.org/10.1093/jxb/erx450",
+    "titleItalics": []
   },
   {
     "id": "pub-2018-05",
@@ -1632,7 +1682,10 @@
     "related": [],
     "booktitle": "Plant Membrane Proteomics",
     "publisher": "Springer New York",
-    "citation": "Li B, Takahashi D, Kawamura Y, Uemura M (2018). Plasma membrane proteomics of Arabidopsis suspension-cultured cells associated with growth phase using nano-LC-MS/MS. Plant Membrane Proteomics: Methods in Molecular Biology, Eds. Mock H-P, Matros A, Witzel K  (Humana, New York, NY), 185-194 (ISBN-13:978-1-4939-7409-2). https://doi.org/10.1007/978-1-4939-7411-5_12"
+    "citation": "Li B, Takahashi D, Kawamura Y, Uemura M (2018). Plasma membrane proteomics of Arabidopsis suspension-cultured cells associated with growth phase using nano-LC-MS/MS. Plant Membrane Proteomics: Methods in Molecular Biology, Eds. Mock H-P, Matros A, Witzel K  (Humana, New York, NY), 185-194 (ISBN-13:978-1-4939-7409-2). https://doi.org/10.1007/978-1-4939-7411-5_12",
+    "titleItalics": [
+      "Arabidopsis"
+    ]
   },
   {
     "id": "pub-2018-04",
@@ -1665,7 +1718,8 @@
     "related": [],
     "booktitle": "Survival Strategies in Extreme Cold and Desiccation",
     "publisher": "Springer Singapore",
-    "citation": "Takahashi D, Uemura M, Kawamura Y (2018). Freezing tolerance of plant cells: from the aspect of plasma membrane and microdomain. Survival Strategies in Extreme Cold and Desiccation: Advances in Experimental Medicine and Biology, Eds. Uemura M, Inoue M, Sakurai M (Springer, Singapore), 61-79 (ISBN- 978-981-13-1244-1). https://doi.org/10.1007/978-981-13-1244-1_4"
+    "citation": "Takahashi D, Uemura M, Kawamura Y (2018). Freezing tolerance of plant cells: from the aspect of plasma membrane and microdomain. Survival Strategies in Extreme Cold and Desiccation: Advances in Experimental Medicine and Biology, Eds. Uemura M, Inoue M, Sakurai M (Springer, Singapore), 61-79 (ISBN- 978-981-13-1244-1). https://doi.org/10.1007/978-981-13-1244-1_4",
+    "titleItalics": []
   },
   {
     "id": "pub-2017-06",
@@ -1702,7 +1756,8 @@
     "related": [],
     "booktitle": "Isolation of Plant Organelles and Structures",
     "publisher": "Springer New York",
-    "citation": "Minami A, Takahashi D, Kawamura Y, Uemura M (2017). Isolation of plasma membrane and plasma membrane microdomains. Isolation of Plant Organelles and Structures: Methods in Molecular Biology, Eds. Taylor N, Millar H (Humana, New York, NY), 199-212 (ISBN-13: 978-1-4939-6531-1). https://doi.org/10.1007/978-1-4939-6533-5_16"
+    "citation": "Minami A, Takahashi D, Kawamura Y, Uemura M (2017). Isolation of plasma membrane and plasma membrane microdomains. Isolation of Plant Organelles and Structures: Methods in Molecular Biology, Eds. Taylor N, Millar H (Humana, New York, NY), 199-212 (ISBN-13: 978-1-4939-6531-1). https://doi.org/10.1007/978-1-4939-6533-5_16",
+    "titleItalics": []
   },
   {
     "id": "pub-2016-41",
@@ -1761,7 +1816,10 @@
     "note": "",
     "roleNote": "",
     "related": [],
-    "citation": "Gutierrez-Carbonell E, Takahashi D, Lüthje S, González-Reyes JA, Contreras-Moreira B, Abadía A, Uemura M, Abadía J, López-Millán A-F (2016). A shotgun proteomic approach reveals that Fe deficiency causes marked changes in the protein profiles of plasma membrane and detergent-resistant microdomain preparations from Beta vulgaris roots. Journal of Proteome Research 15: 2510-2524. https://doi.org/10.1021/acs.jproteome.6b00026"
+    "citation": "Gutierrez-Carbonell E, Takahashi D, Lüthje S, González-Reyes JA, Contreras-Moreira B, Abadía A, Uemura M, Abadía J, López-Millán A-F (2016). A shotgun proteomic approach reveals that Fe deficiency causes marked changes in the protein profiles of plasma membrane and detergent-resistant microdomain preparations from Beta vulgaris roots. Journal of Proteome Research 15: 2510-2524. https://doi.org/10.1021/acs.jproteome.6b00026",
+    "titleItalics": [
+      "Beta vulgaris"
+    ]
   },
   {
     "id": "pub-2016-42",
@@ -1796,7 +1854,8 @@
     "note": "",
     "roleNote": "",
     "related": [],
-    "citation": "Takahashi D, Imai H, Kawamura Y, Uemura M (2016). Lipid profiles of detergent resistant fractions of the plasma membrane in oat and rye in association with cold acclimation and freezing tolerance. Cryobiology 72: 123-134. https://doi.org/10.1016/j.cryobiol.2016.02.003"
+    "citation": "Takahashi D, Imai H, Kawamura Y, Uemura M (2016). Lipid profiles of detergent resistant fractions of the plasma membrane in oat and rye in association with cold acclimation and freezing tolerance. Cryobiology 72: 123-134. https://doi.org/10.1016/j.cryobiol.2016.02.003",
+    "titleItalics": []
   },
   {
     "id": "pub-2016-40",
@@ -1827,7 +1886,8 @@
     "note": "",
     "roleNote": "",
     "related": [],
-    "citation": "Takahashi D, Kawamura Y, Uemura M (2016). Cold acclimation is accompanied by complex responses of glycosylphosphatidylinositol (GPI)-anchored proteins in Arabidopsis. Journal of Experimental Botany 67: 5203-5215. https://doi.org/10.1093/jxb/erw279"
+    "citation": "Takahashi D, Kawamura Y, Uemura M (2016). Cold acclimation is accompanied by complex responses of glycosylphosphatidylinositol (GPI)-anchored proteins in Arabidopsis. Journal of Experimental Botany 67: 5203-5215. https://doi.org/10.1093/jxb/erw279",
+    "titleItalics": []
   },
   {
     "id": "pub-2015-43",
@@ -1862,7 +1922,10 @@
     "note": "オンライン公開：2014年",
     "roleNote": "",
     "related": [],
-    "citation": "Rani TS, Takahashi D, Uemura M, Podile AR (2015). Proteins associated with oxidative burst and cell wall strengthening accumulate during Citrus-Xanthomonas non-host interaction. Plant Molecular Biology Reporter 33: 1349-1360. https://doi.org/10.1007/s11105-014-0817-y"
+    "citation": "Rani TS, Takahashi D, Uemura M, Podile AR (2015). Proteins associated with oxidative burst and cell wall strengthening accumulate during Citrus-Xanthomonas non-host interaction. Plant Molecular Biology Reporter 33: 1349-1360. https://doi.org/10.1007/s11105-014-0817-y",
+    "titleItalics": [
+      "Xanthomonas"
+    ]
   },
   {
     "id": "pub-2014-44",
@@ -1921,7 +1984,10 @@
     "note": "",
     "roleNote": "",
     "related": [],
-    "citation": "Gutierrez-Carbonell E, Takahashi D, Lattanzio G, Rodríguez-Celma J, Kehr J, Soll J, Philippar K, Uemura M, Abadía J, López-Millán A-F (2014). The distinct functional roles of the inner and outer chloroplast envelope of pea (Pisum sativum) as revealed by proteomic approaches. Journal of Proteome Research 13: 2941-2953. https://doi.org/10.1021/pr500106s"
+    "citation": "Gutierrez-Carbonell E, Takahashi D, Lattanzio G, Rodríguez-Celma J, Kehr J, Soll J, Philippar K, Uemura M, Abadía J, López-Millán A-F (2014). The distinct functional roles of the inner and outer chloroplast envelope of pea (Pisum sativum) as revealed by proteomic approaches. Journal of Proteome Research 13: 2941-2953. https://doi.org/10.1021/pr500106s",
+    "titleItalics": [
+      "Pisum sativum"
+    ]
   },
   {
     "id": "pub-2014-08",
@@ -1962,7 +2028,8 @@
     "related": [],
     "booktitle": "Plant Proteomics",
     "publisher": "Humana Press",
-    "citation": "Takahashi D, Li B, Nakayama T, Kawamura Y, Uemura M (2014). Shotgun proteomics of plant plasma membrane and microdomain proteins using nano-LC-MS/MS. Plant Proteomics: Methods in Molecular Biology, 2nd Ed. Eds. Jorrin-Novo J., Komatsu S, Weckwerth W, Wienkoop S (Humana Press, Totowa, NJ), 481-498 (ISBN-13: 978-1-62703-630-6). https://doi.org/10.1007/978-1-62703-631-3_33"
+    "citation": "Takahashi D, Li B, Nakayama T, Kawamura Y, Uemura M (2014). Shotgun proteomics of plant plasma membrane and microdomain proteins using nano-LC-MS/MS. Plant Proteomics: Methods in Molecular Biology, 2nd Ed. Eds. Jorrin-Novo J., Komatsu S, Weckwerth W, Wienkoop S (Humana Press, Totowa, NJ), 481-498 (ISBN-13: 978-1-62703-630-6). https://doi.org/10.1007/978-1-62703-631-3_33",
+    "titleItalics": []
   },
   {
     "id": "pub-2014-07",
@@ -2003,7 +2070,8 @@
     "related": [],
     "booktitle": "Plant Cold Acclimation",
     "publisher": "Springer New York",
-    "citation": "Takahashi D, Nakayama T, Miki Y, Kawamura Y, Uemura M (2014). Proteomic approaches to identify cold-regulated plasma membrane proteins. Plant Cold Acclimation: Methods in Molecular Biology, Eds. Hincha DK, Zuther E (Humana, New York, NY), 159-170 (ISBN-13: 978-1-4939-0843-1). https://doi.org/10.1007/978-1-4939-0844-8_13"
+    "citation": "Takahashi D, Nakayama T, Miki Y, Kawamura Y, Uemura M (2014). Proteomic approaches to identify cold-regulated plasma membrane proteins. Plant Cold Acclimation: Methods in Molecular Biology, Eds. Hincha DK, Zuther E (Humana, New York, NY), 159-170 (ISBN-13: 978-1-4939-0843-1). https://doi.org/10.1007/978-1-4939-0844-8_13",
+    "titleItalics": []
   },
   {
     "id": "pub-2013-45",
@@ -2034,7 +2102,8 @@
     "note": "",
     "roleNote": "",
     "related": [],
-    "citation": "Takahashi D, Kawamura Y, Uemura M (2013). Changes of detergent-resistant plasma membrane proteins in oat and rye during cold acclimation: association with differential freezing tolerance. Journal of Proteome Research 12: 4998-5011. https://doi.org/10.1021/pr400750g"
+    "citation": "Takahashi D, Kawamura Y, Uemura M (2013). Changes of detergent-resistant plasma membrane proteins in oat and rye during cold acclimation: association with differential freezing tolerance. Journal of Proteome Research 12: 4998-5011. https://doi.org/10.1021/pr400750g",
+    "titleItalics": []
   },
   {
     "id": "pub-2013-15",
@@ -2065,7 +2134,8 @@
     "note": "",
     "roleNote": "",
     "related": [],
-    "citation": "Takahashi D, Kawamura Y, Uemura M (2013). Detergent-resistant plasma membrane proteome to elucidate microdomain functions in plant cells. Frontiers in Plant Science 4: 27. https://doi.org/10.3389/fpls.2013.00027"
+    "citation": "Takahashi D, Kawamura Y, Uemura M (2013). Detergent-resistant plasma membrane proteome to elucidate microdomain functions in plant cells. Frontiers in Plant Science 4: 27. https://doi.org/10.3389/fpls.2013.00027",
+    "titleItalics": []
   },
   {
     "id": "pub-2013-14",
@@ -2104,7 +2174,8 @@
     "note": "",
     "roleNote": "",
     "related": [],
-    "citation": "Takahashi D, Li B, Nakayama T, Kawamura Y, Uemura M (2013). Plant plasma membrane proteomics for improving cold tolerance. Frontiers in Plant Science 4: 90. https://doi.org/10.3389/fpls.2013.00090"
+    "citation": "Takahashi D, Li B, Nakayama T, Kawamura Y, Uemura M (2013). Plant plasma membrane proteomics for improving cold tolerance. Frontiers in Plant Science 4: 90. https://doi.org/10.3389/fpls.2013.00090",
+    "titleItalics": []
   },
   {
     "id": "pub-2012-46",
@@ -2139,7 +2210,8 @@
     "note": "",
     "roleNote": "",
     "related": [],
-    "citation": "Li B, Takahashi D, Kawamura Y, Uemura M (2012). Comparison of plasma membrane proteomic changes of Arabidopsis suspension-cultured cells (T87 line) after cold and ABA treatment in association with freezing tolerance development. Plant and Cell Physiology 53: 543-554. https://doi.org/10.1093/pcp/pcs010"
+    "citation": "Li B, Takahashi D, Kawamura Y, Uemura M (2012). Comparison of plasma membrane proteomic changes of Arabidopsis suspension-cultured cells (T87 line) after cold and ABA treatment in association with freezing tolerance development. Plant and Cell Physiology 53: 543-554. https://doi.org/10.1093/pcp/pcs010",
+    "titleItalics": []
   },
   {
     "id": "pub-2012-47",
@@ -2174,6 +2246,7 @@
     "note": "",
     "roleNote": "",
     "related": [],
-    "citation": "Takahashi D, Kawamura Y, Yamashita T, Uemura M (2012). Detergent-resistant plasma membrane proteome in oat and rye: similarities and dissimilarities between two monocotyledonous plants. Journal of Proteome Research 11: 1654-1665. https://doi.org/10.1021/pr200849v"
+    "citation": "Takahashi D, Kawamura Y, Yamashita T, Uemura M (2012). Detergent-resistant plasma membrane proteome in oat and rye: similarities and dissimilarities between two monocotyledonous plants. Journal of Proteome Research 11: 1654-1665. https://doi.org/10.1021/pr200849v",
+    "titleItalics": []
   }
 ]
