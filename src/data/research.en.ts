@@ -33,7 +33,7 @@ const translations=[
    'Cold-treated komatsuna can develop thicker leaves and uneven leaf surfaces. Such changes may involve sugar accumulation, cell expansion and division, and cell wall properties.',
    'We investigate how polysaccharide structure and metabolism relate to the shape and physical properties of cells and tissues. These observations connect molecular responses with visible changes in plants exposed to cold.',
   ]},
- ],keywords:['Cell walls','Starch','Fructans','Cold-induced morphology'],figure:'',video:'komatsuna-cold.mp4',poster:'komatsuna-poster.webp',autoplay:true,caption:'Komatsuna grown under cold conditions (time-lapse).',alt:'Time-lapse of komatsuna growing under cold conditions, with uneven leaf surfaces.'},
+ ],keywords:['Cell walls','Starch','Fructans','Cold-induced morphology'],figure:'',video:'komatsuna-cold-2x.mp4',poster:'komatsuna-poster.webp',autoplay:true,caption:'Komatsuna grown under cold conditions (time-lapse).',alt:'Time-lapse of komatsuna growing under cold conditions, with uneven leaf surfaces.'},
  {title:'Desiccation tolerance and sugars in resurrection plants',lead:'We compare Selaginella tamariscina with a related species to study how trehalose, other sugars and cell walls contribute to protection during drying and recovery after rehydration.',
  sections:[
   {heading:'What are resurrection plants?',paragraphs:[
