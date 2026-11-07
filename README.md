@@ -4,7 +4,7 @@
 
 [公開サイト](https://d-takahashi-lab.github.io/)
 
-ローカルでの確認（Node.js 24）
+ローカルでの確認（Node.js 22.23.4以上。デプロイでは24を使用）
 
 ```sh
 npm ci

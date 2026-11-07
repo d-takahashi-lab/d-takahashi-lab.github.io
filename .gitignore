@@ -4,7 +4,7 @@ dist/
 .DS_Store
 
 # Large source photographs and videos; publish only site-public assets.
-public/images/
+public/
 work/
 outputs/
 

@@ -26,7 +26,7 @@
   - 業績 `publications.json`、ニュース `news.json` は1ファイルに日英両方を持つ（news は `ja` / `en` フィールド）。
 - `site-public/`：公開する画像・動画（`publicDir`）。
   - `site-public/admin/` と `site-public/images/news/` は prebuild で生成・整理されるので手で編集しない。
-- `public/`：元写真・元動画の置き場（非公開）。ここから縮小・変換して `site-public/` に置く。`.gitignore` で除外しているのは `public/images/` のみなので、それ以外を置く場合は除外を確認する。
+- `public/`：元写真・元動画の置き場（非公開）。ここから縮小・変換して `site-public/` に置く。`public/` 全体を gitignore で除外している。
 - `work/`, `outputs/`：作業用スクリプト・画像（gitignore済み）。`.news-editor/` はローカル編集画面のバックアップ（gitignore済み）。
 - `scripts/news-editor/`：News投稿画面。公開サイトの `/admin/` で、研究室メンバーがブラウザから GitHub API 経由で `news.json`（と画像）を main に直接コミットする。
 - `src/pages/designs/`, `src/pages/logos.astro`：デザイン・ロゴ検討時の比較ページ（過去の検討案。本体のデザイン基準には含めない）。
