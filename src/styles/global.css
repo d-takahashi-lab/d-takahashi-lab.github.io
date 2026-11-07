@@ -122,8 +122,8 @@ figcaption { font-family: var(--font-sans); font-size: var(--text-meta); color: 
 .theme-references a>p { font-size: var(--text-body); line-height: 1.65; margin-top: var(--space-2); }
 /* People: names are content, so faculty/students/alumni all use the same sans family. */
 .faculty-profile { display: grid; grid-template-columns: 1fr 1.4fr; gap: var(--space-6); margin-top: var(--space-6); align-items: center; }
-.faculty-profile figure { width: 160px; height: 180px; overflow: hidden; }
-.faculty-profile img { width: 100%; height: 100%; object-fit: cover; object-position: 65% center; }
+.faculty-profile figure { width: 180px; }
+.faculty-profile img { width: 100%; height: auto; display: block; }
 .faculty-profile .position { font-size: var(--text-small); color: var(--muted); margin-bottom: var(--space-2); }
 .faculty-profile h3 { font-size: var(--text-section); }
 .faculty-profile h3 small { display: block; font-size: var(--text-body); color: var(--muted); margin-top: var(--space-1); font-weight: 400; }
@@ -260,7 +260,7 @@ footer { margin: 0 var(--edge); padding: var(--space-6) 0; border-top: var(--rul
  .theme-references h3 { grid-row: auto; }
  .theme-references>a { grid-column: 1; }
  .faculty-profile { gap: var(--space-5); }
- .faculty-profile figure { width: 100px; height: 120px; }
+ .faculty-profile figure { width: 120px; }
  .faculty-profile h3 { font-size: var(--text-subsection); }
  .faculty-profile h3 small { font-size: var(--text-small); }
  .student-section,.alumni-section,.location-section,.directions-section { padding-top: var(--space-5); }
