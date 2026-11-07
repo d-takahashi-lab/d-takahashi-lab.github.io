@@ -265,7 +265,7 @@ footer { margin: 0 var(--edge); padding: var(--space-6) 0; border-top: var(--rul
  .faculty-profile h3 small { font-size: var(--text-small); }
  .student-section,.alumni-section,.location-section,.directions-section { padding-top: var(--space-5); }
  .student { grid-template-columns: 1fr; gap: var(--space-4); min-height: 0; }
- .student-name { gap: var(--space-4); }
+ .student-name { align-items: start; }
  .student-name img { width: 120px; height: 120px; }
  .alumni-year { grid-template-columns: 56px minmax(0,1fr); gap: var(--space-4); }
  .alumni-year ul { grid-template-columns: 1fr; }
