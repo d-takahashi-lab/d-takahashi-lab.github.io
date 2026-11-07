@@ -83,7 +83,7 @@ html[lang=en] .identity-name,html[lang=en] .identity-name-compact { letter-spaci
 .body-note,.muted-note { font-size: var(--text-small); line-height: var(--leading-body); color: var(--muted); margin-top: var(--space-4); }
 .text-link { display: inline-flex; gap: var(--space-4); border-bottom: 1px solid var(--control-line); padding-bottom: var(--space-2); margin-top: var(--space-5); font-size: var(--text-small); line-height: 1.8; }
 .profile-links { display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-5); margin-top: var(--space-5); font-size: var(--text-small); line-height: 1.8; }
-.profile-links a { text-decoration: underline; text-decoration-color: var(--control-line); text-underline-offset: 5px; }
+.profile-links a { color: var(--muted); text-decoration: underline; text-decoration-color: var(--control-line); text-underline-offset: 5px; }
 /* Home and photograph sequence. */
 .editorial-hero { display: block; margin: var(--space-8) var(--gutter) 0; align-items: center; }
 .photo-slideshow { min-width: 0; }
