@@ -51,11 +51,11 @@ time, .section-kicker, .slide-count, .year-index, .pub-year>h2,
  margin: 0 var(--edge); padding: var(--space-5) 0; border-bottom: var(--rule);
  display: flex; align-items: center; gap: var(--space-5); position: relative; z-index: 10;
 }
-.lab-identity { display: inline-flex; align-items: center; gap: var(--space-3); flex-shrink: 0; font-size: 16px; line-height: 1.5; letter-spacing: .025em; }
-.lab-identity img { display: block; width: 40px; height: 40px; flex-shrink: 0; }
+.lab-identity { display: inline-flex; align-items: center; gap: var(--space-3); flex-shrink: 0; font-size: 18px; line-height: 1.5; letter-spacing: .025em; }
+.lab-identity img { display: block; width: 44px; height: 44px; flex-shrink: 0; }
 .identity-name { white-space: nowrap; }
 .identity-name-compact { display: none; white-space: nowrap; }
-html[lang=en] .lab-identity { font-size: 14px; letter-spacing: 0; }
+html[lang=en] .lab-identity { font-size: 16px; letter-spacing: 0; }
 .header nav { display: flex; justify-content: flex-end; gap: 20px; margin-left: auto; font-size: var(--text-small); }
 .header nav a[aria-current=page] { text-decoration: underline; text-underline-offset: 7px; }
 .header-actions { display: flex; align-items: center; gap: var(--space-5); flex-shrink: 0; }
@@ -188,10 +188,10 @@ figcaption { font-family: var(--font-sans); font-size: var(--text-meta); color: 
 .contact-facts dd { margin: 0; }
 .contact-facts small { display: block; font-size: var(--text-meta); color: var(--muted); }
 .location-section,.directions-section { padding-top: var(--space-5); }
-.location-grid { grid-template-columns: 1fr; align-items: start; }
+.location-grid { grid-template-columns: minmax(0,280px) minmax(0,1fr); align-items: start; }
 .location-grid address { font-style: normal; font-size: var(--text-body); line-height: var(--leading-body); }
 .location-grid address strong { font-size: var(--text-subsection); font-weight: 500; display: block; margin-top: var(--space-3); }
-.campus-map {min-width:0;max-width:900px;}
+.campus-map {min-width:0;}
 .campus-map>a {display:block;border:var(--rule);background:#fff;}
 .campus-map img {display:block;width:100%;height:auto;}
 .campus-map figcaption a {text-decoration:underline;text-underline-offset:3px;}
@@ -276,6 +276,7 @@ footer { margin: 0 var(--edge); padding: var(--space-6) 0; border-top: var(--rul
  html[lang=en] .identity-name { display: none; }
  html[lang=en] .identity-name-compact { display: inline; }
  html[lang=en] .lab-identity { font-size: 13px; }
+ html[lang=en] .identity-copy>span { text-align-last: auto; }
 }
 @media(min-width:1700px) {
  .header,footer { max-width: var(--shell-max); margin-inline: auto; }
@@ -305,8 +306,11 @@ footer { margin: 0 var(--edge); padding: var(--space-6) 0; border-top: var(--rul
  .faculty-identity { align-items:start; }
 }
 
-.identity-copy { display:flex; flex-direction:column; gap:2px; }
-.identity-affiliation { font-size:11px; line-height:1.4; color:var(--muted); letter-spacing:0; }
+/* Both lines of the laboratory name are justified to the same width. */
+.identity-copy { display:flex; flex-direction:column; gap:2px; width:max-content; }
+.identity-copy>span { text-align:justify; text-align-last:justify; }
+.identity-affiliation { font-size:12.5px; line-height:1.4; color:var(--muted); letter-spacing:0; }
+html[lang=en] .identity-affiliation { font-size:11px; }
 .faculty-identity .position { margin-top:var(--space-2); margin-bottom:0; }
 .faculty-identity .affiliation { max-width:360px; }
 .faculty-profile,.student { align-items:center; }
