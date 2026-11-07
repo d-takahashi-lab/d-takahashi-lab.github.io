@@ -71,6 +71,7 @@ html[lang=en] .lab-identity { font-size: 14px; letter-spacing: 0; }
 .page-heading-row { display:flex;align-items:baseline;justify-content:space-between;gap:var(--space-5); }
 .page-meta {font-size:var(--text-meta);color:var(--muted);line-height:1.85;}
 .page-sections {display:flex;flex-wrap:wrap;gap:var(--space-3) var(--space-6);margin-top:var(--space-5);font-size:var(--text-small);line-height:1.85;}
+.page-sections a[aria-current=true] { text-decoration: underline; text-underline-offset: 7px; }
 .research-overview {margin:var(--space-7) var(--gutter) 0;max-width:780px;color:var(--body);font-size:var(--text-body);line-height:var(--leading-body);}
 .page-intro { max-width: 780px; font-size: var(--text-body); line-height: var(--leading-body); color: var(--body); margin-top: var(--space-5); }
 .section { padding: var(--space-7) var(--gutter) var(--space-8); }

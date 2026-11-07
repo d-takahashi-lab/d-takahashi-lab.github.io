@@ -11,7 +11,10 @@ const t=(ja:string,english:string)=>choose(lang,ja,english);
 const publicationTypes=en?{article:'Research articles',review:'Reviews',chapter:'Book chapters'}:jaTypes;
 ---
 <Layout lang={lang} title="研究業績" current="publications" description={t('生命適応科学研究室の研究業績。原著論文・総説・書籍章を年別に掲載しています。','Research articles, reviews and book chapters from the laboratory, with direct DOI links, organized by year.')}>
- <PageHeading lang={lang} title="研究業績" en="PUBLICATIONS"/>
+ <PageHeading lang={lang} title="研究業績" en="PUBLICATIONS" sections={[
+  {label:t('すべて','All'),href:'./'},
+  ...Object.entries(publicationTypes).map(([key,label])=>({label,href:`?type=${key}`})),
+ ]}/>
  <section class="publication-archive section" aria-label={t('論文一覧','Publications')}>
 
   <form id="pub-filters" class="pub-filters" hidden role="search" aria-label={t('研究業績の検索','Search publications')} data-empty-message={t('該当する文献はありません。','No publications match your search.')} data-applied-message={t('検索条件を適用しました。','Search filters applied.')}>
@@ -37,16 +40,20 @@ const year=form.elements.namedItem('year') as HTMLSelectElement;
 const entries=[...document.querySelectorAll<HTMLElement>('[data-publication]')];
 const groups=[...document.querySelectorAll<HTMLElement>('[data-year-group]')];
 const status=document.querySelector('#search-status')!;
+const typeLinks=[...document.querySelectorAll<HTMLAnchorElement>('.page-sections a')];
+const linkType=(a:HTMLAnchorElement)=>new URL(a.href).searchParams.get('type')||'';
 const empty=document.querySelector<HTMLElement>('#no-results')!;
 const normalize=(s:string)=>s.normalize('NFKC').toLocaleLowerCase().replace(/[‐‑–—−]/g,'-');
 function apply(sync=true){
  const terms=normalize(search.value).trim().split(/\s+/).filter(Boolean);let n=0;
  entries.forEach(el=>{const text=normalize(el.dataset.search||'');const matches=(!type.value||el.dataset.type===type.value)&&(!year.value||el.dataset.year===year.value)&&terms.every(t=>text.includes(t));el.hidden=!matches;if(matches)n++;});
  groups.forEach(g=>{const visible=[...g.querySelectorAll<HTMLElement>('[data-publication]')].filter(el=>!el.hidden).length;g.hidden=visible===0;const link=document.querySelector<HTMLElement>(`[data-year-link="${g.id.replace('year-','')}"]`);if(link)link.hidden=!visible;});
+ typeLinks.forEach(a=>{if(linkType(a)===type.value)a.setAttribute('aria-current','true');else a.removeAttribute('aria-current');});
  status.textContent=n===0?emptyMessage:appliedMessage;empty.hidden=n!==0;
  if(sync){const u=new URL(location.href);for(const [key,value] of [['q',search.value],['type',type.value],['year',year.value]]){if(value)u.searchParams.set(key,value);else u.searchParams.delete(key);}history.replaceState(null,'',u);}
 }
 function readURL(){const q=new URLSearchParams(location.search);search.value=q.get('q')||'';type.value=q.get('type')||'';year.value=q.get('year')||'';apply(false);}
 form.hidden=false;readURL();form.addEventListener('input',()=>apply());form.addEventListener('change',()=>apply());form.addEventListener('submit',e=>{e.preventDefault();apply();});form.addEventListener('reset',()=>{search.value='';type.value='';year.value='';apply();});window.addEventListener('popstate',readURL);
+typeLinks.forEach(a=>a.addEventListener('click',e=>{e.preventDefault();type.value=linkType(a);apply();}));
 }
 </script>
