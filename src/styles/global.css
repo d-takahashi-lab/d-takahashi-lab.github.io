@@ -152,11 +152,6 @@ figcaption { font-family: var(--font-sans); font-size: var(--text-meta); color: 
 .alumni-year li { font-size: var(--text-body); display: flex; justify-content: space-between; gap: var(--space-4); line-height: 1.85; }
 .alumni-year li small { font-size: var(--text-meta); color: var(--muted); white-space: nowrap; }
 /* Works: bibliographic information and years stay in sans, including paper titles. */
-.pub-filters { display: grid; grid-template-columns: 2.4fr 1fr 1fr auto; gap: var(--space-4); align-items: end; background: var(--surface); padding: var(--space-5); border: var(--rule); margin-bottom: var(--space-6); }
-.pub-filters label { display: flex; flex-direction: column; gap: var(--space-3); font-size: var(--text-meta); color: var(--muted); min-width: 0; }
-.pub-filters input,.pub-filters select { width: 100%; min-width: 0; border: 1px solid var(--control-line); background: var(--bg); color: var(--text); padding: var(--space-2) var(--space-3); font-size: 16px; height: var(--control-height); }
-.pub-filters input::placeholder { color: var(--muted); }
-.pub-filters button { border: 0; border-bottom: 1px solid var(--control-line); background: none; color: var(--body); font-size: var(--text-small); padding: var(--space-2) 0; white-space: nowrap; min-height: var(--control-height); }
 .archive-layout { display: grid; grid-template-columns: 90px minmax(0,1fr); gap: var(--space-6); }
 .year-index { display: flex; flex-direction: column; gap: var(--space-4); align-self: start; position: sticky; top: var(--space-5); font-size: var(--text-small); max-height: calc(100svh - 48px); overflow: auto; padding: var(--space-1); }
 .year-index a { color: var(--muted); }
@@ -182,9 +177,6 @@ figcaption { font-family: var(--font-sans); font-size: var(--text-meta); color: 
 .pub-actions,.related-links { display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-5); align-items: baseline; margin-top: var(--space-3); font-size: var(--text-meta); color: var(--muted); line-height: 1.85; }
 .doi-link { overflow-wrap: anywhere; max-width: 100%; }
 .archive-footnote { margin: var(--space-5) 0 0 122px; font-size: var(--text-meta); color: var(--muted); line-height: 1.85; }
-.empty-state { padding: var(--space-7) 0; border-top: var(--rule); }
-.empty-state h2 { font-family: var(--font-sans); font-size: var(--text-subsection); }
-.empty-state p { font-size: var(--text-body); line-height: var(--leading-body); color: var(--muted); margin-top: var(--space-4); }
 /* News: dates/years are data, article subjects are content headings. */
 .news-year-heading { font-size: var(--text-year); margin-bottom: var(--space-5); }
 .news-archive>section+section { margin-top: var(--space-8); }
@@ -237,8 +229,6 @@ footer { margin: 0 var(--edge); padding: var(--space-6) 0; border-top: var(--rul
  .header nav.open { display: flex; flex-direction: column; gap: 0; align-items: flex-end; }
  .header nav a { padding: var(--space-3) var(--space-2); width: 100%; text-align: right; }
  .theme-layout,.inquiry-grid,.location-grid { gap: var(--space-6); }
- .pub-filters { grid-template-columns: 2fr 1fr 1fr; }
- .pub-filters button { grid-column: 1/-1; justify-self: end; }
 }
 @media(max-width:750px) {
  :root { --text-body: 15px; --text-section: 24px; --text-subsection: 18px; --text-year: 28px; --text-page: 36px; --text-hero: 42px; --edge: 6%; --gutter: 6%; }
@@ -271,8 +261,6 @@ footer { margin: 0 var(--edge); padding: var(--space-6) 0; border-top: var(--rul
  .alumni-year { grid-template-columns: 56px minmax(0,1fr); gap: var(--space-4); }
  .alumni-year ul { grid-template-columns: 1fr; }
  .alumni-year li { flex-wrap: wrap; gap: var(--space-1) var(--space-3); }
- .pub-filters { grid-template-columns: 1fr 1fr; padding: var(--space-4); gap: var(--space-4) var(--space-3); }
- .pub-filters .search-field { grid-column: 1/-1; }
  .archive-layout { grid-template-columns: 1fr; gap: var(--space-5); }
  .year-index { position: static; flex-direction: row; flex-wrap: wrap; max-height: none; gap: var(--space-3) var(--space-4); padding: 0 0 var(--space-4); border-bottom: var(--rule); }
  .archive-footnote { margin-left: 0; }

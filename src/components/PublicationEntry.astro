@@ -13,7 +13,7 @@ const roleNotes:Record<string,string>={'*共同責任著者・同等貢献':'*Co
 const sources:Record<string,string>={'埼玉大学プレスリリース':'Saitama University release (Japanese)','JST Science Japan':'JST Science Japan','JST 客観日本':'JST Science Portal China','科学新聞':'Science News (Japanese)','サイエンスポータル':'Science Portal (Japanese)','特集号カバーページ':'Special issue','カバーイメージ':'Issue cover','基礎生物学研究所プレスリリース':'NIBB release (Japanese)'};
 const note=en?p.note.replace('オンライン公開：','First online: ').replace('年',''):p.note;
 ---
-<article class:list={['pub-entry', {'pub-entry-with-cover': cover}]} id={p.id} data-publication data-year={p.year} data-type={p.type} data-search={`${p.title} ${p.authors} ${p.reference} ${p.pages} ${p.doi}`.toLowerCase()}>
+<article class:list={['pub-entry', {'pub-entry-with-cover': cover}]} id={p.id} data-publication data-year={p.year} data-type={p.type}>
  <div>
  <div class="pub-meta"><span>{label}</span>{note&&<span>{note}</span>}</div>
  <h3><a href={p.url}><PublicationTitle title={p.title} italics={p.titleItalics} /><span class="external-arrow" aria-hidden="true"> ↗</span></a></h3>
