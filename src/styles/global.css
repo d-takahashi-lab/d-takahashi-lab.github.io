@@ -188,10 +188,10 @@ figcaption { font-family: var(--font-sans); font-size: var(--text-meta); color: 
 .contact-facts dd { margin: 0; }
 .contact-facts small { display: block; font-size: var(--text-meta); color: var(--muted); }
 .location-section,.directions-section { padding-top: var(--space-5); }
-.location-grid { grid-template-columns: minmax(0,1fr) minmax(0,1.4fr); align-items: start; }
+.location-grid { grid-template-columns: 1fr; align-items: start; }
 .location-grid address { font-style: normal; font-size: var(--text-body); line-height: var(--leading-body); }
 .location-grid address strong { font-size: var(--text-subsection); font-weight: 500; display: block; margin-top: var(--space-3); }
-.campus-map {min-width:0;}
+.campus-map {min-width:0;max-width:900px;}
 .campus-map>a {display:block;border:var(--rule);background:#fff;}
 .campus-map img {display:block;width:100%;height:auto;}
 .campus-map figcaption a {text-decoration:underline;text-underline-offset:3px;}

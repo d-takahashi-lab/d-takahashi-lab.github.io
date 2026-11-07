@@ -1,7 +1,7 @@
 // Core terminology and descriptions checked against the original English Research page.
 import { themes as originals } from './research';
 const translations=[
- {title:'Plant Freezing Adaptation',lead:'We study cold acclimation, deacclimation and reacclimation as a continuous response, asking how plants coordinate freezing tolerance and growth.',
+ {title:'Plant freezing adaptation',menu:'Freezing adaptation',lead:'We study cold acclimation, deacclimation and reacclimation as a continuous response, asking how plants coordinate freezing tolerance and growth.',
  sections:[
   {heading:'Freezing injury and cold acclimation',paragraphs:[
    'When plant tissues freeze, ice initially forms outside the cells. Ice formation draws water out of the cells, causing dehydration and deformation. Growing ice can also exert mechanical forces that damage membranes and cellular structures. Understanding freezing tolerance therefore requires attention to water movement and to the properties of the structures surrounding each cell, as well as temperature.',
@@ -19,7 +19,7 @@ const translations=[
    'By comparing cold acclimation, deacclimation and reacclimation, we investigate the relationships among soluble sugars, cell wall polysaccharides, freezing tolerance and growth. We aim to determine how environmental history is retained in structure, and how that persistence affects subsequent tolerance acquisition and the resumption of growth.',
   ]},
  ],keywords:['Cold acclimation','Deacclimation','Reacclimation','Environmental memory'],figure:'cold-acclimation.webp',caption:'Cold acclimation and deacclimation.',alt:'Plant responses to freezing and changes in leaf area during cold acclimation and deacclimation.'},
- {title:'Cell wall and storage polysaccharides in plant adaptation',lead:'We study the structure and metabolism of cell wall and storage polysaccharides and their possible roles in environmentally induced changes in growth and morphology.',
+ {title:'Cell wall and storage polysaccharides in plant adaptation',menu:'Cell wall and storage polysaccharides',lead:'We study the structure and metabolism of cell wall and storage polysaccharides and their possible roles in environmentally induced changes in growth and morphology.',
  sections:[
   {heading:'Polysaccharides in the cell wall',paragraphs:[
    'Plant cell walls contain cellulose, hemicelluloses and pectins. The sugars they contain, the bonds between them and the arrangement of the polymers affect wall strength and deformability. Cell walls support cell shape and are remodelled as plants grow.',
@@ -34,7 +34,7 @@ const translations=[
    'We investigate how polysaccharide structure and metabolism relate to the shape and physical properties of cells and tissues. These observations connect molecular responses with visible changes in plants exposed to cold.',
   ]},
  ],keywords:['Cell walls','Starch','Fructans','Cold-induced morphology'],figure:'',video:'komatsuna-cold.mp4',poster:'komatsuna-poster.webp',autoplay:true,caption:'Komatsuna grown under cold conditions (time-lapse).',alt:'Time-lapse of komatsuna growing under cold conditions, with uneven leaf surfaces.'},
- {title:'Desiccation tolerance and sugars in resurrection plants',lead:'We compare Selaginella tamariscina with a related species to study how trehalose, other sugars and cell walls contribute to protection during drying and recovery after rehydration.',
+ {title:'Desiccation tolerance and sugars in resurrection plants',menu:'Desiccation tolerance',lead:'We compare Selaginella tamariscina with a related species to study how trehalose, other sugars and cell walls contribute to protection during drying and recovery after rehydration.',
  sections:[
   {heading:'What are resurrection plants?',paragraphs:[
    'Severe drying damages membranes and deforms cell walls in many land plants, making recovery difficult. Resurrection plants can maintain cellular structure through extreme drying and resume biological activity when water becomes available again. Selaginella tamariscina is one example of a plant with this exceptional desiccation tolerance.',
@@ -49,7 +49,7 @@ const translations=[
    'Our laboratory investigates desiccation tolerance by comparing S. tamariscina and S. moellendorffii, with a particular focus on the cell wall’s role in stress resistance. This work contributes to understanding the evolutionary survival strategies of land plants, including shared and distinct features of dehydration caused by freezing and by drying.',
   ]},
  ],keywords:['Selaginella','Trehalose','Drying and rehydration','Cell wall deformation','Comparative physiology'],figure:'',video:'selaginella-rehydration.mp4',poster:'selaginella-poster.jpg',autoplay:false,caption:'Time-lapse of morphological changes in Selaginella tamariscina during drying and rehydration.',alt:'Time-lapse of Selaginella tamariscina during drying and rehydration'},
- {title:'Exploring stress adaptation with protein language models',
+ {title:'Exploring stress adaptation with protein language models',menu:'Protein language models',
  lead:'Intrinsically disordered proteins (IDPs) help diverse organisms, including plants and animals, adapt to stresses such as freezing and desiccation. We ask what kinds of proteins protect cells across these different organisms.',
  sections:[
   {heading:'Protecting cells as they lose water',paragraphs:[

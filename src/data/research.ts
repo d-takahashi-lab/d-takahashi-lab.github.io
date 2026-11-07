@@ -1,5 +1,5 @@
 export const themes=[
- {id:'cold-acclimation',en:'Cold acclimation & deacclimation',title:'植物の凍結適応と脱馴化',
+ {id:'cold-acclimation',en:'Cold acclimation & deacclimation',title:'植物の凍結適応と脱馴化',menu:'凍結適応と脱馴化',
   lead:'低温馴化から脱馴化、再馴化までを連続した応答として捉え、凍結耐性と成長の調節機構を調べています。',
   sections:[
    {heading:'凍結による障害と低温馴化',paragraphs:[
@@ -18,7 +18,7 @@ export const themes=[
     '低温馴化・脱馴化・再馴化を比較し、可溶性糖、細胞壁多糖、凍結耐性、成長の関係を解析しています。環境の履歴がどのような構造として保持されるのか、その保持が次の凍結耐性や成長の再開にどのように関わるのかを明らかにすることが課題です。',
    ]},
   ],keywords:['低温馴化','脱馴化','再馴化','環境記憶'],figure:'cold-acclimation.webp',caption:'低温馴化・脱馴化に伴う凍結への応答と成長の変化。',alt:'低温馴化前、馴化後、脱馴化後の凍結処理を受けた植物と、葉面積の経時変化。',references:['10.1111/ppl.13837','10.1111/nph.70677']},
- {id:'cell-walls',en:'Cell walls & polysaccharides',title:'細胞壁・貯蔵多糖と植物の適応',
+ {id:'cell-walls',en:'Cell walls & polysaccharides',title:'細胞壁・貯蔵多糖と植物の適応',menu:'細胞壁・貯蔵多糖',
   lead:'細胞壁をつくる多糖と、糖を蓄える多糖の構造や代謝を調べ、環境に応じた成長や形態の変化との関係を探っています。',
   sections:[
    {heading:'細胞壁を構成する多糖',paragraphs:[
@@ -34,7 +34,7 @@ export const themes=[
     '多糖の構造や代謝の変化が、細胞・組織の形や物理的な性質にどうつながるかを調べています。寒締めによる変化を観察し、環境への適応を分子の変化と植物体の姿の両方から理解することを目指します。',
    ]},
   ],keywords:['細胞壁','デンプン','フルクタン','寒締め'],figure:'',video:'komatsuna-cold.mp4',poster:'komatsuna-poster.webp',autoplay:true,caption:'低温条件で栽培したコマツナ（タイムラプス）。',alt:'低温条件で栽培中のコマツナのタイムラプス。葉の表面に凹凸が見られる。',references:['10.1016/j.cub.2024.01.045','10.5511/plantbiotechnology.24.0801a']},
- {id:'desiccation',en:'Desiccation tolerance and sugars',title:'復活植物の乾燥耐性と糖',
+ {id:'desiccation',en:'Desiccation tolerance and sugars',title:'復活植物の乾燥耐性と糖',menu:'乾燥耐性と糖',
   lead:'イワヒバと近縁種を比較し、トレハロースなどの糖と細胞壁が、乾燥中の細胞保護や吸水後の回復にどう関わるかを調べています。',
   sections:[
    {heading:'復活植物とは',paragraphs:[
@@ -50,7 +50,7 @@ export const themes=[
     'イワヒバの形態変化を観察し、近縁種との違いを細胞壁の視点から解析することで、極限乾燥耐性を支える構造的な要因を検討しています。この研究は、凍結による脱水と乾燥による脱水に共通する性質や、異なる適応のあり方を考えることにもつながります。',
    ]},
   ],keywords:['イワヒバ','トレハロース','乾燥・吸水','細胞壁の変形','比較生理学'],figure:'',video:'selaginella-rehydration.mp4',poster:'selaginella-poster.jpg',autoplay:false,caption:'イワヒバの乾燥・吸水に伴う形態変化（タイムラプス）。',alt:'イワヒバの乾燥・吸水に伴う形態変化のタイムラプス',references:[]},
- {id:'esm-landscape',en:'Protein language models',title:'タンパク質言語モデルで探るストレス適応',
+ {id:'esm-landscape',en:'Protein language models',title:'タンパク質言語モデルで探るストレス適応',menu:'タンパク質言語モデル',
   lead:'天然変性タンパク質（IDP）は、植物や動物などさまざまな生物で、凍結や乾燥をはじめとする環境ストレスへの適応に関わっています。生物の違いを越えて、どのようなタンパク質が細胞を守るのかを調べています。',
   sections:[
    {heading:'水を失うとき、細胞をどう守るか',paragraphs:[
