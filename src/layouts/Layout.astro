@@ -24,7 +24,7 @@ const jaSlug=Astro.props.languageSlugs?.ja??alternateSlug,enSlug=Astro.props.lan
  {canonical && <link rel="canonical" href={canonical} />}
  {publishedSite && <><link rel="alternate" hreflang="ja" href={new URL(pageUrl(jaSlug,'ja'),publishedSite).href}/>{Astro.props.hasEnglishArticle!==false&&<link rel="alternate" hreflang="en" href={new URL(pageUrl(enSlug,'en'),publishedSite).href}/>}<link rel="alternate" hreflang="x-default" href={new URL(pageUrl(jaSlug,'ja'),publishedSite).href}/></>}
  {noindex && <meta name="robots" content="noindex" />}
- <meta name="theme-color" content="#ffffff" /><link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+ <meta name="theme-color" content="#ffffff" /><link rel="icon" type="image/svg+xml" href={`${base}favicon.svg?v=badge`} />
  <meta property="og:title" content={pageTitle} /><meta property="og:description" content={pageDescription} />
  {canonical && <meta property="og:url" content={canonical} />}
  <meta property="og:locale" content={en?'en_US':'ja_JP'} /><meta property="og:type" content="website" />
@@ -32,7 +32,7 @@ const jaSlug=Astro.props.languageSlugs?.ja??alternateSlug,enSlug=Astro.props.lan
 <body>
 <a class="skip" href="#main">{t('本文へ移動','Skip to content')}</a>
 <header class="header">
- <a class="lab-identity" href={pageUrl('',lang)} aria-label={t('生命適応科学研究室 ホーム','Laboratory of Stress and Adaptation Biology — Home')}><img src={`${base}images/lab-mark.svg`} alt="" width="40" height="40" /><span class="identity-copy"><span class="identity-affiliation">{t('埼玉大学大学院理工学研究科','Graduate School of Science and Engineering, Saitama University')}</span><span class="identity-name">{labName}</span>{en&&<span class="identity-name-compact" aria-hidden="true">Stress &amp; Adaptation Biology</span>}</span></a>
+ <a class="lab-identity" href={pageUrl('',lang)} aria-label={t('生命適応科学研究室 ホーム','Laboratory of Stress and Adaptation Biology — Home')}><img src={`${base}images/lab-mark-badge.svg`} alt="" width="40" height="40" /><span class="identity-copy"><span class="identity-affiliation">{t('埼玉大学大学院理工学研究科','Graduate School of Science and Engineering, Saitama University')}</span><span class="identity-name">{labName}</span>{en&&<span class="identity-name-compact" aria-hidden="true">Stress &amp; Adaptation Biology</span>}</span></a>
  <nav id="navigation" aria-label={t('メインナビゲーション','Main navigation')}>{navigation.map(item => <a href={pageUrl(item.slug,lang)} aria-current={current === item.slug ? 'page' : undefined} title={en?item.label:item.title}>{item.label}</a>)}</nav>
  <div class="header-actions"><div class="language-switch" aria-label={t('言語','Language')}><a href={pageUrl(jaSlug,'ja')} lang="ja" hreflang="ja" aria-label="日本語" aria-current={!en?'page':undefined} data-language-switch>JP</a><span aria-hidden="true">/</span><a href={pageUrl(enSlug,'en')} lang="en" hreflang="en" aria-label="English" aria-current={en?'page':undefined} data-language-switch>EN</a></div><button class="menu-toggle" aria-expanded="false" aria-controls="navigation">Menu <span>＋</span></button></div>
 </header>
