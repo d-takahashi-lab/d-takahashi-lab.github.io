@@ -1,7 +1,7 @@
 import {principal as originalPrincipal,students as originalStudents,alumni as originalAlumni} from './members';
 // Preferred names and research-topic wording checked against the original
 // English Members page: https://www.adaptationbiology.com/en/members-1
-export const principal={...originalPrincipal,name:'Daisuke TAKAHASHI',english:'',position:'Associate Professor',affiliation:'Graduate School of Science and Engineering / Department of Molecular Biology, Faculty of Science, Saitama University',interests:['Plant responses to environmental stress','Cold acclimation and deacclimation','Structure and function of cell walls and polysaccharides']};
+export const principal={...originalPrincipal,name:'Daisuke TAKAHASHI',english:'',position:'Associate Professor',affiliation:'Graduate School of Science and Engineering / Department of Molecular Biology, Faculty of Science, Saitama University',interests:['Plant responses to environmental stress','cold acclimation and deacclimation','structure and function of cell walls and polysaccharides']};
 const topics:Record<string,string>={
  'コムギフルクタンの代謝制御':'Metabolic regulation of wheat fructans',
  '低温馴化過程でのデンプンの構造変化':'Structural changes of starch during cold acclimation',
