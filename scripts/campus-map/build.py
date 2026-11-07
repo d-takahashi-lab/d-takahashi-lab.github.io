@@ -56,8 +56,8 @@ def svg(lang,labels,gate,road,note):
     gx,gy=X(347.7),Y(588.4)
     o.append(f'<path d="M{gx-6:.1f} {gy-10:.1f}h12l-6 10z" fill="#171717"/>')
     o.append(f'<text x="{gx+12:.1f}" y="{gy-1:.1f}" font-size="15">{gate}</text>')
-    # on the centre line of Route 463 (from (119,178) to (314,96) in map coordinates)
-    o.append(f'<text x="217" y="137" dy=".35em" text-anchor="middle" font-size="14" fill="#555" transform="rotate(-22.9 217 137)">{road}</text>')
+    # beyond the western end of Route 463, continuing its centre line (from (314,96) to (119,178) in map coordinates)
+    o.append(f'<text x="111" y="181" dy=".35em" text-anchor="end" font-size="14" fill="#555" transform="rotate(-22.9 111 181)">{road}</text>')
     o.append('<text x="560" y="58" text-anchor="middle" font-size="17">N</text><path d="M560 98V68" fill="none" stroke="#555" stroke-width="2" marker-end="url(#arrow)"/>')
     top=58
     for k,(n,label) in enumerate(labels):
