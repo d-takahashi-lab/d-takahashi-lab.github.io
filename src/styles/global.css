@@ -51,11 +51,13 @@ time, .section-kicker, .slide-count, .year-index, .pub-year>h2,
  margin: 0 var(--edge); padding: var(--space-5) 0; border-bottom: var(--rule);
  display: flex; align-items: center; gap: var(--space-5); position: relative; z-index: 10;
 }
-.lab-identity { display: inline-flex; align-items: center; gap: var(--space-3); flex-shrink: 0; font-size: 18px; line-height: 1.5; letter-spacing: .025em; }
+.lab-identity { display: inline-flex; align-items: center; gap: var(--space-3); flex-shrink: 0; font-size: 19px; line-height: 1.5; letter-spacing: .025em; }
 .lab-identity img { display: block; width: 44px; height: 44px; flex-shrink: 0; }
+.identity-name,.identity-name-compact { font-family: var(--font-display); letter-spacing: .08em; }
 .identity-name { white-space: nowrap; }
 .identity-name-compact { display: none; white-space: nowrap; }
-html[lang=en] .lab-identity { font-size: 16px; letter-spacing: 0; }
+html[lang=en] .lab-identity { font-size: 15.5px; letter-spacing: 0; }
+html[lang=en] .identity-name,html[lang=en] .identity-name-compact { letter-spacing: 0; }
 .header nav { display: flex; justify-content: flex-end; gap: 20px; margin-left: auto; font-size: var(--text-small); }
 .header nav a[aria-current=page] { text-decoration: underline; text-underline-offset: 7px; }
 .header-actions { display: flex; align-items: center; gap: var(--space-5); flex-shrink: 0; }
