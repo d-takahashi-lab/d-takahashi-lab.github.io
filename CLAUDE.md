@@ -6,7 +6,7 @@
 
 - main へのpushで [.github/workflows/deploy.yml](.github/workflows/deploy.yml) が `npm run check` → `npm run build` → Pages へデプロイ（数分〜10分）。
 - `SITE_URL` / `BASE_PATH` はActionsが設定する（[astro.config.mjs](astro.config.mjs)）。`trailingSlash: 'always'`。内部リンクは `import.meta.env.BASE_URL` と `pageUrl()`（[src/lib/i18n.ts](src/lib/i18n.ts)）で組み立て、絶対パスを直書きしない。
-- 独自ドメイン www.adaptationbiology.com（Wixで取得）へ切り替える予定。旧サイト（Wix製、同ドメイン）を移行元の参考にしている。移行時の照合記録は [docs/content-audit.md](docs/content-audit.md)。
+- 独自ドメイン www.adaptationbiology.com で公開中（2026-11-07 に切り替え）。ドメインの取得・更新とDNSはWixで管理（A: 185.199.108–111.153、CNAME www → d-takahashi-lab.github.io）。ドメインはWixで毎年更新が必要（次回 2027-04-03）。旧サイト（Wix製）の内容を移行した照合記録は [docs/content-audit.md](docs/content-audit.md)。
 
 ## コマンド
 
