@@ -5,7 +5,7 @@ export const principal = {
  links:[{label:'Researchmap',url:'https://researchmap.jp/tkhsdisk'},{label:'Google Scholar',url:'https://scholar.google.com/citations?user=tIDfcAYAAAAJ&hl=ja'},{label:'ORCID',url:'https://orcid.org/0000-0002-9503-614X'},{label:'GitHub',url:'https://github.com/d-takahashi-lab'},{label:'X',url:'https://x.com/DTakahashi_JPN'}],
 };
 export const students = [
- {name:'菊地 拓真',role:'博士後期2年',group:'大学院生',note:'JSPS DC1',topic:'コムギフルクタンの代謝制御',photo:'kikuchi.webp',researchmap:'https://researchmap.jp/tkmkkc',orcid:'https://orcid.org/0009-0003-8108-7805',url:'https://scholar.google.com/citations?user=BqMl6lsAAAAJ&hl=ja&oi=ao'},
+ {name:'菊地 拓真',role:'博士後期2年',group:'大学院生',note:'JSPS DC1',topic:'コムギフルクタンの代謝制御',photo:'kikuchi-profile.webp',researchmap:'https://researchmap.jp/tkmkkc',orcid:'https://orcid.org/0009-0003-8108-7805',url:'https://scholar.google.com/citations?user=BqMl6lsAAAAJ&hl=ja&oi=ao'},
  {name:'小林 美紅',role:'博士前期2年',group:'大学院生',note:'',topic:'低温馴化過程でのデンプンの構造変化',photo:'',url:''},
  {name:'納谷 美咲',role:'博士前期2年',group:'大学院生',note:'',topic:'低温馴化・脱馴化での細胞壁の可塑性',photo:'',url:''},
  {name:'橘 慶汰',role:'博士前期1年',group:'大学院生',note:'',topic:'コムギクラウンの低温による組織形態変化',photo:'',url:''},
