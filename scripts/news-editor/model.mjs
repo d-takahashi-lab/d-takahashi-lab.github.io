@@ -1,4 +1,8 @@
 const text=(v,max=50000)=>{if(typeof v!=='string'||v.length>max)throw Error('入力内容が長すぎるか、形式が正しくありません。');return v.trim();};
+export const MAX_IMAGES=12;
+// Older records and drafts hold one photo in flat fields (image, imageAlt…); read both shapes.
+export const imagesOf=a=>Array.isArray(a?.images)?a.images:a?.image?[{src:a.image,alt:a.imageAlt||'',altEn:a.imageAltEn||'',caption:a.imageCaption||'',captionEn:a.imageCaptionEn||''}]:[];
+export function withImages(a){const {image,imageAlt,imageAltEn,imageCaption,imageCaptionEn,...rest}=a;return {...rest,images:imagesOf(a)};}
 export function validateArticle(input){
  if(!input||typeof input!=='object')throw Error('記事の形式が正しくありません。');
  const id=text(input.id,100);
@@ -17,11 +21,17 @@ export function validateArticle(input){
  if(article.link&&!/^(?:research|members|publications|contact|news)\/[a-zA-Z0-9/#?=._%-]*$/.test(article.link)){
   try{const u=new URL(article.link);if(u.protocol!=='https:')throw Error();}catch{throw Error('関連リンクはhttpsのURL、またはサイト内のパスを入力してください。');}
  }
- article.image=text(input.image||'',300);
- if(article.image&&!/^images\/news\/[a-z0-9-]+\.(?:jpg|png|webp|gif)$/.test(article.image))throw Error('写真を選び直してください。');
- for(const field of ['imageAlt','imageAltEn','imageCaption','imageCaptionEn'])article[field]=text(input[field]||'',1000);
- if(article.status==='published'&&article.image&&!article.imageAlt)throw Error('写真の説明（代替テキスト）を入力してください。');
- if(article.status==='published'&&article.image&&english.title&&!article.imageAltEn)throw Error('英語版の写真説明も入力してください。');
+ const source=imagesOf(input);
+ if(source.length>MAX_IMAGES)throw Error('写真は1記事に'+MAX_IMAGES+'枚までです。');
+ article.images=source.map(image=>{
+  const value={src:text(image?.src||'',300)};
+  if(!/^images\/news\/[a-z0-9-]+\.(?:jpg|png|webp|gif)$/.test(value.src))throw Error('写真を選び直してください。');
+  for(const field of ['alt','altEn','caption','captionEn'])value[field]=text(image[field]||'',1000);
+  if(article.status==='published'&&!value.alt)throw Error('写真の説明（代替テキスト）を入力してください。');
+  if(article.status==='published'&&english.title&&!value.altEn)throw Error('英語版の写真説明も入力してください。');
+  return value;
+ });
+ if(new Set(article.images.map(i=>i.src)).size!==article.images.length)throw Error('同じ写真が重複しています。');
  return article;
 }
 export function replaceArticle(records,article){

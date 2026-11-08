@@ -16,11 +16,7 @@
       "body": "We have completely renewed the website of the Laboratory of Stress and Adaptation Biology. The new design makes generous use of photographs and white space to give a calm, easy reading experience.\nThe Research section introduces our four research themes: freezing adaptation, cell walls and polysaccharides, desiccation tolerance, and protein language models. Each theme is presented with schematic illustrations and time-lapse videos. Publications can now be filtered by type, and each entry links directly to the published article.\nThe site has been rebuilt on GitHub Pages with a responsive design, so the layout adjusts automatically to the screen size of computers, tablets, and smartphones. All pages are available in both Japanese and English.\nWe will continue to share our research findings and news from the lab here."
     },
     "link": "",
-    "image": "",
-    "imageAlt": "研究室ウェブサイトをリニューアルしました",
-    "imageAltEn": "Our laboratory website has been renewed",
-    "imageCaption": "",
-    "imageCaptionEn": ""
+    "images": []
   },
   {
     "id": "2026-09-12-new-members",
@@ -39,11 +35,7 @@
       "body": "New third-year undergraduate students have joined the Laboratory of Stress and Adaptation Biology. They will begin exploring how plants adapt to their environment. We look forward to working with our new members throughout the academic year."
     },
     "link": "",
-    "image": "",
-    "imageAlt": "学部3年生が研究室に加わりました",
-    "imageAltEn": "New undergraduate students join the laboratory",
-    "imageCaption": "",
-    "imageCaptionEn": ""
+    "images": []
   },
   {
     "id": "2026-03-27-joint-seminar",
@@ -62,11 +54,7 @@
       "body": "埼玉大学と横浜市立大学の包括連携協定に基づき開催された合同セミナーに、高橋大輔が参加しました。セミナーの概要は、関連リンクの埼玉大学ウェブサイトで紹介されています。"
     },
     "link": "https://www.saitama-u.ac.jp/news_archives/202603301400.html",
-    "image": "",
-    "imageAlt": "横浜市立大学との合同セミナーに参加しました",
-    "imageAltEn": "Joint seminar with Yokohama City University",
-    "imageCaption": "",
-    "imageCaptionEn": ""
+    "images": []
   },
   {
     "id": "2026-03-25-graduation",
@@ -85,11 +73,7 @@
       "body": "Yoshiki Izumi and Momoka Ohashi completed their graduate degrees at Saitama University. We thank them both for their work in the laboratory and wish them every success in their next endeavors."
     },
     "link": "https://www.saitama-u.ac.jp/news_archives/202603301300.html",
-    "image": "",
-    "imageAlt": "泉義紀さんと大橋桃花さんが修了しました",
-    "imageAltEn": "Yoshiki Izumi and Momoka Ohashi complete their degrees",
-    "imageCaption": "",
-    "imageCaptionEn": ""
+    "images": []
   },
   {
     "id": "2025-10-31-cell-wall-memory",
@@ -98,11 +82,6 @@
     "type": "PAPER",
     "anchor": "news-20251031",
     "link": "https://nph.onlinelibrary.wiley.com/doi/10.1111/nph.70677",
-    "image": "",
-    "imageAlt": "",
-    "imageAltEn": "",
-    "imageCaption": "",
-    "imageCaptionEn": "",
     "ja": {
       "title": "細胞壁による環境記憶の総説がNew Phytologistに掲載",
       "summary": "植物細胞壁と環境記憶に関する総説が公開されました。",
@@ -112,7 +91,8 @@
       "title": "Review on cell wall memory published in New Phytologist",
       "summary": "Our review on plant cell walls and environmental memory is now online.",
       "body": "“Memory in the wall”, a review discussing how structural and compositional changes in plant cell walls may retain environmental history, was published online in New Phytologist. It appears in the 2026 volume."
-    }
+    },
+    "images": []
   },
   {
     "id": "2025-10-21-presentation-award",
@@ -131,11 +111,7 @@
       "body": "Momoka Ohashi received an Outstanding Presentation Award at the 19th meeting of the Plant Cell Wall Researcher Network in recognition of her presentation. Congratulations, Momoka!"
     },
     "link": "https://plantcellwall.wixsite.com/cellwall/大会記録",
-    "image": "",
-    "imageAlt": "大橋桃花さんが優秀発表賞を受賞",
-    "imageAltEn": "Momoka Ohashi receives an Outstanding Presentation Award",
-    "imageCaption": "",
-    "imageCaptionEn": ""
+    "images": []
   },
   {
     "id": "2025-07-25-pollen-development",
@@ -154,11 +130,15 @@
       "body": "A study by Takuma Kikuchi and colleagues examining the roles of the cell wall polysaccharides arabinan and galactan in pollen meiosis in Arabidopsis was published in Plant and Cell Physiology. An image from the study was featured on the cover of the journal’s September 2025 issue."
     },
     "link": "https://academic.oup.com/pcp/article/66/9/1346/8212282",
-    "image": "images/news/2fef1a73-4495-46d2-be19-33010fb4ad66.png",
-    "imageAlt": "菊地拓真さんの花粉形成の研究がPlant and Cell Physiologyに掲載",
-    "imageAltEn": "Takuma Kikuchi’s pollen development study published in Plant and Cell Physiology",
-    "imageCaption": "",
-    "imageCaptionEn": ""
+    "images": [
+      {
+        "src": "images/news/2fef1a73-4495-46d2-be19-33010fb4ad66.png",
+        "alt": "菊地拓真さんの花粉形成の研究がPlant and Cell Physiologyに掲載",
+        "altEn": "Takuma Kikuchi’s pollen development study published in Plant and Cell Physiology",
+        "caption": "",
+        "captionEn": ""
+      }
+    ]
   },
   {
     "id": "2025-07-01-research-visit",
@@ -177,11 +157,15 @@
       "body": "Jan Gehrke from Ulm University, Germany, visited the Plant Glycobiology and Environmental Adaptation Laboratory from July 1 to 31, 2025. He spent the month with members of the laboratory. Thank you for visiting us, Jan!"
     },
     "link": "",
-    "image": "images/news/9d0759db-5fe6-41db-9450-209c41a7f74a.jpg",
-    "imageAlt": "Ulm大学のJan Gehrkeさんが研究室に滞在",
-    "imageAltEn": "Jan Gehrke from Ulm University visits the laboratory",
-    "imageCaption": "",
-    "imageCaptionEn": ""
+    "images": [
+      {
+        "src": "images/news/9d0759db-5fe6-41db-9450-209c41a7f74a.jpg",
+        "alt": "Ulm大学のJan Gehrkeさんが研究室に滞在",
+        "altEn": "Jan Gehrke from Ulm University visits the laboratory",
+        "caption": "",
+        "captionEn": ""
+      }
+    ]
   },
   {
     "id": "2025-04-01-website-launch",
@@ -200,10 +184,6 @@
       "body": "The website of the Laboratory of Stress and Adaptation Biology is now online. It introduces our research, members, and publications. Updates on laboratory activities and research findings will be posted in the News section."
     },
     "link": "",
-    "image": "",
-    "imageAlt": "生命適応科学研究室のウェブサイトを開設",
-    "imageAltEn": "Laboratory website launched",
-    "imageCaption": "",
-    "imageCaptionEn": ""
+    "images": []
   }
 ]

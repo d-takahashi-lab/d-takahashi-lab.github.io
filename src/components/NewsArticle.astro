@@ -11,7 +11,7 @@ const related=n.link?(n.link.startsWith('https://')?n.link:`${pageUrl('',lang)}$
 <Layout lang={lang} title={text.title} current="news" description={newsOpening(text.body)||text.title} alternateSlug={`news/${n.id}`} languageSlugs={{ja:`news/${n.id}`,en:hasEnglish?`news/${n.id}`:'news'}} hasEnglishArticle={hasEnglish}>
  <header class="page-heading"><div class="page-heading-row"><h1>{text.title}</h1></div><nav class="page-sections" aria-label={en?'News navigation':'お知らせの移動'}><a href={pageUrl('news',lang)}>← {en?'All news':'お知らせ一覧'}</a><time datetime={n.date}>{n.date.replaceAll('-','.')}</time></nav></header>
  <article class="section news-article">
- {n.image&&<figure><img src={`${base}${n.image}`} alt={en?n.imageAltEn||n.imageAlt:n.imageAlt} width="1400" height="900"/>{(en?n.imageCaptionEn:n.imageCaption)&&<figcaption>{en?n.imageCaptionEn:n.imageCaption}</figcaption>}</figure>}
+ {n.images.length>0&&<div class="news-article-photos">{n.images.map((image,i)=>{const caption=en?image.captionEn:image.caption;return <figure><img src={`${base}${image.src}`} alt={en?image.altEn||image.alt:image.alt} width="1400" height="900" loading={i===0?'eager':'lazy'}/>{caption&&<figcaption>{caption}</figcaption>}</figure>;})}</div>}
  <div class="news-article-body">{text.body.split(/\n\s*\n/).filter(Boolean).map(paragraph=><p>{paragraph}</p>)}</div>
  {related&&<a class="text-link" href={related}>{en?'Related information':'関連情報'} →</a>}
  </article>

@@ -1,4 +1,4 @@
-import {validateArticle,replaceArticle} from './model.mjs';
+import {validateArticle,replaceArticle,withImages} from './model.mjs';
 const decode=s=>new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\s/g,'')),c=>c.charCodeAt(0)));
 const localDrafts={
  async database(){return new Promise((resolve,reject)=>{const r=indexedDB.open('lab-news-drafts',1);r.onupgradeneeded=()=>r.result.createObjectStore('drafts',{keyPath:'key'});r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});},
@@ -25,14 +25,14 @@ export class GitHubBackend {
    if(!/^[a-zA-Z0-9-]+$/.test(this.owner)||!/^[a-zA-Z0-9_.-]+$/.test(this.repo)||!this.branch||!this.accessToken)throw Error('アカウント名・リポジトリ名・ブランチ・トークンを入力してください。');
    this.ref=await this.github('/git/ref/heads/'+encodeURIComponent(this.branch));
    const source=await this.github('/contents/src/data/news.json?ref='+encodeURIComponent(this.ref.object.sha));
-   this.published=JSON.parse(decode(source.content));this.version=source.sha;this.connected=true;
+   this.published=JSON.parse(decode(source.content)).map(withImages);this.version=source.sha;this.connected=true;
    for(const key of ['owner','repo','branch'])localStorage.setItem('news-github-'+key,this[key]);
    form.elements['github-token'].value='';document.querySelector('#editor-shell').hidden=false;form.hidden=true;
    status.textContent=this.prefix+' / '+this.branch+' に接続中（認証情報はこの画面を閉じると破棄）';
    await this.onConnect?.();
   }catch(e){this.accessToken='';this.connected=false;status.textContent=e.message;}finally{button.disabled=false;}
  }
- async records(){const drafts=await localDrafts.all(this.prefix);let result=[...this.published];for(const d of drafts){for(const [path,data]of Object.entries(d.images||{}))this.pendingImages.set(path,data);result=replaceArticle(result,d.article);}return result;}
+ async records(){const drafts=await localDrafts.all(this.prefix);let result=[...this.published];for(const d of drafts){for(const [path,data]of Object.entries(d.images||{}))this.pendingImages.set(path,data);result=replaceArticle(result,withImages(d.article));}return result;}
  async photoURL(path){if(this.pendingImages.has(path))return this.pendingImages.get(path);if(this.imageURLs.has(path))return this.imageURLs.get(path);const source=await this.github('/contents/site-public/'+path+'?ref='+encodeURIComponent(this.branch));const value='data:image/'+(path.endsWith('.jpg')?'jpeg':path.split('.').pop())+';base64,'+source.content.replace(/\s/g,'');this.imageURLs.set(path,value);return value;}
  async api(path,data){
   if(!this.connected)throw Error('先にGitHubへ接続してください。');
@@ -46,19 +46,19 @@ export class GitHubBackend {
   if(path!=='/api/save')throw Error('Unknown editor operation');
   const article=validateArticle(data.article),key=this.prefix+'/'+article.id;
   if(article.status==='draft'){
-   const images=article.image&&this.pendingImages.has(article.image)?{[article.image]:this.pendingImages.get(article.image)}:{};
+   const images=Object.fromEntries(article.images.filter(i=>this.pendingImages.has(i.src)).map(i=>[i.src,this.pendingImages.get(i.src)]));
    await localDrafts.put({key,article,images});return {records:await this.records(),version:this.version,id:article.id};
   }
-  // One Git commit publishes article data and its image together. Never force-push.
+  // One Git commit publishes article data and its images together. Never force-push.
   const head=await this.github('/git/ref/heads/'+encodeURIComponent(this.branch));
   const source=await this.github('/contents/src/data/news.json?ref='+encodeURIComponent(head.object.sha));
   if(source.sha!==data.version)throw Error('別のMacで記事が更新されています。いったん下書き保存し、この画面を再読み込みしてから接続し直してください。');
   const existing=JSON.parse(decode(source.content)),records=replaceArticle(existing,article);
   const parent=await this.github('/git/commits/'+head.object.sha);
   const tree=[{path:'src/data/news.json',mode:'100644',type:'blob',content:JSON.stringify(records,null,2)+'\n'}];
-  if(article.image&&this.pendingImages.has(article.image)){
-   const blob=await this.github('/git/blobs',{content:this.pendingImages.get(article.image).split(',')[1],encoding:'base64'});
-   tree.push({path:'site-public/'+article.image,mode:'100644',type:'blob',sha:blob.sha});
+  for(const image of article.images.filter(i=>this.pendingImages.has(i.src))){
+   const blob=await this.github('/git/blobs',{content:this.pendingImages.get(image.src).split(',')[1],encoding:'base64'});
+   tree.push({path:'site-public/'+image.src,mode:'100644',type:'blob',sha:blob.sha});
   }
   const createdTree=await this.github('/git/trees',{base_tree:parent.tree.sha,tree});
   const commit=await this.github('/git/commits',{message:'News: '+article.ja.title,tree:createdTree.sha,parents:[head.object.sha]});

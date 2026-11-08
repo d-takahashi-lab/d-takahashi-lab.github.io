@@ -4,7 +4,7 @@ import {fileURLToPath} from 'node:url';
 import {join} from 'node:path';
 import {createHash,randomBytes,randomUUID,timingSafeEqual} from 'node:crypto';
 import {spawn} from 'node:child_process';
-import {validateArticle,replaceArticle} from './model.mjs';
+import {validateArticle,replaceArticle,withImages} from './model.mjs';
 const root=fileURLToPath(new URL('../../',import.meta.url));
 const file=join(root,'src/data/news.json');
 const port=Number(process.env.NEWS_EDITOR_PORT||4322),origin=`http://127.0.0.1:${port}`;
@@ -13,7 +13,7 @@ const version=s=>createHash('sha256').update(s).digest('hex');
 const draftsFile=join(root,'.news-editor/drafts.json');
 const readRecords=async()=>{
  const raw=await readFile(file,'utf8');let draftRaw='[]';try{draftRaw=await readFile(draftsFile,'utf8');}catch(e){if(e.code!=='ENOENT')throw e;}
- const published=JSON.parse(raw).filter(n=>n.status==='published'),drafts=JSON.parse(draftRaw);let records=[...published];for(const draft of drafts)records=replaceArticle(records,draft);
+ const published=JSON.parse(raw).filter(n=>n.status==='published').map(withImages),drafts=JSON.parse(draftRaw).map(withImages);let records=[...published];for(const draft of drafts)records=replaceArticle(records,draft);
  return {raw,draftRaw,published,drafts,records,version:version(raw+'\n'+draftRaw)};
 };
 async function atomic(path,value){await mkdir(join(root,'.news-editor'),{recursive:true});const temporary=path+'.'+randomUUID()+'.tmp';await writeFile(temporary,JSON.stringify(value,null,2)+'\n',{flag:'wx'});await rename(temporary,path);}
