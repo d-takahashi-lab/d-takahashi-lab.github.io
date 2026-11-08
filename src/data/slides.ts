@@ -1,6 +1,14 @@
 // Published slideshow photographs, shared by the Japanese and English pages.
 export const slides = [
   {
+    "file": "slideshow-forest-water.webp",
+    "alt": "森林に囲まれた静かな水辺",
+    "position": "50% 50%",
+    "original": "DSC_1620.jpeg",
+    "altEn": "A quiet stretch of water surrounded by forest",
+    "pinned": true
+  },
+  {
     "file": "top-flowers.webp",
     "alt": "草地の斜面に咲く花々",
     "position": "50% 50%",
@@ -94,23 +102,9 @@ export const slides = [
   {
     "file": "slideshow-rocky-snow.webp",
     "alt": "雪をまとった岩の斜面と山の稜線",
-    "position": "50% 50%",
+    "position": "50% 0%",
     "original": "GR001395.jpeg",
     "altEn": "A rocky mountain ridge covered in snow"
-  },
-  {
-    "file": "slideshow-forest-water.webp",
-    "alt": "森林に囲まれた静かな水辺",
-    "position": "50% 50%",
-    "original": "DSC_1620.jpeg",
-    "altEn": "A quiet stretch of water surrounded by forest"
-  },
-  {
-    "file": "slideshow-field.webp",
-    "alt": "手前の畑と遠くに広がる風景",
-    "position": "50% 60%",
-    "original": "R0001129.jpeg",
-    "altEn": "Cultivated fields in an open landscape"
   },
   {
     "file": "slideshow-distant-peak.webp",
@@ -134,25 +128,11 @@ export const slides = [
     "original": "Cover image.jpeg"
   },
   {
-    "file": "slideshow-22.webp",
-    "alt": "幾重にも連なる山並み",
-    "altEn": "Layers of distant mountain ridges",
-    "position": "50% 50%",
-    "original": "DSC_0874.jpeg"
-  },
-  {
     "file": "slideshow-25.webp",
     "alt": "茅葺きの建物",
     "altEn": "Thatched buildings",
     "position": "50% 50%",
     "original": "FP000171.jpeg"
-  },
-  {
-    "file": "slideshow-27.webp",
-    "alt": "岩山と谷",
-    "altEn": "Rocky mountains and a valley",
-    "position": "50% 50%",
-    "original": "FP000674.jpeg"
   },
   {
     "file": "slideshow-28.webp",
@@ -221,7 +201,7 @@ export const slides = [
     "file": "slideshow-41.webp",
     "alt": "街角の装飾的な建物",
     "altEn": "An ornate building on a street corner",
-    "position": "50% 50%",
+    "position": "50% 100%",
     "original": "R0000859.jpeg"
   },
   {

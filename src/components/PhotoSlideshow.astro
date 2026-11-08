@@ -15,7 +15,7 @@ const base = import.meta.env.BASE_URL;
 </script>
 <figure class="photo-slideshow" data-slideshow data-lang={lang} role="region" aria-roledescription={en?'slideshow':'スライドショー'} aria-label={en?'Plants and landscapes':'植物と自然の写真'}>
  <div class="slideshow-stage">
-  {slides.map((slide,i)=><div class:list={['photo-slide',{'is-active':i===0}]} data-slide aria-hidden={i!==0} role="group" aria-roledescription={en?'slide':'スライド'} aria-label={`${i+1} / ${slides.length}`}>
+  {slides.map((slide,i)=><div class:list={['photo-slide',{'is-active':i===0}]} data-slide data-pinned={'pinned' in slide&&slide.pinned?'true':undefined} aria-hidden={i!==0} role="group" aria-roledescription={en?'slide':'スライド'} aria-label={`${i+1} / ${slides.length}`}>
    <img src={i===0?`${base}images/${slide.file}`:undefined} data-src={`${base}images/${slide.file}`} alt={slide.alt} style={`object-position:${slide.position}`} fetchpriority={i===0?'high':'low'} loading="eager" decoding="async" />
   </div>)}
  </div>
@@ -32,9 +32,11 @@ if(root){
  const play=root.querySelector<HTMLButtonElement>('[data-play]')!;
  const playIcon=root.querySelector<HTMLElement>('[data-play-icon]')!;
  const announcement=root.querySelector<HTMLElement>('[data-slide-status]')!;
- let lastFirst:HTMLElement|undefined;
- try{const previous=sessionStorage.getItem('lab-photo-first');lastFirst=originals.find(p=>p.querySelector('img')!.dataset.src===previous);}catch{/* Storage is optional. */}
- let photos=shuffleCycle(originals,lastFirst);
+ // A pinned photograph always opens each cycle; the rest follow in random order.
+ const pinned=originals.filter(p=>p.dataset.pinned==='true');
+ const rest=originals.filter(p=>p.dataset.pinned!=='true');
+ const cycle=(previous?:HTMLElement)=>[...pinned,...shuffleCycle(rest,pinned.length?undefined:previous)];
+ let photos=cycle();
  let index=-1,playing=true,inView=true,ready=false,timer:ReturnType<typeof setTimeout>|undefined,ticket=0;
  function clear(){if(timer!==undefined){clearTimeout(timer);timer=undefined;}}
  function updatePlay(){play.setAttribute('aria-label',playing?(english?'Pause slideshow':'スライドショーを一時停止'):(english?'Play slideshow':'スライドショーを再生'));playIcon.textContent=playing?'Ⅱ':'▶';root!.dataset.playing=String(playing);}
@@ -46,7 +48,7 @@ if(root){
  }
  async function show(next:number,manual:boolean){
   clear();const request=++ticket;
-  if(next>=photos.length){photos=shuffleCycle(photos,photos[index]);next=0;}
+  if(next>=photos.length){photos=cycle(photos[index]);next=0;}
   const target=(next+photos.length)%photos.length;
   try{await loadPhoto(target);}catch{if(!ready){root!.dataset.ready='true';}schedule();return;}
   if(request!==ticket)return;
@@ -55,7 +57,6 @@ if(root){
   count.textContent=`${String(index+1).padStart(2,'0')} / ${String(photos.length).padStart(2,'0')}`;
   root!.dataset.ready='true';
   if(manual)announcement.textContent=english?`Photograph ${index+1} of ${photos.length}`:`${photos.length}枚中${index+1}枚目`;
-  if(index===0){try{sessionStorage.setItem('lab-photo-first',photos[index].querySelector('img')!.dataset.src!);}catch{/* Storage is optional. */}}
   void loadPhoto((index+1)%photos.length).catch(()=>{});
   schedule();
  }
