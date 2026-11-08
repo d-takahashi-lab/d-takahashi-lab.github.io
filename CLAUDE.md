@@ -41,8 +41,7 @@
 - push はユーザーの確認を取ってから行う。
 
 ### GitHub Actions
-- MacのGitHubトークンには workflow 権限がない。`.github/workflows/` を変更したコミットは push で拒否されるので、変更する場合は事前にユーザーへ伝える。
-- 現在 `deploy.yml` に、デプロイのタイムアウトを30分に延ばす未コミットの変更がある（push できないため保留中）。他のコミットに混ぜないよう、`git add` はファイルを指定して行う。
+- MacのGitHubトークンには workflow 権限がない。`.github/workflows/` を変更したコミットは push で拒否される。変更が必要なときは、変更後の内容をユーザーに渡し、ブラウザの GitHub で編集・コミットしてもらう（その後ローカルの同じ変更は破棄して pull する）。
 
 ### デザイン
 - [docs/design-system.md](docs/design-system.md) に従う（書体・文字サイズ・配色・余白の段階・ヘッダー・スライドショーの挙動など）。
