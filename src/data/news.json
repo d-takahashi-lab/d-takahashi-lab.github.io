@@ -1,5 +1,39 @@
 [
   {
+    "id": "2026-11-08-9d0f8a07",
+    "date": "2026-11-10",
+    "status": "published",
+    "type": "LAB",
+    "anchor": "news-2026-11-08-9d0f8a07",
+    "ja": {
+      "title": "INRAEのCapucine Jorantさんが研究室を訪問しました",
+      "summary": "",
+      "body": "フランスのINRAE・クレルモン・オーヴェルニュ大学から、Capucine Jorantさんが埼玉大学の生命適応科学研究室と植物糖鎖生物学研究室を訪問しました。\n訪問中は、植物組織の切片を顕微鏡で観察し、細胞壁成分が組織のどこに分布するかを調べました。研究の合間には、研究室のメンバーと一緒に餃子を作り、できあがった餃子を囲んで交流を深めました。"
+    },
+    "en": {
+      "title": "Capucine Jorant from INRAE visits our laboratories",
+      "summary": "",
+      "body": "Capucine Jorant from INRAE and Université Clermont Auvergne in France visited the Laboratory of Stress and Adaptation Biology and the Laboratory of Plant Glycobiology at Saitama University.\nDuring the visit, she used microscopy to examine where cell wall components are distributed in sections of plant tissue. She also joined lab members in making gyoza dumplings, and everyone got to know each other over the meal."
+    },
+    "link": "",
+    "images": [
+      {
+        "src": "images/news/f7c65964-4572-4663-95e6-bc134bb89b90.jpg",
+        "alt": "INRAEのCapucine Jorantさんが研究室を訪問しました（1）",
+        "altEn": "Capucine Jorant from INRAE visits our laboratories（1）",
+        "caption": "",
+        "captionEn": ""
+      },
+      {
+        "src": "images/news/9349a770-c784-4e00-ba58-f986a539e416.jpg",
+        "alt": "INRAEのCapucine Jorantさんが研究室を訪問しました（2）",
+        "altEn": "Capucine Jorant from INRAE visits our laboratories（2）",
+        "caption": "",
+        "captionEn": ""
+      }
+    ]
+  },
+  {
     "id": "2026-11-07-430f57fd",
     "date": "2026-11-07",
     "status": "published",
