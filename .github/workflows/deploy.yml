@@ -3,6 +3,9 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # Rebuild daily at 00:05 JST so scheduled News posts appear on their date.
+  schedule:
+    - cron: '5 15 * * *'
 permissions:
   contents: read
   pages: write
@@ -41,3 +44,5 @@ jobs:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          timeout: 1800000
