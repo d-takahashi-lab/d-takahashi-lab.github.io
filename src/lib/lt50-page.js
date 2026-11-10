@@ -81,6 +81,8 @@ function toHex(color){
   return c.fillStyle;
 }
 const FONT = 'Arial, Hiragino Kaku Gothic ProN, Yu Gothic, sans-serif';
+const measure = document.createElement('canvas').getContext('2d');
+const textWidth = text => { measure.font = `700 13px ${FONT}`; return measure.measureText(text).width; };
 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const fmt = (v, d = 2) => Number.isFinite(v) ? v.toFixed(d) : '—';
@@ -101,8 +103,8 @@ function niceTicks(min, max, count = 6){
   for (let v = Math.ceil(min / step) * step; v <= max + step * 1e-9; v += step) out.push(Number(v.toFixed(10)));
   return out;
 }
-function buildSVG(res, xl, yl){
-  const pal = PALETTE;
+function buildSVG(res, xl, yl, showLT){
+  const pal = PALETTE, ltLabels = [];
   const W = 760, H = 480, ml = 74, mr = 24, mt = 20, mb = 62;
   const pw = W - ml - mr, ph = H - mt - mb;
   const allx = res.flatMap(r => r.xs), ally = res.flatMap(r => r.ys);
@@ -142,12 +144,11 @@ function buildSVG(res, xl, yl){
     r.xs.forEach((x, k) => {
       s += `<circle cx="${X(x)}" cy="${Y(r.ys[k])}" r="4.5" fill="${col}" fill-opacity="0.7" stroke="${pal.bg}" stroke-width="1"/>`;
     });
-    if (res.length <= 6 && !r.error && Number.isFinite(r.lt) && r.lt > x0 && r.lt < x1){
+    if (showLT && !r.error && Number.isFinite(r.lt) && r.lt > x0 && r.lt < x1){
       const yat = model(r.p, r.lt);
       s += `<line x1="${X(r.lt)}" x2="${X(r.lt)}" y1="${Y(yat)}" y2="${mt + ph}" stroke="${col}" stroke-width="1.3" stroke-dasharray="4 3"/>`;
       s += `<circle cx="${X(r.lt)}" cy="${Y(yat)}" r="5" fill="${pal.bg}" stroke="${col}" stroke-width="2"/>`;
-      const right = X(r.lt) > W - 150;
-      s += `<text x="${X(r.lt) + (right ? -6 : 6)}" y="${mt + ph - 10 - i * 18}" font-size="13" font-weight="700" fill="${col}" text-anchor="${right ? 'end' : 'start'}">LT50 ${r.lt.toFixed(1)}${TEXT.degree}</text>`;
+      ltLabels.push({ x: X(r.lt), text: `LT50 ${r.lt.toFixed(1)}${TEXT.degree}`, col });
     }
   });
   if (res.length > 1 || res[0].g){
@@ -162,6 +163,17 @@ function buildSVG(res, xl, yl){
       s += `<text x="${lx + 40}" y="${yy}" font-size="13" fill="${pal.ink}">${esc(label(r.g))}</text>`;
     });
   }
+  // LT50 labels go last so they sit above curves, points and the legend. Each label takes the lowest
+  // row where it does not overlap a label already placed; a white halo keeps it legible over lines.
+  const rows = [];
+  ltLabels.sort((a, b) => a.x - b.x).forEach(l => {
+    const w = textWidth(l.text), right = l.x + 6 + w > ml + pw;
+    const left = right ? l.x - 6 - w : l.x + 6, end = left + w;
+    let row = rows.findIndex(r => r.every(([a, b]) => end + 4 < a || left - 4 > b));
+    if (row < 0){ rows.push([]); row = rows.length - 1; }
+    rows[row].push([left, end]);
+    s += `<text x="${right ? l.x - 6 : l.x + 6}" y="${mt + ph - 10 - row * 18}" font-size="13" font-weight="700" fill="${l.col}" text-anchor="${right ? 'end' : 'start'}" stroke="${pal.bg}" stroke-width="3" stroke-linejoin="round" paint-order="stroke">${l.text}</text>`;
+  });
   s += `<text x="${ml + pw / 2}" y="${H - 14}" font-size="15" fill="${pal.ink}" text-anchor="middle">${esc(xl)}</text>`;
   s += `<text transform="translate(20 ${mt + ph / 2}) rotate(-90)" font-size="15" fill="${pal.ink}" text-anchor="middle">${esc(yl)}</text>`;
   return s + '</svg>';
@@ -191,7 +203,7 @@ function run(){
     if (r.error) msgs.push(label(r.g) + SEP + TEXT.errors[r.error](r));
     else if (r.outside) msgs.push(label(r.g) + SEP + TEXT.outside);
   });
-  last = { res: results, mode, xl: $('xlab').value, yl: $('ylab').value };
+  last = { res: results, mode, xl: $('xlab').value, yl: $('ylab').value, showLT: $('show-lt').checked };
   drawChart();
   table();
   $('message').textContent = msgs.join('\n');
@@ -224,7 +236,7 @@ $('table').addEventListener('input', e => {
   drawChart();
 });
 $('reset-colors').onclick = () => { custom = {}; saveColors(); if (last){ drawChart(); table(); } };
-function drawChart(){ $('chart').innerHTML = buildSVG(last.res, last.xl, last.yl); }
+function drawChart(){ $('chart').innerHTML = buildSVG(last.res, last.xl, last.yl, last.showLT); }
 
 /* ---------- Save and copy ---------- */
 function download(blob, name){
@@ -235,7 +247,7 @@ function download(blob, name){
   a.click();
   setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
 }
-const svgBlob = () => new Blob([buildSVG(last.res, last.xl, last.yl)], { type: 'image/svg+xml;charset=utf-8' });
+const svgBlob = () => new Blob([buildSVG(last.res, last.xl, last.yl, last.showLT)], { type: 'image/svg+xml;charset=utf-8' });
 async function copyText(text, button){
   try { await navigator.clipboard.writeText(text); }
   catch {
@@ -287,6 +299,7 @@ document.querySelectorAll('input[name=lt50-mode]').forEach(el => el.addEventList
   run();
 }));
 document.querySelectorAll('input[name=lt50-def]').forEach(el => el.addEventListener('change', run));
+$('show-lt').addEventListener('change', () => { if (last){ last.showLT = $('show-lt').checked; drawChart(); } });
 $('run').onclick = run;
 $('sample').onclick = () => { $('data').value = SAMPLE; run(); };
 $('clear').onclick = () => { $('data').value = ''; run(); };

@@ -53,6 +53,10 @@ const citationJa=`高橋大輔 (${year}) LT50 計算ツール, バージョン $
      <label class="tool-label" for="lt50-ylab">{t('Y軸の名前','Y-axis label')}</label>
      <input type="text" id="lt50-ylab" value={t('生存率 (%)','Survival (%)')}/>
     </div>
+    <fieldset class="tool-options">
+     <legend>{t('グラフの表示','Graph display')}</legend>
+     <label><input type="checkbox" id="lt50-show-lt" checked/><span>{t('LT50（点線と値）を表示する','Show LT50 (dashed lines and values)')}</span></label>
+    </fieldset>
 
     <div class="tool-buttons">
      <button type="button" class="tool-button primary" id="lt50-run">{t('計算する','Calculate')}</button>
