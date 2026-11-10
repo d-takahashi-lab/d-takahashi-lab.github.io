@@ -103,7 +103,7 @@ function niceTicks(min, max, count = 6){
   for (let v = Math.ceil(min / step) * step; v <= max + step * 1e-9; v += step) out.push(Number(v.toFixed(10)));
   return out;
 }
-function buildSVG(res, xl, yl, showLT){
+function buildSVG(res, xl, yl, showLT, reverse){
   const pal = PALETTE, ltLabels = [];
   const W = 760, H = 480, ml = 74, mr = 24, mt = 20, mb = 62;
   const pw = W - ml - mr, ph = H - mt - mb;
@@ -112,7 +112,8 @@ function buildSVG(res, xl, yl, showLT){
   const xp = (x1 - x0) * 0.05 || 1; x0 -= xp; x1 += xp;
   let y0 = Math.min(0, ...ally), y1 = Math.max(100, ...ally);
   const yp = (y1 - y0) * 0.04; y0 -= yp; y1 += yp;
-  const X = v => ml + (v - x0) / (x1 - x0) * pw;
+  // reverse: colder temperatures to the right, as freezing-tolerance curves are often drawn.
+  const X = v => ml + (reverse ? x1 - v : v - x0) / (x1 - x0) * pw;
   const Y = v => mt + (1 - (v - y0) / (y1 - y0)) * ph;
 
   let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" font-family="${FONT}" role="img" aria-label="LT50">`;
@@ -156,7 +157,7 @@ function buildSVG(res, xl, yl, showLT){
   s += `<rect x="${ml}" y="${mt}" width="${pw}" height="${ph}" fill="none" stroke="${pal.ink}" stroke-width="1.2"/>`;
   if (res.length > 1 || res[0].g){
     // Put the legend in the empty top corner: survival rises to the right, leakage rises to the left.
-    const rising = res.filter(r => r.p && !r.error).reduce((n, r) => n + Math.sign(r.p[3] * (r.p[1] - r.p[0])), 0) >= 0;
+    const rising = (res.filter(r => r.p && !r.error).reduce((n, r) => n + Math.sign(r.p[3] * (r.p[1] - r.p[0])), 0) >= 0) !== !!reverse;
     const lw = 190, lx = rising ? ml + 8 : ml + pw - lw - 8, ly = mt + 8;
     s += `<rect x="${lx}" y="${ly}" width="${lw}" height="${res.length * 20 + 10}" fill="${pal.bg}" fill-opacity="0.9" stroke="${pal.grid}"/>`;
     res.forEach((r, i) => {
@@ -206,7 +207,7 @@ function run(){
     if (r.error) msgs.push(label(r.g) + SEP + TEXT.errors[r.error](r));
     else if (r.outside) msgs.push(label(r.g) + SEP + TEXT.outside);
   });
-  last = { res: results, mode, xl: $('xlab').value, yl: $('ylab').value, showLT: $('show-lt').checked };
+  last = { res: results, mode, xl: $('xlab').value, yl: $('ylab').value, showLT: $('show-lt').checked, reverse: $('reverse').checked };
   drawChart();
   table();
   $('message').textContent = msgs.join('\n');
@@ -239,7 +240,7 @@ $('table').addEventListener('input', e => {
   drawChart();
 });
 $('reset-colors').onclick = () => { custom = {}; saveColors(); if (last){ drawChart(); table(); } };
-function drawChart(){ $('chart').innerHTML = buildSVG(last.res, last.xl, last.yl, last.showLT); }
+function drawChart(){ $('chart').innerHTML = buildSVG(last.res, last.xl, last.yl, last.showLT, last.reverse); }
 
 /* ---------- Save and copy ---------- */
 function download(blob, name){
@@ -250,7 +251,7 @@ function download(blob, name){
   a.click();
   setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
 }
-const svgBlob = () => new Blob([buildSVG(last.res, last.xl, last.yl, last.showLT)], { type: 'image/svg+xml;charset=utf-8' });
+const svgBlob = () => new Blob([buildSVG(last.res, last.xl, last.yl, last.showLT, last.reverse)], { type: 'image/svg+xml;charset=utf-8' });
 async function copyText(text, button){
   try { await navigator.clipboard.writeText(text); }
   catch {
@@ -303,6 +304,7 @@ document.querySelectorAll('input[name=lt50-mode]').forEach(el => el.addEventList
 }));
 document.querySelectorAll('input[name=lt50-def]').forEach(el => el.addEventListener('change', run));
 $('show-lt').addEventListener('change', () => { if (last){ last.showLT = $('show-lt').checked; drawChart(); } });
+$('reverse').addEventListener('change', () => { if (last){ last.reverse = $('reverse').checked; drawChart(); } });
 $('run').onclick = run;
 $('sample').onclick = () => { $('data').value = SAMPLE; run(); };
 $('clear').onclick = () => { $('data').value = ''; run(); };

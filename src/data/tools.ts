@@ -14,7 +14,10 @@ export const tools:Tool[] = [
    ja:'Excelから温度と生存率（または電解質漏出率）を貼り付けるだけで、シグモイド曲線を当てはめてLT50と95%信頼区間を求め、グラフを描きます。',
    en:'Paste temperatures and survival (or electrolyte leakage) from a spreadsheet to fit a sigmoid curve, estimate LT50 with a 95% confidence interval and draw the graph.',
   },
-  history:[{version:'1.0',date:'2026-11-10',ja:'公開',en:'First release'}],
+  history:[
+   {version:'1.1',date:'2026-11-10',ja:'グラフの表示を改善（系列ごとの色の選択、LT50の値の表示切り替え、黒枠と目盛り、温度軸の向きの選択）。計算方法は変更なし',en:'Improved graph display (per-series colours, toggle for LT50 values, framed axes with ticks, choice of temperature direction). Calculations unchanged'},
+   {version:'1.0',date:'2026-11-10',ja:'公開',en:'First release'},
+  ],
  },
 ];
 export const toolUrlBase = 'https://www.adaptationbiology.com';
