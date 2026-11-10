@@ -13,12 +13,15 @@
  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
  --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px;
  --edge: 5%; --gutter: 7%; --content-max: 1600px; --shell-max: 1440px;
+ /* Structural rows keep the same height in both languages so rules do not jump when switching JP/EN. */
+ --page-sections-line: 26px;
  --control-height: 44px; --rule: 1px solid var(--line);
  font-family: var(--font-sans); font-size: var(--text-body); color: var(--text);
  background: var(--bg); color-scheme: light; font-synthesis: none;
 }
-/* Latin text needs less leading: every role is 0.2 tighter in English, and Latin is never tracked. */
-html[lang=en] { --leading-body: 1.8; --leading-meta: 1.65; --leading-title: 1.4; --leading-heading: 1.3; --tracking-display: 0; }
+/* Latin text needs less leading: every role is 0.2 tighter in English, and Latin is never tracked.
+   [lang=en] rather than html[lang=en], so English set inside Japanese pages (page titles) matches the English pages. */
+[lang=en] { --leading-body: 1.8; --leading-meta: 1.65; --leading-title: 1.4; --leading-heading: 1.3; --tracking-display: 0; }
 * { box-sizing: border-box; }
 body { margin: 0; }
 html { scroll-behavior: smooth; scroll-padding-top: var(--space-6); }
@@ -74,11 +77,11 @@ html[lang=en] .identity-name,html[lang=en] .identity-name-compact { font-family:
 .menu-toggle { display: none; align-items: center; gap: var(--space-3); background: none; border: 0; padding: var(--space-2) 0; color: var(--text); font-size: var(--text-nav); }
 /* Shared page rhythm and link treatment. */
 .page-heading { margin: 0 var(--gutter); padding: var(--space-7) 0 var(--space-6); border-bottom: var(--rule); }
-.page-heading-no-sections { padding-bottom: calc(var(--space-6) + var(--space-5) + var(--leading-meta) * var(--text-small)); }
+.page-heading-no-sections { padding-bottom: calc(var(--space-6) + var(--space-5) + var(--page-sections-line)); }
 .page-heading h1 { font-size: var(--text-page); }
 .page-heading-row { display:flex;align-items:baseline;justify-content:space-between;gap:var(--space-5); }
-.page-meta {font-size:var(--text-meta);color:var(--muted);line-height:var(--leading-meta);}
-.page-sections {display:flex;flex-wrap:wrap;gap:var(--space-3) var(--space-6);margin-top:var(--space-5);font-size:var(--text-small);line-height:var(--leading-meta);}
+.page-meta {font-size:var(--text-meta);color:var(--muted);line-height:24px;}
+.page-sections {display:flex;flex-wrap:wrap;gap:var(--space-3) var(--space-6);margin-top:var(--space-5);font-size:var(--text-small);line-height:var(--page-sections-line);}
 .page-sections a { text-underline-offset: 7px; }
 .page-sections a[aria-current=true] { text-decoration: underline; }
 .research-overview {margin:var(--space-7) var(--gutter) 0;max-width:780px;color:var(--body);font-size:var(--text-body);line-height:var(--leading-body);}
@@ -313,6 +316,8 @@ footer { margin: 0 var(--edge); padding: var(--space-6) 0; border-top: var(--rul
 .identity-copy>span { text-align:justify; text-align-last:justify; }
 .identity-affiliation { font-size:12.5px; line-height:1.4; color:var(--muted); }
 html[lang=en] .identity-affiliation { font-size:11px; }
+/* Fixed line boxes (from the Japanese sizes, 18px × 1.5 and 12.5px × 1.4) keep the header the same height in both languages. */
+@media(min-width:751px) { .identity-name,.identity-name-compact { line-height: 27px; } .identity-affiliation { line-height: 17.5px; } }
 .faculty-identity .position { margin-top:var(--space-2); margin-bottom:0; }
 .faculty-identity .affiliation { max-width:360px; }
 .faculty-profile,.student { align-items:center; }
