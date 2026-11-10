@@ -66,6 +66,7 @@ const citationJa=`高橋大輔 (${year}) LT50 計算ツール, バージョン $
    <div class="tool-output">
     <div class="tool-chart" id="lt50-chart"><p class="tool-empty">{t('データを貼り付けると、ここに曲線が表示されます。','Paste data to see the fitted curves here.')}</p></div>
     <div class="tool-table" id="lt50-table"></div>
+    <p class="tool-colors" id="lt50-colors" hidden><span>{t('表の色の丸を押すと、系列の色を変えられます。','Click a coloured dot in the table to change that series’ colour.')}</span><button type="button" id="lt50-reset-colors">{t('色を元に戻す','Reset colours')}</button></p>
     <div class="tool-buttons">
      <button type="button" class="tool-button" id="lt50-png" disabled>{t('グラフを保存（PNG）','Save graph (PNG)')}</button>
      <button type="button" class="tool-button" id="lt50-svg" disabled>{t('グラフを保存（SVG）','Save graph (SVG)')}</button>

@@ -23,6 +23,7 @@ const TEXT = en ? {
   head: ['Group', 'LT50 (°C)', '95% CI', 'SE', 'Slope k', 'Lower', 'Upper', 'R²', 'n'],
   copyHead: ['Group', 'LT50 (°C)', '95% CI lower', '95% CI upper', 'SE', 'Slope k', 'Lower asymptote', 'Upper asymptote', 'R2', 'n'],
   copied: 'Copied',
+  colorFor: g => `Colour of ${g}`,
   footer: (v, url, date) => `Calculated with LT50 Calculator version ${v} (${url}) on ${date}`,
 } : {
   unnamed: 'データ', degree: '℃',
@@ -41,6 +42,7 @@ const TEXT = en ? {
   head: ['グループ', 'LT50 (℃)', '95%信頼区間', '標準誤差', '傾き k', '下限', '上限', 'R²', 'n'],
   copyHead: ['グループ', 'LT50(℃)', '95%CI下限', '95%CI上限', '標準誤差', '傾きk', '下限', '上限', 'R2', 'n'],
   copied: 'コピーしました',
+  colorFor: g => `${g}の色`,
   footer: (v, url, date) => `LT50 計算ツール バージョン${v}（${url}）で${date}に計算`,
 };
 
@@ -64,7 +66,20 @@ const SAMPLE = (en
 // Site colours; series colours stay distinct, starting from the site's black.
 const PALETTE = { bg: '#FFFFFF', ink: '#171717', muted: '#626262', grid: '#E6E6E3',
   colors: ['#171717', '#2B6684', '#B04A3A', '#5E8B2A', '#9A4A8C', '#B07D12', '#2E8C82', '#7A5C3A'] };
-const colorAt = i => i < PALETTE.colors.length ? PALETTE.colors[i] : `hsl(${Math.round((i * 137.5) % 360)}, 45%, 40%)`;
+const defaultColor = i => i < PALETTE.colors.length ? PALETTE.colors[i] : `hsl(${Math.round((i * 137.5) % 360)}, 45%, 40%)`;
+// Colours picked by the user, keyed by group name so they survive re-pasting the data.
+// Remembered in this browser only; storage may be unavailable (private mode), which is fine.
+let custom = {};
+try { custom = JSON.parse(localStorage.getItem('lt50-colors') || '{}') || {}; } catch { custom = {}; }
+const saveColors = () => { try { localStorage.setItem('lt50-colors', JSON.stringify(custom)); } catch {} };
+const colorOf = (r, i) => custom[r.g || ''] || defaultColor(i);
+// <input type=color> needs #rrggbb; generated hsl colours are converted.
+function toHex(color){
+  if (color.startsWith('#')) return color;
+  const c = document.createElement('canvas').getContext('2d');
+  c.fillStyle = color;
+  return c.fillStyle;
+}
 const FONT = 'Arial, Hiragino Kaku Gothic ProN, Yu Gothic, sans-serif';
 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -114,7 +129,7 @@ function buildSVG(res, xl, yl){
     s += `<line x1="${ml}" x2="${ml + pw}" y1="${Y(50)}" y2="${Y(50)}" stroke="${pal.muted}" stroke-width="1" stroke-dasharray="5 4"/>`;
   }
   res.forEach((r, i) => {
-    const col = colorAt(i);
+    const col = colorOf(r, i);
     if (r.p && !r.error){
       let d = '';
       for (let j = 0; j <= 240; j++){
@@ -141,7 +156,7 @@ function buildSVG(res, xl, yl){
     const lw = 190, lx = rising ? ml + 8 : ml + pw - lw - 8, ly = mt + 8;
     s += `<rect x="${lx}" y="${ly}" width="${lw}" height="${res.length * 20 + 10}" fill="${pal.bg}" fill-opacity="0.9" stroke="${pal.grid}"/>`;
     res.forEach((r, i) => {
-      const col = colorAt(i), yy = ly + 18 + i * 20;
+      const col = colorOf(r, i), yy = ly + 18 + i * 20;
       s += `<line x1="${lx + 10}" x2="${lx + 32}" y1="${yy - 4}" y2="${yy - 4}" stroke="${col}" stroke-width="2.4"/>`;
       s += `<circle cx="${lx + 21}" cy="${yy - 4}" r="4" fill="${col}"/>`;
       s += `<text x="${lx + 40}" y="${yy}" font-size="13" fill="${pal.ink}">${esc(label(r.g))}</text>`;
@@ -166,6 +181,7 @@ function run(){
     last = null;
     $('chart').innerHTML = `<p class="tool-empty">${TEXT.empty}</p>`;
     $('table').innerHTML = '';
+    $('colors').hidden = true;
     outputs.forEach(id => $(id).disabled = true);
     $('message').textContent = text.trim() ? TEXT.noNumbers : '';
     $('format').textContent = '';
@@ -176,7 +192,7 @@ function run(){
     else if (r.outside) msgs.push(label(r.g) + SEP + TEXT.outside);
   });
   last = { res: results, mode, xl: $('xlab').value, yl: $('ylab').value };
-  $('chart').innerHTML = buildSVG(results, last.xl, last.yl);
+  drawChart();
   table();
   $('message').textContent = msgs.join('\n');
   $('format').textContent = TEXT.format(format === 'wide', results.length, rows.length);
@@ -187,14 +203,28 @@ function table(){
   const head = TEXT.head.filter((_, i) => free || (i !== 5 && i !== 6));
   let h = `<table><thead><tr>${head.map(c => `<th scope="col">${c}</th>`).join('')}</tr></thead><tbody>`;
   last.res.forEach((r, i) => {
-    const name = `<span class="tool-swatch" style="background:${colorAt(i)}"></span>${esc(label(r.g))}`;
+    const col = toHex(colorOf(r, i));
+    const name = `<label class="tool-swatch"><input type="color" value="${col}" data-index="${i}" aria-label="${esc(TEXT.colorFor(label(r.g)))}"><span style="background:${col}"></span></label>${esc(label(r.g))}`;
     if (r.error){ h += `<tr><th scope="row">${name}</th><td colspan="${head.length - 1}" class="tool-failed">${TEXT.failed}</td></tr>`; return; }
     h += `<tr><th scope="row">${name}</th><td class="tool-lt">${fmt(r.lt)}</td><td>${fmt(r.lo)} – ${fmt(r.hi)}</td><td>${fmt(r.se)}</td><td>${fmt(r.p[3], 3)}</td>`;
     if (free) h += `<td>${fmt(r.p[0], 1)}</td><td>${fmt(r.p[1], 1)}</td>`;
     h += `<td>${fmt(r.r2, 3)}</td><td>${r.n}</td></tr>`;
   });
   $('table').innerHTML = h + '</tbody></table>';
+  $('colors').hidden = false;
 }
+// Only the chart is redrawn while picking, so the open colour picker is not replaced.
+$('table').addEventListener('input', e => {
+  const input = e.target.closest('input[type=color]');
+  if (!input || !last) return;
+  const r = last.res[Number(input.dataset.index)];
+  custom[r.g || ''] = input.value;
+  input.nextElementSibling.style.background = input.value;
+  saveColors();
+  drawChart();
+});
+$('reset-colors').onclick = () => { custom = {}; saveColors(); if (last){ drawChart(); table(); } };
+function drawChart(){ $('chart').innerHTML = buildSVG(last.res, last.xl, last.yl); }
 
 /* ---------- Save and copy ---------- */
 function download(blob, name){
