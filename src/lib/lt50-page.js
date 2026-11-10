@@ -47,9 +47,9 @@ const TEXT = en ? {
 };
 
 const SAMPLE = (en
-  ? ['Genotype', 'Treatment', 'Temperature (°C)', 'Cold-acclimated', 'Non-acclimated']
-  : ['Genotype', '処理', '温度 (℃)', '低温馴化', '無処理']
-).reduce((s, v, i) => s.replaceAll(`{${i}}`, v), `{0}\tCol-0\t\t\t\tCol-0\t\t\tmutant1\t\t\t\t\tmutant1\t\t
+  ? ['Cultivar', 'Treatment', 'Temperature (°C)', 'Cold-acclimated', 'Non-acclimated', 'Cultivar 1', 'Cultivar 2']
+  : ['品種', '処理', '温度 (℃)', '低温馴化', '無処理', '品種1', '品種2']
+).reduce((s, v, i) => s.replaceAll(`{${i}}`, v), `{0}\t{5}\t\t\t\t{5}\t\t\t{6}\t\t\t\t\t{6}\t\t
 {1}\t{3}\t\t\t\t{4}\t\t\t{3}\t\t\t\t\t{4}\t\t
 {2}\trep1\trep2\trep3\trep4\trep1\trep2\trep3\trep1\trep2\trep3\trep4\trep5\trep1\trep2\trep3
 -2\t\t\t\t\t100\t95\t80\t\t\t\t\t\t100\t100\t80
@@ -82,7 +82,7 @@ function toHex(color){
 }
 const FONT = 'Arial, Hiragino Kaku Gothic ProN, Yu Gothic, sans-serif';
 const measure = document.createElement('canvas').getContext('2d');
-const textWidth = text => { measure.font = `700 13px ${FONT}`; return measure.measureText(text).width; };
+const textWidth = (text, weight = 700) => { measure.font = `${weight} 13px ${FONT}`; return measure.measureText(text).width; };
 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const fmt = (v, d = 2) => Number.isFinite(v) ? v.toFixed(d) : '—';
@@ -158,7 +158,8 @@ function buildSVG(res, xl, yl, showLT, reverse){
   if (res.length > 1 || res[0].g){
     // Put the legend in the empty top corner: survival rises to the right, leakage rises to the left.
     const rising = (res.filter(r => r.p && !r.error).reduce((n, r) => n + Math.sign(r.p[3] * (r.p[1] - r.p[0])), 0) >= 0) !== !!reverse;
-    const lw = 190, lx = rising ? ml + 8 : ml + pw - lw - 8, ly = mt + 8;
+    // Legend width follows the longest group name.
+    const lw = Math.ceil(Math.max(...res.map(r => textWidth(label(r.g), 400)))) + 52, lx = rising ? ml + 8 : ml + pw - lw - 8, ly = mt + 8;
     s += `<rect x="${lx}" y="${ly}" width="${lw}" height="${res.length * 20 + 10}" fill="${pal.bg}" fill-opacity="0.9" stroke="${pal.grid}"/>`;
     res.forEach((r, i) => {
       const col = colorOf(r, i), yy = ly + 18 + i * 20;

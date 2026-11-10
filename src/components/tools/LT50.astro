@@ -28,7 +28,7 @@ const citationJa=`高橋大輔 (${year}) LT50 計算ツール, バージョン $
   <div class="tool-grid">
    <div class="tool-form">
     <label class="tool-label" for="lt50-data">{t('データ（Excelからそのまま貼り付け）','Data (paste straight from a spreadsheet)')}</label>
-    <textarea id="lt50-data" class="tool-data" spellcheck="false" wrap="off" placeholder={t('温度\tCol-0\tCol-0\tmutant1\n-2\t100\t95\t100\n-4\t90\t85\t60\n…','Temperature\tCol-0\tCol-0\tmutant1\n-2\t100\t95\t100\n-4\t90\t85\t60\n…')}></textarea>
+    <textarea id="lt50-data" class="tool-data" spellcheck="false" wrap="off" placeholder={t('温度\t品種1\t品種1\t品種2\n-2\t100\t95\t100\n-4\t90\t85\t60\n…','Temperature\tCultivar 1\tCultivar 1\tCultivar 2\n-2\t100\t95\t100\n-4\t90\t85\t60\n…')}></textarea>
     <details class="tool-help">
      <summary>{t('貼り付けられる形式','Accepted layouts')}</summary>
      <p>{t('横長でも縦長でも自動で判別します。','Wide and long layouts are detected automatically.')}</p>
