@@ -117,16 +117,16 @@ function buildSVG(res, xl, yl, showLT){
 
   let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" font-family="${FONT}" role="img" aria-label="LT50">`;
   s += `<rect width="${W}" height="${H}" fill="${pal.bg}"/>`;
+  // Outward ticks on the bottom and left axes; no grid lines. The black frame is drawn after the series.
+  const tick = 5;
   niceTicks(x0, x1).forEach(v => {
-    s += `<line x1="${X(v)}" x2="${X(v)}" y1="${mt}" y2="${mt + ph}" stroke="${pal.grid}" stroke-width="1"/>`;
-    s += `<text x="${X(v)}" y="${mt + ph + 20}" font-size="13" fill="${pal.muted}" text-anchor="middle">${v}</text>`;
+    s += `<line x1="${X(v)}" x2="${X(v)}" y1="${mt + ph}" y2="${mt + ph + tick}" stroke="${pal.ink}" stroke-width="1.2"/>`;
+    s += `<text x="${X(v)}" y="${mt + ph + tick + 16}" font-size="13" fill="${pal.ink}" text-anchor="middle">${v}</text>`;
   });
   niceTicks(y0, y1).forEach(v => {
-    s += `<line x1="${ml}" x2="${ml + pw}" y1="${Y(v)}" y2="${Y(v)}" stroke="${pal.grid}" stroke-width="1"/>`;
-    s += `<text x="${ml - 8}" y="${Y(v) + 4}" font-size="13" fill="${pal.muted}" text-anchor="end">${v}</text>`;
+    s += `<line x1="${ml - tick}" x2="${ml}" y1="${Y(v)}" y2="${Y(v)}" stroke="${pal.ink}" stroke-width="1.2"/>`;
+    s += `<text x="${ml - tick - 5}" y="${Y(v) + 4}" font-size="13" fill="${pal.ink}" text-anchor="end">${v}</text>`;
   });
-  s += `<line x1="${ml}" x2="${ml}" y1="${mt}" y2="${mt + ph}" stroke="${pal.ink}" stroke-width="1.2"/>`;
-  s += `<line x1="${ml}" x2="${ml + pw}" y1="${mt + ph}" y2="${mt + ph}" stroke="${pal.ink}" stroke-width="1.2"/>`;
   if (50 > y0 && 50 < y1){
     s += `<line x1="${ml}" x2="${ml + pw}" y1="${Y(50)}" y2="${Y(50)}" stroke="${pal.muted}" stroke-width="1" stroke-dasharray="5 4"/>`;
   }
@@ -152,6 +152,8 @@ function buildSVG(res, xl, yl, showLT){
       if (showLT) ltLabels.push({ x: X(r.lt), text: `LT50 ${r.lt.toFixed(1)}${TEXT.degree}`, col });
     }
   });
+  // Frame after the series so curves and points never cover it.
+  s += `<rect x="${ml}" y="${mt}" width="${pw}" height="${ph}" fill="none" stroke="${pal.ink}" stroke-width="1.2"/>`;
   if (res.length > 1 || res[0].g){
     // Put the legend in the empty top corner: survival rises to the right, leakage rises to the left.
     const rising = res.filter(r => r.p && !r.error).reduce((n, r) => n + Math.sign(r.p[3] * (r.p[1] - r.p[0])), 0) >= 0;
