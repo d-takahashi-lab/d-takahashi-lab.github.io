@@ -144,11 +144,12 @@ function buildSVG(res, xl, yl, showLT){
     r.xs.forEach((x, k) => {
       s += `<circle cx="${X(x)}" cy="${Y(r.ys[k])}" r="4.5" fill="${col}" fill-opacity="0.7" stroke="${pal.bg}" stroke-width="1"/>`;
     });
-    if (showLT && !r.error && Number.isFinite(r.lt) && r.lt > x0 && r.lt < x1){
+    // The dashed line and marker are always drawn; only the value labels follow the toggle.
+    if (!r.error && Number.isFinite(r.lt) && r.lt > x0 && r.lt < x1){
       const yat = model(r.p, r.lt);
       s += `<line x1="${X(r.lt)}" x2="${X(r.lt)}" y1="${Y(yat)}" y2="${mt + ph}" stroke="${col}" stroke-width="1.3" stroke-dasharray="4 3"/>`;
       s += `<circle cx="${X(r.lt)}" cy="${Y(yat)}" r="5" fill="${pal.bg}" stroke="${col}" stroke-width="2"/>`;
-      ltLabels.push({ x: X(r.lt), text: `LT50 ${r.lt.toFixed(1)}${TEXT.degree}`, col });
+      if (showLT) ltLabels.push({ x: X(r.lt), text: `LT50 ${r.lt.toFixed(1)}${TEXT.degree}`, col });
     }
   });
   if (res.length > 1 || res[0].g){
