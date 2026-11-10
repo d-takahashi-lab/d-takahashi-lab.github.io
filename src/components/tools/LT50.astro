@@ -1,0 +1,113 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import PageHeading from '../PageHeading.astro';
+import {tools,toolUrlBase} from '../../data/tools';
+import {choose,pageUrl,type Language} from '../../lib/i18n';
+interface Props{lang?:Language;}
+const {lang='ja'}=Astro.props;
+const en=lang==='en',t=(ja:string,english:string)=>choose(lang,ja,english);
+const tool=tools.find(x=>x.slug==='lt50')!;
+const year=tool.updated.slice(0,4);
+// Citations always point at the public domain, also in local builds.
+const url=toolUrlBase+pageUrl('tools/lt50',lang);
+const citationEn=`Takahashi D (${year}) LT50 Calculator, version ${tool.version}. Laboratory of Stress and Adaptation Biology, Saitama University. ${url}`;
+const citationJa=`高橋大輔 (${year}) LT50 計算ツール, バージョン ${tool.version}. 埼玉大学 生命適応科学研究室. ${url}`;
+---
+<Layout lang={lang} title={tool.title[lang]} current="tools" alternateSlug="tools/lt50" description={tool.summary[lang]}>
+ <PageHeading lang={lang} title={tool.title[lang]} en={tool.name} meta={`v${tool.version} · ${tool.updated.replaceAll('-','.')}`} sections={[
+  {label:t('計算','Calculator'),href:'#calculator'},{label:t('計算方法','Method'),href:'#method'},
+  {label:t('引用のしかた','How to cite'),href:'#citation'},{label:t('免責事項','Disclaimer'),href:'#disclaimer'},
+ ]}/>
+ <div class="tool-page" id="lt50" data-version={tool.version} data-url={url}>
+ <section class="section tool-intro">
+  <p class="page-intro">{t('植物の耐凍性の指標となるLT50（50%の個体・組織が致死となる温度）を求めるツールです。Excelから「温度」と「生存率（または電解質漏出率）」をコピーして貼り付けると、シグモイド曲線を当てはめてLT50を計算し、グラフを描きます。系統名や処理名の見出しを付けると、グループごとに計算して重ねて描きます。','This tool estimates LT50, the temperature that kills 50% of plants or tissues, as a measure of freezing tolerance. Copy temperatures and survival (or electrolyte leakage) from a spreadsheet and paste them in: a sigmoid curve is fitted, LT50 is calculated and a graph is drawn. Add headings such as genotype or treatment to fit and overlay each group separately.')}</p>
+  <p class="body-note">{t('入力したデータはどこにも送信されず、お使いのブラウザの中だけで計算します。','Your data is never uploaded: all calculations run in your browser.')}</p>
+ </section>
+
+ <section class="section tool-section" id="calculator" aria-label={t('計算','Calculator')}>
+  <div class="tool-grid">
+   <div class="tool-form">
+    <label class="tool-label" for="lt50-data">{t('データ（Excelからそのまま貼り付け）','Data (paste straight from a spreadsheet)')}</label>
+    <textarea id="lt50-data" class="tool-data" spellcheck="false" wrap="off" placeholder={t('温度\tCol-0\tCol-0\tmutant1\n-2\t100\t95\t100\n-4\t90\t85\t60\n…','Temperature\tCol-0\tCol-0\tmutant1\n-2\t100\t95\t100\n-4\t90\t85\t60\n…')}></textarea>
+    <details class="tool-help">
+     <summary>{t('貼り付けられる形式','Accepted layouts')}</summary>
+     <p>{t('横長でも縦長でも自動で判別します。','Wide and long layouts are detected automatically.')}</p>
+     <p>{t('横長：1列目に温度、2列目以降に値。見出し行（系統・処理など）は何行でもよく、同じ見出しの列は反復としてまとめます。結合セルや「1, 2, 3」「rep1」などの反復番号の行もそのまま貼れます。空欄は欠測として無視するので、N数や温度の点がグループごとに違っても構いません。','Wide: temperature in the first column and values in the following columns. Any number of heading rows (genotype, treatment, …) is allowed, and columns with the same heading are treated as replicates. Merged cells and replicate rows such as “1, 2, 3” or “rep1” can be pasted as they are. Blank cells are treated as missing, so groups may differ in N and in temperature points.')}</p>
+     <p>{t('縦長：1行に1データで、温度・値・グループ名（3列目以降、何列でも）。','Long: one observation per row — temperature, value, then group names (any number of columns from the third).')}</p>
+    </details>
+
+    <fieldset class="tool-options">
+     <legend>{t('曲線の上限と下限','Curve asymptotes')}</legend>
+     <label><input type="radio" name="lt50-mode" value="fixed" checked/><span>{t('0%と100%に固定（生存率向け）','Fixed at 0% and 100% (for survival)')}</span></label>
+     <label><input type="radio" name="lt50-mode" value="free"/><span>{t('データから推定（電解質漏出率など、0〜100%に収まらないデータ向け）','Estimated from the data (for electrolyte leakage and other data not spanning 0–100%)')}</span></label>
+    </fieldset>
+    <fieldset class="tool-options" id="lt50-def" disabled>
+     <legend>{t('LT50の定義','Definition of LT50')}</legend>
+     <label><input type="radio" name="lt50-def" value="mid" checked/><span>{t('曲線の中間点（変曲点）','Midpoint of the curve (inflection point)')}</span></label>
+     <label><input type="radio" name="lt50-def" value="abs"/><span>{t('値がちょうど50%になる温度','Temperature at which the value is exactly 50%')}</span></label>
+    </fieldset>
+
+    <div class="tool-axis">
+     <label class="tool-label" for="lt50-xlab">{t('X軸の名前','X-axis label')}</label>
+     <input type="text" id="lt50-xlab" value={t('温度 (℃)','Temperature (°C)')}/>
+     <label class="tool-label" for="lt50-ylab">{t('Y軸の名前','Y-axis label')}</label>
+     <input type="text" id="lt50-ylab" value={t('生存率 (%)','Survival (%)')}/>
+    </div>
+
+    <div class="tool-buttons">
+     <button type="button" class="tool-button primary" id="lt50-run">{t('計算する','Calculate')}</button>
+     <button type="button" class="tool-button" id="lt50-sample">{t('サンプルを入れる','Load sample')}</button>
+     <button type="button" class="tool-button" id="lt50-clear">{t('消去','Clear')}</button>
+    </div>
+    <p class="tool-format" id="lt50-format" aria-live="polite"></p>
+    <p class="tool-message" id="lt50-message" role="status"></p>
+   </div>
+
+   <div class="tool-output">
+    <div class="tool-chart" id="lt50-chart"><p class="tool-empty">{t('データを貼り付けると、ここに曲線が表示されます。','Paste data to see the fitted curves here.')}</p></div>
+    <div class="tool-table" id="lt50-table"></div>
+    <div class="tool-buttons">
+     <button type="button" class="tool-button" id="lt50-png" disabled>{t('グラフを保存（PNG）','Save graph (PNG)')}</button>
+     <button type="button" class="tool-button" id="lt50-svg" disabled>{t('グラフを保存（SVG）','Save graph (SVG)')}</button>
+     <button type="button" class="tool-button" id="lt50-copy" disabled>{t('結果をコピー（Excelに貼れる形式）','Copy results (for Excel)')}</button>
+    </div>
+   </div>
+  </div>
+ </section>
+
+ <section class="section tool-section" id="method">
+  <h2>{t('計算方法','Method')}</h2>
+  <p class="tool-prose">{t('論文の材料と方法に、次の説明を使えます。','You may use the following description in the methods section of a paper.')}</p>
+  {en
+   ?<p class="tool-prose">A four-parameter logistic function, y = L + (U − L) / (1 + exp(−k (T − T<sub>m</sub>))), was fitted by nonlinear least squares using the Levenberg–Marquardt algorithm, where L and U are the lower and upper asymptotes, k is the slope and T<sub>m</sub> is the temperature at the inflection point. When the asymptotes were fixed (L = 0, U = 100), T<sub>m</sub> was taken as LT50. When they were estimated from the data, LT50 was taken as either T<sub>m</sub> or the temperature at which the fitted curve crosses 50%. The standard error of LT50 was obtained by the delta method, and the 95% confidence interval was calculated from the t distribution with n − p degrees of freedom (n, number of data points; p, number of estimated parameters). Calculations were performed with LT50 Calculator version {tool.version} (Takahashi, {year}).</p>
+   :<p class="tool-prose">4パラメータロジスティック関数 y = L + (U − L) / (1 + exp(−k (T − T<sub>m</sub>))) を、Levenberg–Marquardt法による非線形最小二乗法で当てはめた。L・Uはそれぞれ下限・上限、kは傾き、T<sub>m</sub>は変曲点の温度である。上限・下限を固定した場合はL = 0、U = 100とし、T<sub>m</sub>をLT50とした。上限・下限をデータから推定した場合は、T<sub>m</sub>、または当てはめた曲線が50%となる温度をLT50とした。LT50の標準誤差はデルタ法で求め、95%信頼区間は自由度 n − p（n：データ数、p：推定したパラメータ数）のt分布から計算した。計算にはLT50 計算ツール バージョン{tool.version}（高橋, {year}）を用いた。</p>}
+  <p class="body-note">{t('計算結果は、統計ソフトR（nls関数）による当てはめと、LT50・標準誤差とも小数第4位まで一致することを確認しています。','Results were checked against fits in R (the nls function): LT50 and its standard error agree to four decimal places.')}</p>
+ </section>
+
+ <section class="section tool-section" id="citation">
+  <h2>{t('引用のしかた','How to cite')}</h2>
+  <p class="tool-prose">{t('このツールで得た結果を論文や発表に使う場合は、次のように引用してください。末尾の参照日は、お使いになった日付に置き換えてください。','If you use results from this tool in a paper or presentation, please cite it as follows. Replace the access date with the date you used it.')}</p>
+  <div class="tool-citation">
+   <p id="lt50-cite-en" lang="en" data-citation={citationEn}>{citationEn} (accessed <span data-today>{tool.updated}</span>)</p>
+   {!en&&<p id="lt50-cite-ja" data-citation={citationJa}>{citationJa}（参照 <span data-today>{tool.updated}</span>）</p>}
+  </div>
+  <div class="tool-buttons">
+   <button type="button" class="tool-button" data-copy="lt50-cite-en">{t('英語の引用文をコピー','Copy citation')}</button>
+   {!en&&<button type="button" class="tool-button" data-copy="lt50-cite-ja">日本語の引用文をコピー</button>}
+  </div>
+  <p class="body-note">{t('「結果をコピー」で貼り付けた表にも、計算に使ったバージョンが記録されます。','Results copied with “Copy results” also record the version used.')}</p>
+ </section>
+
+ <section class="section tool-section" id="disclaimer">
+  <h2>{t('免責事項','Disclaimer')}</h2>
+  <p class="tool-prose">{t('このツールは研究の補助を目的として、現状のまま無償で提供しています。計算結果の正確性や、特定の目的への適合性は保証しません。結果はご自身で確認のうえお使いください。本ツールの利用によって生じたいかなる損害についても、作成者および埼玉大学 生命適応科学研究室は責任を負いません。ツールの内容は予告なく変更することがあります。','This tool is provided free of charge, as is, to support research. We make no warranty as to the accuracy of the results or their fitness for any particular purpose; please verify results yourself before relying on them. The author and the Laboratory of Stress and Adaptation Biology, Saitama University, accept no liability for any loss or damage arising from the use of this tool. The tool may change without notice.')}</p>
+  <dl class="tool-history">
+   {tool.history.map(h=><div><dt>v{h.version}</dt><dd><time datetime={h.date}>{h.date.replaceAll('-','.')}</time>　{en?h.en:h.ja}</dd></div>)}
+  </dl>
+  <a class="text-link" href={pageUrl('tools',lang)}>{t('ツール一覧','All tools')} →</a>
+ </section>
+ </div>
+</Layout>
+<script>
+ import '../../lib/lt50-page.js';
+</script>

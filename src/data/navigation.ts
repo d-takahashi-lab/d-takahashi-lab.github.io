@@ -4,5 +4,6 @@ export const navigation = [
  {slug:'research',label:'Research',title:'研究紹介',key:'RESEARCH'},
  {slug:'members',label:'People',title:'メンバー',key:'MEMBERS'},
  {slug:'publications',label:'Works',title:'研究業績',key:'PUBLICATIONS'},
+ {slug:'tools',label:'Tools',title:'ツール',key:'TOOLS'},
  {slug:'contact',label:'Contact',title:'アクセス・お問い合わせ',key:'CONTACT & ACCESS'},
 ];

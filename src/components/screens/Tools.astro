@@ -1,0 +1,21 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import PageHeading from '../PageHeading.astro';
+import {tools} from '../../data/tools';
+import {choose,pageUrl,type Language} from '../../lib/i18n';
+interface Props{lang?:Language;}
+const {lang='ja'}=Astro.props;
+const t=(ja:string,english:string)=>choose(lang,ja,english);
+---
+<Layout lang={lang} title="ツール" current="tools" description={t('生命適応科学研究室が公開している研究用のウェブツール。ブラウザだけで動き、入力したデータは送信されません。','Web tools for plant stress research from the Laboratory of Stress and Adaptation Biology. They run entirely in your browser; your data is never uploaded.')}>
+ <PageHeading lang={lang} title="ツール" en="TOOLS"/>
+ <section class="section tool-index">
+  <p class="page-intro">{t('研究室で開発した解析ツールを公開しています。どのツールもブラウザの中だけで計算し、入力したデータはどこにも送信されません。','Analysis tools developed in our laboratory. Every tool runs entirely in your browser, and the data you enter is never sent anywhere.')}</p>
+  <div class="tool-list">
+   {tools.map(tool=><article>
+    <div><h3><a href={pageUrl(`tools/${tool.slug}`,lang)}>{tool.title[lang]}</a></h3><p>{tool.summary[lang]}</p></div>
+    <p class="tool-version">v{tool.version}<br/><time datetime={tool.updated}>{tool.updated.replaceAll('-','.')}</time></p>
+   </article>)}
+  </div>
+ </section>
+</Layout>

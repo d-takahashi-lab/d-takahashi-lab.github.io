@@ -14,7 +14,7 @@
 - `npm run check`：型・テンプレート検査（CIでも実行。push前に通す）
 - `npm run build`：本番ビルド。prebuild で News 用画像の整理と /admin/ の生成を行う
 - `npm run news`：ローカル版の News 編集画面（127.0.0.1:4322）
-- `node --test tests/`：News投稿画面のGitHub連携のテスト
+- `node --test tests/*.test.mjs`：News投稿画面のGitHub連携と、Toolsの計算のテスト（このNodeでは `tests/` とフォルダ指定すると失敗する）
 
 ## 構成
 
@@ -29,6 +29,7 @@
 - `public/`：元写真・元動画の置き場（非公開）。ここから縮小・変換して `site-public/` に置く。`public/` 全体を gitignore で除外している。
 - `work/`, `outputs/`：作業用スクリプト・画像（gitignore済み）。`.news-editor/` はローカル編集画面のバックアップ（gitignore済み）。
 - `scripts/news-editor/`：News投稿画面。公開サイトの `/admin/` で、研究室メンバーがブラウザから GitHub API 経由で `news.json`（と画像）を main に直接コミットする。
+- Tools（研究用ツール）：一覧は [src/data/tools.ts](src/data/tools.ts)（版・更新日・更新履歴。版と更新日は引用文にも出るので、ツールを変えたら一緒に上げる）。各ツールは `src/components/tools/` のページと、DOMを持たない計算部分 `src/lib/<tool>.js` に分け、計算部分は `tests/` でテストする（LT50はRのnlsの結果と照合済み）。ページには計算方法・引用のしかた・免責事項を日英で置く。
 - `src/pages/designs/`, `src/pages/logos.astro`：デザイン・ロゴ検討時の比較ページ（過去の検討案。本体のデザイン基準には含めない）。
 - `docs/design-system.md`：デザインの基準。
 
