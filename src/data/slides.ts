@@ -1,12 +1,19 @@
 // Published slideshow photographs, shared by the Japanese and English pages.
 export const slides = [
   {
+    "file": "slideshow-frost.webp",
+    "alt": "葉の表面と縁に霜が付着した植物",
+    "position": "50% 50%",
+    "original": "DSC_1496.jpeg",
+    "altEn": "Frost along the surfaces and edges of leaves",
+    "pinned": true
+  },
+  {
     "file": "slideshow-forest-water.webp",
     "alt": "森林に囲まれた静かな水辺",
     "position": "50% 50%",
     "original": "DSC_1620.jpeg",
-    "altEn": "A quiet stretch of water surrounded by forest",
-    "pinned": true
+    "altEn": "A quiet stretch of water surrounded by forest"
   },
   {
     "file": "top-flowers.webp",
@@ -28,13 +35,6 @@ export const slides = [
     "position": "50% 50%",
     "original": "FP001164.jpeg",
     "altEn": "A grassy valley surrounded by mountains"
-  },
-  {
-    "file": "slideshow-frost.webp",
-    "alt": "葉の表面と縁に霜が付着した植物",
-    "position": "50% 50%",
-    "original": "DSC_1496.jpeg",
-    "altEn": "Frost along the surfaces and edges of leaves"
   },
   {
     "file": "slideshow-snow-mountain.webp",
