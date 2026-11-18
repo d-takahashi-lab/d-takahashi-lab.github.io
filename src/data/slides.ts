@@ -1,12 +1,19 @@
 // Published slideshow photographs, shared by the Japanese and English pages.
 export const slides = [
   {
+    "file": "slideshow-leaf-texture.webp",
+    "alt": "表面と縁が霜で白く縁取られた植物の葉",
+    "position": "50% 50%",
+    "original": "DSC_2171.jpeg",
+    "altEn": "Leaves coated and edged with frost",
+    "pinned": true
+  },
+  {
     "file": "slideshow-frost.webp",
     "alt": "葉の表面と縁に霜が付着した植物",
     "position": "50% 50%",
     "original": "DSC_1496.jpeg",
-    "altEn": "Frost along the surfaces and edges of leaves",
-    "pinned": true
+    "altEn": "Frost along the surfaces and edges of leaves"
   },
   {
     "file": "slideshow-forest-water.webp",
@@ -77,13 +84,6 @@ export const slides = [
     "position": "50% 50%",
     "original": "GR000637.jpeg",
     "altEn": "Clouds over mountain ridges and a valley"
-  },
-  {
-    "file": "slideshow-leaf-texture.webp",
-    "alt": "葉脈や表面の凹凸が見える植物の接写",
-    "position": "50% 50%",
-    "original": "DSC_2171.jpeg",
-    "altEn": "Leaf veins and textured surfaces"
   },
   {
     "file": "slideshow-snow.webp",
