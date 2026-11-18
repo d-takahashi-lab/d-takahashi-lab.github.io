@@ -19,7 +19,7 @@
 ## 構成
 
 - `src/pages/`：ルーティングのみ。日本語は `src/pages/*.astro`、英語は [src/pages/en/[...page].astro](src/pages/en/[...page].astro) がまとめて生成。各ページは `src/components/screens/` の画面に `lang` を渡すだけ。
-- `src/components/screens/`：各ページの本体（Home / News / Research / Members / Publications / Contact）。日英共通のテンプレートで、表示文言は `choose(lang, ja, en)` で切り替える。
+- `src/components/screens/`：各ページの本体（Home / Research / News / Members / Publications / Tools / Contact。メニューの並びと同じ）。日英共通のテンプレートで、表示文言は `choose(lang, ja, en)` で切り替える。
 - `src/data/`：本文データ。日本語版（`*.ts`）と英語版（`*.en.ts`）が対になっている。
   - 研究紹介 `research.ts` / `research.en.ts`、メンバー `members.ts` / `members.en.ts`、トップ等の文言 `content.ts`、スライドショー `slides.ts`
   - 英語版は日本語版を import し、訳文だけを上書きする形が多い。日本語側の項目を増減したら英語側の対応も確認する。
