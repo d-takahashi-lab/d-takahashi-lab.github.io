@@ -178,8 +178,8 @@ export const slides = [
   },
   {
     "file": "slideshow-37.webp",
-    "alt": "地面を覆う小さな植物",
-    "altEn": "Small plants covering the ground",
+    "alt": "霜で白くなった、地面を覆う小さな植物",
+    "altEn": "Small plants covering the ground, white with frost",
     "position": "50% 50%",
     "original": "IMG_7547.jpeg"
   },
