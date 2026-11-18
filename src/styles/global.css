@@ -112,7 +112,9 @@ html[lang=en] .identity-name,html[lang=en] .identity-name-compact { font-family:
 /* Research statement: same grid and rule as the News block below, so the two read as one column system. */
 .home-intro { margin-bottom: 0; }
 /* A statement rather than running prose: one leading for both languages so JP/EN keep the same height. */
-.home-intro p { max-width: 780px; font-size: var(--text-subsection); line-height: 1.8; color: var(--text); padding-top: var(--space-3); word-break: auto-phrase; }
+.home-intro p { max-width: 780px; font-size: var(--text-subsection); line-height: 1.8; color: var(--text); padding-top: var(--space-3); }
+/* Japanese is split into phrases that never break inside, so every browser (Safari included) wraps between phrases. */
+.home-intro .phrase { display: inline-block; }
 .home-news-row { display: grid; grid-template-columns: 100px 1fr; gap: var(--space-5); padding: var(--space-4) 0; border-bottom: var(--rule); font-size: var(--text-body); line-height: var(--leading-title); }
 .home-news-row time { color: var(--muted); font-size: var(--text-meta); line-height: calc(var(--leading-title) * var(--text-body)); }
 /* Research: structural serif heading, sans subheading and reading text. */
