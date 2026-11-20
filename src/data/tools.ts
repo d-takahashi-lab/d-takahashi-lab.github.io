@@ -1,17 +1,16 @@
 import {VERSION as LT50_VERSION} from '../lib/lt50.js';
 import {VERSION as CELLSHAPE_VERSION} from '../lib/cellshape.js';
 // Research tools published on the site. Each tool has its own page at tools/<slug>/ in both languages.
-// Tool names and titles are in English on both the Japanese and English pages.
+// Tool names are in English on both the Japanese and English pages, and used as they are for titles.
 // version and updated also appear in the tool's citation, so change them together with the tool.
 export interface Tool {
  slug:string; name:string; version:string; updated:string;
- title:string; summary:{ja:string;en:string};
+ summary:{ja:string;en:string};
  history:{version:string;date:string;ja:string;en:string}[];
 }
 export const tools:Tool[] = [
  {
   slug:'lt50', name:'LT50 Calculator', version:LT50_VERSION, updated:'2026-11-10',
-  title:'LT50 Calculator (freezing tolerance)',
   summary:{
    ja:'Excelから温度と生存率（または電解質漏出率）を貼り付けるだけで、シグモイド曲線を当てはめてLT50と95%信頼区間を求め、グラフを描きます。',
    en:'Paste temperatures and survival (or electrolyte leakage) from a spreadsheet to fit a sigmoid curve, estimate LT50 with a 95% confidence interval and draw the graph.',
@@ -23,7 +22,6 @@ export const tools:Tool[] = [
  },
  {
   slug:'cellshape', name:'Cell Shape Analyzer', version:CELLSHAPE_VERSION, updated:'2026-11-20',
-  title:'Cell Shape Analyzer (tissue sections)',
   summary:{
    ja:'葉の切片などの顕微鏡画像で表皮・柵状組織・海綿状組織などの領域を囲むと、その中の細胞を色分けして数え、輪郭をトレースして面積・縦横比・円形度・表面との角度などを計算します。',
    en:'Outline a region such as the epidermis, palisade or spongy mesophyll in a microscope image of a leaf section: the cells inside are coloured, counted and traced, and their area, aspect ratio, circularity, angle to the leaf surface and other measures are calculated.',

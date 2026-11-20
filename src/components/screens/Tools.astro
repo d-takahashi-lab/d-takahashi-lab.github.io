@@ -13,7 +13,7 @@ const t=(ja:string,english:string)=>choose(lang,ja,english);
   <p class="page-intro">{t('研究室で開発した解析ツールを公開しています。どのツールもブラウザの中だけで計算し、入力したデータはどこにも送信されません。','Analysis tools developed in our laboratory. Every tool runs entirely in your browser, and the data you enter is never sent anywhere.')}</p>
   <div class="tool-list">
    {tools.map(tool=><article>
-    <div><h3><a href={pageUrl(`tools/${tool.slug}`,lang)}>{tool.title}</a></h3><p>{tool.summary[lang]}</p></div>
+    <div><h3><a href={pageUrl(`tools/${tool.slug}`,lang)}>{tool.name}</a></h3><p>{tool.summary[lang]}</p></div>
     <p class="tool-version">v{tool.version}<br/><time datetime={tool.updated}>{tool.updated.replaceAll('-','.')}</time></p>
    </article>)}
   </div>

@@ -28,8 +28,8 @@ const modes=[
  {value:'draw',label:t('輪郭をなぞって細胞を描く','Draw a cell’s outline')},
 ];
 ---
-<Layout lang={lang} title={tool.title} current="tools" alternateSlug="tools/cellshape" description={tool.summary[lang]}>
- <PageHeading lang={lang} title={tool.title} en={tool.name} meta={`v${tool.version} · ${tool.updated.replaceAll('-','.')}`} sections={[
+<Layout lang={lang} title={tool.name} current="tools" alternateSlug="tools/cellshape" description={tool.summary[lang]}>
+ <PageHeading lang={lang} title={tool.name} en={tool.name} meta={`v${tool.version} · ${tool.updated.replaceAll('-','.')}`} sections={[
   {label:t('解析','Analysis'),href:'#analyzer'},{label:t('計算方法','Method'),href:'#method'},
   {label:t('引用のしかた','How to cite'),href:'#citation'},{label:t('免責事項','Disclaimer'),href:'#disclaimer'},
  ]}/>

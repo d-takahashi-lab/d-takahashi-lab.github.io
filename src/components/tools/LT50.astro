@@ -13,8 +13,8 @@ const url=toolUrlBase+pageUrl('tools/lt50',lang);
 const citationEn=`Takahashi D (${year}) LT50 Calculator, version ${tool.version}. Laboratory of Stress and Adaptation Biology, Saitama University. ${url}`;
 const citationJa=`高橋大輔 (${year}) LT50 Calculator, バージョン ${tool.version}. 埼玉大学 生命適応科学研究室. ${url}`;
 ---
-<Layout lang={lang} title={tool.title} current="tools" alternateSlug="tools/lt50" description={tool.summary[lang]}>
- <PageHeading lang={lang} title={tool.title} en={tool.name} meta={`v${tool.version} · ${tool.updated.replaceAll('-','.')}`} sections={[
+<Layout lang={lang} title={tool.name} current="tools" alternateSlug="tools/lt50" description={tool.summary[lang]}>
+ <PageHeading lang={lang} title={tool.name} en={tool.name} meta={`v${tool.version} · ${tool.updated.replaceAll('-','.')}`} sections={[
   {label:t('計算','Calculator'),href:'#calculator'},{label:t('計算方法','Method'),href:'#method'},
   {label:t('引用のしかた','How to cite'),href:'#citation'},{label:t('免責事項','Disclaimer'),href:'#disclaimer'},
  ]}/>
