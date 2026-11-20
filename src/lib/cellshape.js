@@ -140,7 +140,7 @@ export function components(on, w, h, eight = true){
 // wall, which show as broad, evenly bright areas instead of a dark interior (off by default, as thick
 // wall junctions in other images can be mistaken for them).
 export function defaultParams(d){
-  return {diameter: d, split: 5, faces: false};
+  return {diameter: d, split: 5, smooth: 0, faces: false};
 }
 
 // Finds cells inside mask, assuming bright walls around darker cell interiors (invert the image for
@@ -158,9 +158,11 @@ export function defaultParams(d){
 //    the areas won by face seeds, within their bright domes, become cells if they are broad and compact (mean width at least 0.25 d,
 //    solidity at least 0.7, area at least 0.35 times a typical cell); others are thick wall junctions
 //    and are dropped.
-// 3. Outlines: a seeded watershed on the lightly blurred image (sigma = 0.02 d, at least 1 pixel) grows
+// 3. Outlines: a seeded watershed on the lightly blurred image (sigma = u (1 + s / 2), where u = 0.02 d but
+//    at least 1 pixel and s is the outline smoothing level 0–5) grows
 //    the dark seeds through the rest of the region until they meet, so neighbouring cells meet along the
 //    brightest line of the wall between them.
+// 4. Smoothing (s > 0): a majority filter of radius s × u rounds off jagged outlines.
 // Returns {labels (0 = no cell), n, faces (number of face cells)}.
 export function segment(gray, mask, w, h, p){
   const d = p.diameter, n = w * h;
@@ -177,7 +179,9 @@ export function segment(gray, mask, w, h, p){
   const dark = new Uint8Array(n);
   for (let i = 0; i < n; i++) dark[i] = mask[i] && neg[i] - rec[i] >= hMin * (1 - 1e-4) ? 1 : 0;
   const seeds = components(dark, w, h, true);
-  const fine = maskedBlur(gray, mask, w, h, Math.max(1, d * 0.02));
+  // outline smoothing level 0–5: stronger blur before the watershed and a majority filter afterwards
+  const smooth = p.smooth ?? 0, unit = Math.max(1, d * 0.02);
+  const fine = maskedBlur(gray, mask, w, h, unit * (1 + smooth / 2));
 
   let face = null, nFaces = 0;
   const bright = !p.faces ? null : brightFaces(gray, mask, dark, w, h, d, 0.25 * sd);
@@ -205,7 +209,7 @@ export function segment(gray, mask, w, h, p){
   const labels = watershed(fine, rest, seeds.labels, w, h);
   if (face) for (let i = 0; i < n; i++) if (face[i]) labels[i] = face[i];
   absorbSlivers(labels, w, h, Math.max(4, (d * 0.1) ** 2));
-  return {labels, n: seeds.n + nFaces, faces: nFaces};
+  return {labels: smoothOutlines(labels, mask, w, h, smooth * unit), n: seeds.n + nFaces, faces: nFaces};
 }
 
 // Seeds for cells cut through a wall face: cores of broad bright domes (see segment, step 2).
@@ -288,6 +292,85 @@ export function competeFlood(value, mask, seeds, nSeeds, w, h, K = 40){
     }
   }
   return labels;
+}
+
+// Smooths jagged outlines: each pixel within r pixels of an outline takes the label held by most pixels
+// within a disc of radius r around it (majority filter). Pieces cut off from their cell by this join the
+// neighbour they share the longest border with. r < 1 leaves the labels unchanged.
+export function smoothOutlines(labels, mask, w, h, r){
+  if (!(r >= 1)) return labels;
+  const n = w * h, R = Math.round(r);
+  // pixels near an outline, by breadth-first search from the outline pixels
+  const near = new Int16Array(n).fill(-1), queue = [];
+  for (let i = 0; i < n; i++) {
+    const L = labels[i], x = i % w;
+    if (!L) continue;
+    if ((x > 0 && labels[i - 1] !== L) || (x < w - 1 && labels[i + 1] !== L) || (i >= w && labels[i - w] !== L) || (i < n - w && labels[i + w] !== L)) { near[i] = 0; queue.push(i); }
+  }
+  for (let q = 0; q < queue.length; q++) {
+    const i = queue[q], x = i % w, dd = near[i] + 1;
+    if (dd > R) continue;
+    for (const j of [x > 0 ? i - 1 : -1, x < w - 1 ? i + 1 : -1, i >= w ? i - w : -1, i < n - w ? i + w : -1]) if (j >= 0 && labels[j] && near[j] < 0) { near[j] = dd; queue.push(j); }
+  }
+  const offsets = [];
+  for (let dy = -R; dy <= R; dy++) for (let dx = -R; dx <= R; dx++) if (dx * dx + dy * dy <= r * r) offsets.push(dx, dy);
+  const out = Int32Array.from(labels), vals = [], counts = [];
+  for (const i of queue) {
+    const L = labels[i];
+    if (!mask[i]) continue;
+    const x = i % w, y = (i - x) / w;
+    vals.length = 0; counts.length = 0;
+    for (let k = 0; k < offsets.length; k += 2) {
+      const xx = x + offsets[k], yy = y + offsets[k + 1];
+      if (xx < 0 || yy < 0 || xx >= w || yy >= h) continue;
+      const v = labels[yy * w + xx];
+      if (!v) continue;
+      const at = vals.indexOf(v);
+      if (at < 0) { vals.push(v); counts.push(1); } else counts[at]++;
+    }
+    let best = L, most = counts[vals.indexOf(L)] || 0;
+    for (let k = 0; k < vals.length; k++) if (counts[k] > most) { most = counts[k]; best = vals[k]; }
+    out[i] = best;
+  }
+  keepLargestPieces(out, w, h);
+  return out;
+}
+
+// Every cell keeps only its largest connected piece; other pieces join the neighbouring cell they share
+// the longest border with.
+export function keepLargestPieces(labels, w, h){
+  const n = w * h, piece = new Int32Array(n), sizes = [0], owner = [0], stack = [];
+  let np = 0;
+  for (let s = 0; s < n; s++) {
+    if (!labels[s] || piece[s]) continue;
+    const L = labels[s];
+    np++; piece[s] = np; stack.push(s); let size = 0;
+    while (stack.length) {
+      const i = stack.pop(), x = i % w; size++;
+      for (const j of [x > 0 ? i - 1 : -1, x < w - 1 ? i + 1 : -1, i >= w ? i - w : -1, i < n - w ? i + w : -1]) if (j >= 0 && !piece[j] && labels[j] === L) { piece[j] = np; stack.push(j); }
+    }
+    sizes.push(size); owner.push(L);
+  }
+  const largest = new Map();
+  for (let p = 1; p <= np; p++) { const L = owner[p], b = largest.get(L); if (!b || sizes[p] > sizes[b]) largest.set(L, p); }
+  const border = new Map();
+  for (let i = 0; i < n; i++) {
+    const p = piece[i];
+    if (!p || largest.get(owner[p]) === p) continue;
+    const x = i % w;
+    for (const j of [x > 0 ? i - 1 : -1, x < w - 1 ? i + 1 : -1, i >= w ? i - w : -1, i < n - w ? i + w : -1]) {
+      const M = j >= 0 ? labels[j] : 0;
+      if (!M || M === owner[p]) continue;
+      const m = border.get(p) || new Map();
+      m.set(M, (m.get(M) || 0) + 1); border.set(p, m);
+    }
+  }
+  for (let i = 0; i < n; i++) {
+    const p = piece[i];
+    if (!p || largest.get(owner[p]) === p) continue;
+    const m = border.get(p);
+    if (m) labels[i] = [...m].sort((a, b) => b[1] - a[1])[0][0];
+  }
 }
 
 // Regions smaller than minPx pixels (slivers squeezed between cells or the region's edge) join the

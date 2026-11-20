@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {measure, segment, polygonMask, polygonArea, splitCells, mergeCells, areAdjacent, classify, summarise, axisDifference, tracedPerimeter, absorbSlivers, drawCell, boxCountDimension} from '../src/lib/cellshape.js';
+import {measure, segment, polygonMask, polygonArea, splitCells, mergeCells, areAdjacent, classify, summarise, axisDifference, tracedPerimeter, absorbSlivers, drawCell, boxCountDimension, smoothOutlines, keepLargestPieces} from '../src/lib/cellshape.js';
 import {shapes, W, H} from './cellshape-shapes.mjs';
 
 const close = (a, b, tol, what) => assert.ok(Math.abs(a - b) <= tol, `${what}: ${a} vs ${b}`);
@@ -161,6 +161,28 @@ test('cells cut through a wall face (bright areas) are found when asked', () => 
     const c = byLabel(measure(on.labels, mask, w, h))[on.labels[centre]];
     assert.ok(c.area > 1200 && c.area < 63 * 63, `${kind} face area ${c.area}`);
   }
+});
+
+test('outline smoothing straightens a jagged border without losing cells', () => {
+  // two cells meeting along a vertical border with single-pixel teeth every other row
+  const w = 40, h = 40, labels = new Int32Array(w * h);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) labels[y * w + x] = x < 20 + (y % 2 ? 2 : 0) ? 1 : 2;
+  const mask = new Uint8Array(w * h).fill(1);
+  const jaggedEdges = l => { let e = 0; for (let y = 0; y < h; y++) for (let x = 0; x < w - 1; x++) if (l[y * w + x] !== l[y * w + x + 1]) e++; for (let y = 0; y < h - 1; y++) for (let x = 0; x < w; x++) if (l[y * w + x] !== l[(y + 1) * w + x]) e++; return e; };
+  const out = smoothOutlines(labels, mask, w, h, 3);
+  assert.ok(jaggedEdges(out) < jaggedEdges(labels) / 2, `${jaggedEdges(out)} vs ${jaggedEdges(labels)}`);
+  assert.deepEqual([...new Set(out)].sort(), [1, 2]);
+  assert.strictEqual(smoothOutlines(labels, mask, w, h, 0), labels);
+});
+
+test('cells keep only their largest piece', () => {
+  const w = 10, h = 3, labels = new Int32Array([
+    1, 1, 1, 2, 2, 2, 2, 1, 2, 2,
+    1, 1, 1, 2, 2, 2, 2, 2, 2, 2,
+    1, 1, 1, 2, 2, 2, 2, 2, 2, 2]);
+  keepLargestPieces(labels, w, h);
+  assert.equal(labels[7], 2);
+  assert.equal(labels.filter(v => v === 1).length, 9);
 });
 
 test('classification and summary', () => {

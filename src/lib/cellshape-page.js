@@ -53,7 +53,7 @@ const TEXT = en ? {
   },
   legend: (name, lo, hi, unit) => `${name}: ${lo} – ${hi}${unit}`,
   copied: 'Copied',
-  cols: {image: 'Image', region: 'Region', tissue: 'Tissue', cell: 'Cell', status: 'Status', counted: 'Cells', measured: 'Cells measured', density: 'Cell density (/mm²)', space: 'Intercellular space (%)', roiArea: 'Region area (µm²)', angle: 'Angle (°)', feretAngle: 'Feret angle (°)', x: 'Centroid x (µm)', y: 'Centroid y (µm)', pixel: 'Pixel size (µm)', surface: 'Leaf surface direction (°)', diameter: 'Typical cell diameter (µm)', split: 'Splitting', faces: 'Wall-face cells searched', minArea: 'Minimum area (µm²)', maxArea: 'Maximum area (µm²)', edge: 'Edge cells excluded', version: 'Tool version', date: 'Date analysed'},
+  cols: {image: 'Image', region: 'Region', tissue: 'Tissue', cell: 'Cell', status: 'Status', counted: 'Cells', measured: 'Cells measured', density: 'Cell density (/mm²)', space: 'Intercellular space (%)', roiArea: 'Region area (µm²)', angle: 'Angle (°)', feretAngle: 'Feret angle (°)', x: 'Centroid x (µm)', y: 'Centroid y (µm)', pixel: 'Pixel size (µm)', surface: 'Leaf surface direction (°)', diameter: 'Typical cell diameter (µm)', split: 'Splitting', smooth: 'Outline smoothing', faces: 'Wall-face cells searched', minArea: 'Minimum area (µm²)', maxArea: 'Maximum area (µm²)', edge: 'Edge cells excluded', version: 'Tool version', date: 'Date analysed'},
   stat: {mean: 'mean', sd: 'SD', median: 'median'},
   yes: 'yes', no: 'no',
   footer: (v, url, date, image, scale) => `Analysed with Cell Shape Analyzer version ${v} (${url}) on ${date}. Image: ${image}; pixel size ${fmtSig(scale)} µm.`,
@@ -101,7 +101,7 @@ const TEXT = en ? {
   },
   legend: (name, lo, hi, unit) => `${name}：${lo} – ${hi}${unit}`,
   copied: 'コピーしました',
-  cols: {image: '画像', region: '領域', tissue: '組織', cell: '番号', status: '状態', counted: '細胞数', measured: '計測数', density: '細胞密度 (/mm²)', space: '細胞間隙 (%)', roiArea: '領域の面積 (µm²)', angle: '角度 (°)', feretAngle: 'フェレ径の角度 (°)', x: '重心 x (µm)', y: '重心 y (µm)', pixel: '1ピクセルの長さ (µm)', surface: '葉の表面の向き (°)', diameter: '細胞の直径の目安 (µm)', split: '分け方', faces: '面の細胞を探した', minArea: '最小面積 (µm²)', maxArea: '最大面積 (µm²)', edge: '縁の細胞を除外', version: 'ツールのバージョン', date: '解析日'},
+  cols: {image: '画像', region: '領域', tissue: '組織', cell: '番号', status: '状態', counted: '細胞数', measured: '計測数', density: '細胞密度 (/mm²)', space: '細胞間隙 (%)', roiArea: '領域の面積 (µm²)', angle: '角度 (°)', feretAngle: 'フェレ径の角度 (°)', x: '重心 x (µm)', y: '重心 y (µm)', pixel: '1ピクセルの長さ (µm)', surface: '葉の表面の向き (°)', diameter: '細胞の直径の目安 (µm)', split: '分け方', smooth: '輪郭のなめらかさ', faces: '面の細胞を探した', minArea: '最小面積 (µm²)', maxArea: '最大面積 (µm²)', edge: '縁の細胞を除外', version: 'ツールのバージョン', date: '解析日'},
   stat: {mean: '平均', sd: '標準偏差', median: '中央値'},
   yes: 'はい', no: 'いいえ',
   footer: (v, url, date, image, scale) => `細胞形態解析ツール バージョン${v}（${url}）で${date}に解析。画像：${image}、1ピクセル ${fmtSig(scale)} µm`,
@@ -374,10 +374,11 @@ viewer.addEventListener('drop', e => { e.preventDefault(); viewer.classList.remo
 
 /* ---------- Regions ---------- */
 function params(){
-  return {diameter: num('diameter'), split: +$('split').value, faces: $('faces').checked, minArea: num('min'), maxArea: num('max'), excludeEdge: $('edge').checked};
+  return {diameter: num('diameter'), split: +$('split').value, smooth: +$('smooth').value, faces: $('faces').checked, minArea: num('min'), maxArea: num('max'), excludeEdge: $('edge').checked};
 }
 function setParams(p){
   $('diameter').value = p.diameter; $('split').value = p.split; $('split-out').value = p.split;
+  $('smooth').value = p.smooth; $('smooth-out').value = p.smooth;
   $('min').value = Number.isFinite(p.minArea) ? p.minArea : ''; $('max').value = Number.isFinite(p.maxArea) ? p.maxArea : '';
   $('edge').checked = p.excludeEdge; $('faces').checked = !!p.faces;
 }
@@ -433,8 +434,8 @@ $('rois').addEventListener('change', e => {
 });
 // Settings belong to the selected region; they take effect when cells are detected again,
 // except the area limits and the edge rule, which only change the classification.
-['diameter', 'split', 'faces', 'min', 'max', 'edge'].forEach(id => $(id).addEventListener('input', () => {
-  $('split-out').value = $('split').value;
+['diameter', 'split', 'smooth', 'faces', 'min', 'max', 'edge'].forEach(id => $(id).addEventListener('input', () => {
+  $('split-out').value = $('split').value; $('smooth-out').value = $('smooth').value;
   const r = S.rois[S.sel];
   if (!r) return;
   r.params = params();
@@ -454,7 +455,7 @@ function detect(roi){
     const rgba = new Uint8ClampedArray(roi.w * roi.h * 4), W = S.img.w;
     for (let y = 0; y < roi.h; y++) rgba.set(S.img.rgba.subarray(((y + roi.y0) * W + roi.x0) * 4, ((y + roi.y0) * W + roi.x0 + roi.w) * 4), y * roi.w * 4);
     const gray = toGray(rgba, roi.w, roi.h, $('channel').value, $('invert').checked);
-    const {labels} = segment(gray, roi.mask, roi.w, roi.h, {diameter: d, split: roi.params.split, faces: roi.params.faces});
+    const {labels} = segment(gray, roi.mask, roi.w, roi.h, {diameter: d, split: roi.params.split, smooth: roi.params.smooth, faces: roi.params.faces});
     if (roi.labels) snapshot(roi);
     roi.labels = labels; roi.manual = {};
     let max = 0; for (const v of labels) if (v > max) max = v;
@@ -477,6 +478,8 @@ function remeasure(roi, render = true){
   if (render) { refresh(); renderAll(); }
 }
 $('detect').addEventListener('click', () => detect(S.rois[S.sel]));
+// The two sliders re-detect the selected region when released (detect keeps an undo snapshot).
+['split', 'smooth'].forEach(id => $(id).addEventListener('change', () => { const r = S.rois[S.sel]; if (r?.labels) detect(r); }));
 // Re-detect the selected region when the image channel changes.
 ['channel', 'invert'].forEach(id => $(id).addEventListener('change', () => { const r = S.rois[S.sel]; if (r?.labels) detect(r); }));
 
@@ -761,13 +764,13 @@ function regionRows(){
   const rows = summaries();
   const head = [TEXT.cols.image, ...regionBasics(rows[0]).map(c => c[0])];
   MEASURES.forEach(m => head.push(...['mean', 'sd', 'median'].map(k => `${mLabel(m)} ${TEXT.stat[k]}`)));
-  head.push(TEXT.cols.pixel, TEXT.cols.surface, TEXT.cols.diameter, TEXT.cols.split, TEXT.cols.faces, TEXT.cols.minArea, TEXT.cols.maxArea, TEXT.cols.edge, TEXT.cols.version, TEXT.cols.date);
+  head.push(TEXT.cols.pixel, TEXT.cols.surface, TEXT.cols.diameter, TEXT.cols.split, TEXT.cols.smooth, TEXT.cols.faces, TEXT.cols.minArea, TEXT.cols.maxArea, TEXT.cols.edge, TEXT.cols.version, TEXT.cols.date);
   const yn = v => v ? TEXT.yes : TEXT.no;
   return [head, ...rows.map(row => {
     const {r, s} = row, lim = limits(r.params);
     const out = [S.img.name, ...regionBasics(row).map(([, v, d]) => d == null ? v : csvNum(v, d))];
     MEASURES.forEach(m => out.push(...['mean', 'sd', 'median'].map(k => csvNum(s[m.key][k], m.d + 2))));
-    out.push(fmtSig(S.scale), csvNum(S.ref, 1), r.params.diameter, r.params.split, yn(r.params.faces), csvNum(lim.minArea, 1), csvNum(lim.maxArea, 1), yn(lim.excludeEdge), VERSION, today());
+    out.push(fmtSig(S.scale), csvNum(S.ref, 1), r.params.diameter, r.params.split, r.params.smooth, yn(r.params.faces), csvNum(lim.minArea, 1), csvNum(lim.maxArea, 1), yn(lim.excludeEdge), VERSION, today());
     return out;
   })];
 }
