@@ -407,6 +407,8 @@ html[lang=en] .alumni-year li { grid-template-columns:minmax(0,12em) 4em; }
 .tool-history dd { margin: 0; }
 /* Cell Shape tool */
 .cs-grid { grid-template-columns: minmax(280px,340px) minmax(0,1fr); }
+/* the image stays in view while the steps on the left are scrolled; its own panel scrolls if taller */
+.cs-grid .tool-output { position: sticky; top: var(--space-4); max-height: calc(100vh - var(--space-5)); overflow-y: auto; overscroll-behavior: contain; }
 .cs-step { display: flex; align-items: baseline; gap: var(--space-3); margin: var(--space-6) 0 var(--space-3); padding-top: var(--space-4); border-top: var(--rule); font-size: var(--text-body); font-weight: 500; line-height: var(--leading-title); }
 .tool-form>.cs-step:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
 .cs-step span { font-size: var(--text-meta); font-weight: 400; color: var(--muted); font-variant-numeric: tabular-nums; }
@@ -467,6 +469,7 @@ html[lang=en] .alumni-year li { grid-template-columns:minmax(0,12em) 4em; }
 @media(max-width:900px) {
  .tool-grid { grid-template-columns: minmax(0,1fr); gap: var(--space-6); }
  .cs-viewer { height: 62vh; }
+ .cs-grid .tool-output { position: static; max-height: none; overflow: visible; }
 }
 @media(max-width:600px) {
  .cs-defs div { grid-template-columns: 1fr; gap: 0; }

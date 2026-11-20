@@ -143,10 +143,11 @@ try { const s = parseFloat(localStorage.getItem('cellshape-scale')); if (s > 0) 
 const canvas = $('canvas'), ctx = canvas.getContext('2d'), viewer = $('viewer');
 let dpr = 1, raf = 0;
 const redraw = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; draw(); }); };
-// The viewer is as tall as the image needs at its width, within 360 px and 80% of the window height.
+// The viewer is as tall as the image needs at its width, but leaves room in the window for the toolbar
+// and the hint, as the whole column stays on screen while the steps on the left are scrolled.
 function sizeViewer(){
   if (!S.img) return;
-  const h = Math.max(360, Math.min(window.innerHeight * 0.8, viewer.clientWidth * S.img.h / S.img.w + 2));
+  const h = Math.max(320, Math.min(window.innerHeight - 150, viewer.clientWidth * S.img.h / S.img.w + 2));
   viewer.style.height = `${Math.round(h)}px`;
 }
 window.addEventListener('resize', sizeViewer);
