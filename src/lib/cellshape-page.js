@@ -8,16 +8,18 @@ const root = document.getElementById('cs');
 const en = document.documentElement.lang === 'en';
 const $ = id => document.getElementById('cs-' + id);
 
-const TISSUE_COLORS = {'adaxial-epidermis': '#2B6684', palisade: '#5E8B2A', spongy: '#B07D12', 'abaxial-epidermis': '#9A4A8C', other: '#626262'};
+// Region names are free text; regions with the same name share a colour.
+const REGION_COLORS = ['#2B6684', '#5E8B2A', '#B07D12', '#9A4A8C', '#A2402F', '#3F7F73', '#626262'];
+const roiColor = r => { const names = [...new Set(S.rois.map(x => x.name.trim()))]; return REGION_COLORS[names.indexOf(r.name.trim()) % REGION_COLORS.length]; };
+const roiLabel = r => r.name.trim() ? `${r.id} ${r.name.trim()}` : String(r.id);
 const TEXT = en ? {
-  tissues: {'adaxial-epidermis': 'Adaxial epidermis', palisade: 'Palisade mesophyll', spongy: 'Spongy mesophyll', 'abaxial-epidermis': 'Abaxial epidermis', other: 'Other'},
   status: {ok: 'Measured', edge: 'Cut by the region edge', small: 'Below the minimum area', large: 'Above the maximum area', excluded: 'Left out by hand', space: 'Intercellular space'},
   imageInfo: (name, w, h) => `${name} — ${w} × ${h} px`,
   cannotRead: 'This image could not be read. Please use TIFF, PNG or JPEG.',
   loading: 'Loading the image…',
   scaledTiff: bits => `This is a ${bits}-bit image: brightness was scaled to 8 bits for display and analysis (0.05–99.95th percentile).`,
   tiffErrors: {bigtiff: 'BigTIFF files cannot be read. Save the image as an ordinary TIFF or PNG.', compression: 'This TIFF uses a compression that cannot be read here (e.g. JPEG). Save it uncompressed, with LZW, or as PNG.', bits: 'Only 8-, 16- and 32-bit TIFF images can be read.'},
-  exampleLoaded: e => `Example image loaded: a leaf cross-section, fluorescence, 10× objective. The scale (${e.barUm} µm = ${e.barPx} px) and a cell diameter are already set. Outline a region such as the palisade mesophyll (step 4).`,
+  exampleLoaded: e => `Example image loaded: a leaf cross-section, fluorescence, 40× objective. The scale (${e.barUm} µm = ${e.barPx} px) and a cell diameter are already set. Name and outline a region such as the palisade mesophyll (step 4).`,
   replace: 'Load a new image? The regions drawn on the current image will be discarded.',
   needImage: 'Choose an image first.',
   needScale: 'Set the scale first (step 2): trace the scale bar or type the pixel size.',
@@ -34,14 +36,14 @@ const TEXT = en ? {
   nothingToUndo: 'Nothing to undo.',
   deleteRoi: n => `Delete region ${n}?`,
   roiItem: (n, cells) => `Region ${n}${cells == null ? '' : ` — ${cells} cell${cells === 1 ? '' : 's'}`}`,
-  tissueOf: n => `Tissue of region ${n}`,
+  nameOf: n => `Name of region ${n}`,
   remove: 'Delete',
   wheel: key => `Hold ${key} and scroll to zoom`,
   noDraw: 'The outline must lie inside a region. Outline a region first (step 4).',
   hints: {
     none: '',
     scale: 'Click the two ends of the scale bar.',
-    ref: 'Click two points along the leaf surface.',
+    ref: 'Click two points along the surface of the leaf, stem or root.',
     roi: 'Click to place corners; click the first point, double-click or press Enter to close. Esc cancels.',
     info: 'Click a cell to see its values. Drag to move; ⌘ (Ctrl) + scroll to zoom.',
     exclude: 'Click a cell to leave it out of the measurements; click again to include it.',
@@ -53,20 +55,19 @@ const TEXT = en ? {
   },
   legend: (name, lo, hi, unit) => `${name}: ${lo} – ${hi}${unit}`,
   copied: 'Copied',
-  cols: {image: 'Image', region: 'Region', tissue: 'Tissue', cell: 'Cell', status: 'Status', count: 'Cells', tissueArea: 'Tissue area (µm²)', frame: 'Region drawn around', whole: 'Whole cells', cut: 'Cells cut by the edge', measured: 'Cells measured', density: 'Cell density (/mm²)', space: 'Intercellular space (%)', roiArea: 'Region area (µm²)', angle: 'Angle (°)', feretAngle: 'Feret angle (°)', x: 'Centroid x (µm)', y: 'Centroid y (µm)', pixel: 'Pixel size (µm)', surface: 'Leaf surface direction (°)', diameter: 'Typical cell diameter (µm)', split: 'Splitting', smooth: 'Outline smoothing', faces: 'Wall-face cells searched', minArea: 'Minimum area (µm²)', maxArea: 'Maximum area (µm²)', edge: 'Edge cells excluded', version: 'Tool version', date: 'Date analysed'},
+  cols: {image: 'Image', region: 'Region', name: 'Name', cell: 'Cell', status: 'Status', count: 'Cells', tissueArea: 'Tissue area (µm²)', frame: 'Region drawn around', whole: 'Whole cells', cut: 'Cells cut by the edge', measured: 'Cells measured', density: 'Cell density (/mm²)', space: 'Intercellular space (%)', roiArea: 'Region area (µm²)', angle: 'Angle (°)', feretAngle: 'Feret angle (°)', x: 'Centroid x (µm)', y: 'Centroid y (µm)', pixel: 'Pixel size (µm)', surface: 'Surface direction (°)', diameter: 'Typical cell diameter (µm)', split: 'Splitting', smooth: 'Outline smoothing', faces: 'Wall-face cells searched', minArea: 'Minimum area (µm²)', maxArea: 'Maximum area (µm²)', edge: 'Edge cells excluded', version: 'Tool version', date: 'Date analysed'},
   stat: {mean: 'mean', sd: 'SD', median: 'median'},
   yes: 'yes', no: 'no',
   frames: {tissue: 'whole tissue', part: 'part of a tissue'},
   footer: (v, url, date, image, scale) => `Analysed with Cell Shape Analyzer version ${v} (${url}) on ${date}. Image: ${image}; pixel size ${fmtSig(scale)} µm.`,
 } : {
-  tissues: {'adaxial-epidermis': '上側表皮', palisade: '柵状組織', spongy: '海綿状組織', 'abaxial-epidermis': '下側表皮', other: 'その他'},
   status: {ok: '計測', edge: '領域の縁にかかる', small: '最小面積より小さい', large: '最大面積より大きい', excluded: '手で除外', space: '細胞間隙'},
   imageInfo: (name, w, h) => `${name}（${w} × ${h} ピクセル）`,
   cannotRead: 'この画像は読み込めません。TIFF・PNG・JPEGのいずれかを使ってください。',
   loading: '画像を読み込んでいます…',
   scaledTiff: bits => `${bits}ビットの画像なので、明るさを8ビットに変換して表示・解析します（0.05〜99.95パーセンタイルの範囲）。`,
   tiffErrors: {bigtiff: 'BigTIFF形式は読み込めません。通常のTIFFかPNGで保存し直してください。', compression: 'このTIFFの圧縮形式（JPEG圧縮など）は読み込めません。無圧縮・LZW圧縮のTIFFかPNGで保存し直してください。', bits: '8・16・32ビットのTIFFだけが読み込めます。'},
-  exampleLoaded: e => `例の画像（葉の横断切片の蛍光像、10倍対物レンズ）を読み込みました。スケール（${e.barUm} µm = ${e.barPx}ピクセル）と細胞の直径の目安は設定済みです。手順4で柵状組織などの領域を囲んでみてください。`,
+  exampleLoaded: e => `例の画像（葉の横断切片の蛍光像、40倍対物レンズ）を読み込みました。スケール（${e.barUm} µm = ${e.barPx}ピクセル）と細胞の直径の目安は設定済みです。手順4で名前を付けて、柵状組織などの領域を囲んでみてください。`,
   replace: '新しい画像を読み込みますか？ 今の画像に描いた領域は消えます。',
   needImage: '先に画像を選んでください。',
   needScale: '先にスケールを決めてください（手順2）。スケールバーをなぞるか、1ピクセルの長さを入力します。',
@@ -83,14 +84,14 @@ const TEXT = en ? {
   nothingToUndo: '元に戻す操作はありません。',
   deleteRoi: n => `領域${n}を削除しますか？`,
   roiItem: (n, cells) => `領域${n}${cells == null ? '' : `（${cells}細胞）`}`,
-  tissueOf: n => `領域${n}の組織`,
+  nameOf: n => `領域${n}の名前`,
   remove: '削除',
   wheel: key => `${key}キーを押しながらスクロールすると拡大・縮小します`,
   noDraw: '輪郭は領域の中に描いてください。先に領域を囲みます（手順4）。',
   hints: {
     none: '',
     scale: 'スケールバーの両端をクリックしてください。',
-    ref: '葉の表面に沿って2点をクリックしてください。',
+    ref: '葉・茎・根の表面に沿って2点をクリックしてください。',
     roi: 'クリックで角を置き、最初の点のクリック・ダブルクリック・Enterキーで閉じます。Escキーで取り消します。',
     info: '細胞をクリックすると値を表示します。ドラッグで移動、⌘（Ctrl）キー＋スクロールで拡大・縮小します。',
     exclude: 'クリックした細胞を計測から外します。もう一度クリックすると戻します。',
@@ -102,7 +103,7 @@ const TEXT = en ? {
   },
   legend: (name, lo, hi, unit) => `${name}：${lo} – ${hi}${unit}`,
   copied: 'コピーしました',
-  cols: {image: '画像', region: '領域', tissue: '組織', cell: '番号', status: '状態', count: '細胞数', tissueArea: '組織の面積 (µm²)', frame: '領域の描き方', whole: '縁にかからない細胞', cut: '縁にかかる細胞', measured: '計測数', density: '細胞密度 (/mm²)', space: '細胞間隙 (%)', roiArea: '領域の面積 (µm²)', angle: '角度 (°)', feretAngle: 'フェレ径の角度 (°)', x: '重心 x (µm)', y: '重心 y (µm)', pixel: '1ピクセルの長さ (µm)', surface: '葉の表面の向き (°)', diameter: '細胞の直径の目安 (µm)', split: '分け方', smooth: '輪郭のなめらかさ', faces: '面の細胞を探した', minArea: '最小面積 (µm²)', maxArea: '最大面積 (µm²)', edge: '縁の細胞を除外', version: 'ツールのバージョン', date: '解析日'},
+  cols: {image: '画像', region: '領域', name: '名前', cell: '番号', status: '状態', count: '細胞数', tissueArea: '組織の面積 (µm²)', frame: '領域の描き方', whole: '縁にかからない細胞', cut: '縁にかかる細胞', measured: '計測数', density: '細胞密度 (/mm²)', space: '細胞間隙 (%)', roiArea: '領域の面積 (µm²)', angle: '角度 (°)', feretAngle: 'フェレ径の角度 (°)', x: '重心 x (µm)', y: '重心 y (µm)', pixel: '1ピクセルの長さ (µm)', surface: '表面の向き (°)', diameter: '細胞の直径の目安 (µm)', split: '分け方', smooth: '輪郭のなめらかさ', faces: '面の細胞を探した', minArea: '最小面積 (µm²)', maxArea: '最大面積 (µm²)', edge: '縁の細胞を除外', version: 'ツールのバージョン', date: '解析日'},
   stat: {mean: '平均', sd: '標準偏差', median: '中央値'},
   yes: 'はい', no: 'いいえ',
   frames: {tissue: '組織全体', part: '組織の一部'},
@@ -141,7 +142,7 @@ const num = id => { const v = parseFloat($(id).value); return Number.isFinite(v)
 const S = {
   img: null,                 // {w, h, name, canvas, rgba}
   scale: NaN,                // µm per pixel
-  ref: 0,                    // leaf surface direction (degrees, counter-clockwise from horizontal)
+  ref: 0,                    // surface direction (degrees, counter-clockwise from horizontal)
   rois: [], sel: -1, nextId: 1,
   tool: null,                // 'scale' | 'ref' | 'roi' while drawing
   pts: [],                   // points of the line or polygon being drawn (image coordinates)
@@ -216,14 +217,14 @@ function draw(){
 // Region outlines, cell numbers and the picked cell, in the coordinates given by map (screen or image).
 function drawVectors(g, map, unit, W, H){
   S.rois.forEach((r, i) => {
-    const col = TISSUE_COLORS[r.tissue];
+    const col = roiColor(r);
     g.beginPath();
     r.poly.forEach((p, j) => { const [x, y] = map(...p); j ? g.lineTo(x, y) : g.moveTo(x, y); });
     g.closePath();
     g.lineWidth = (i === S.sel ? 3 : 2) * unit; g.strokeStyle = '#ffffff'; g.setLineDash([]); g.stroke();
     g.lineWidth = (i === S.sel ? 2 : 1.2) * unit; g.strokeStyle = col; g.stroke();
     const [tx, ty] = map(...r.poly[0]);
-    const label = `${r.id} ${TEXT.tissues[r.tissue]}`;
+    const label = roiLabel(r);
     g.font = `700 ${13 * unit}px ${FONT}`;
     const tw = g.measureText(label).width;
     g.fillStyle = col; g.fillRect(tx, ty - 20 * unit, tw + 10 * unit, 20 * unit);
@@ -395,7 +396,7 @@ function addRoi(poly){
   const mask = polygonMask(poly, x0, y0, w, h);
   let area = 0; for (const v of mask) area += v;
   if (area < 50) { message(TEXT.tooSmallRoi); return; }
-  const roi = {id: S.nextId++, tissue: $('tissue').value, poly, x0, y0, w, h, mask, area, labels: null, manual: {}, cells: [], byLabel: new Map(), next: 1, params: params()};
+  const roi = {id: S.nextId++, name: $('name').value.trim(), poly, x0, y0, w, h, mask, area, labels: null, manual: {}, cells: [], byLabel: new Map(), next: 1, params: params()};
   S.rois.push(roi); S.sel = S.rois.length - 1;
   refresh();
   detect(roi);
@@ -417,10 +418,9 @@ function removeRoi(i){
 }
 function renderRoiList(){
   const ul = $('rois');
-  const options = sel => Object.entries(TEXT.tissues).map(([v, name]) => `<option value="${v}"${v === sel ? ' selected' : ''}>${esc(name)}</option>`).join('');
   ul.innerHTML = S.rois.map((r, i) => `<li class="${i === S.sel ? 'is-selected' : ''}">
-    <button type="button" class="cs-roi" data-i="${i}" aria-pressed="${i === S.sel}"><span class="cs-swatch" style="background:${TISSUE_COLORS[r.tissue]}"></span>${esc(TEXT.roiItem(r.id, r.labels ? Math.round(summarise(r.cells, r.area * S.scale * S.scale, r.params.frame).count * 10) / 10 : null))}</button>
-    <select class="cs-roi-tissue" data-tissue="${i}" aria-label="${esc(TEXT.tissueOf(r.id))}">${options(r.tissue)}</select>
+    <button type="button" class="cs-roi" data-i="${i}" aria-pressed="${i === S.sel}"><span class="cs-swatch" style="background:${roiColor(r)}"></span>${esc(TEXT.roiItem(r.id, r.labels ? Math.round(summarise(r.cells, r.area * S.scale * S.scale, r.params.frame).count * 10) / 10 : null))}</button>
+    <input type="text" class="cs-roi-name" data-name="${i}" list="cs-names" autocomplete="off" value="${esc(r.name)}" aria-label="${esc(TEXT.nameOf(r.id))}"/>
     <button type="button" class="cs-remove" data-remove="${i}">${TEXT.remove}</button></li>`).join('');
 }
 $('rois').addEventListener('click', e => {
@@ -428,11 +428,18 @@ $('rois').addEventListener('click', e => {
   if (!b) return;
   if (b.dataset.remove != null) removeRoi(+b.dataset.remove); else select(+b.dataset.i);
 });
-// Each region keeps its own tissue; the tissue menu above it is for the next region.
-$('rois').addEventListener('change', e => {
-  const i = e.target.dataset.tissue;
+// Each region keeps its own name; the name box above is for the next region. The image follows
+// while typing; the list and table are rebuilt when the edit is finished (so the box keeps focus).
+$('rois').addEventListener('input', e => {
+  const i = e.target.dataset.name;
   if (i == null) return;
-  S.rois[+i].tissue = e.target.value;
+  S.rois[+i].name = e.target.value;
+  redraw();
+});
+$('rois').addEventListener('change', e => {
+  const i = e.target.dataset.name;
+  if (i == null) return;
+  S.rois[+i].name = e.target.value.trim();
   refresh(); redraw();
 });
 // How the region was drawn only changes the counting.
@@ -726,7 +733,7 @@ function showInfo(roi, c){
   const box = $('info');
   if (!c) { box.hidden = true; return; }
   const items = [[TEXT.cols.cell, c.label], [TEXT.cols.status, TEXT.status[c.status]], ...MEASURES.map(m => [mLabel(m), fmt(c[m.key], m.d)]), [TEXT.cols.angle, fmt(c.angle, 1)]];
-  box.innerHTML = `<p class="cs-info-head">${esc(`${roi.id} ${TEXT.tissues[roi.tissue]}`)}</p><dl>` +
+  box.innerHTML = `<p class="cs-info-head">${esc(roiLabel(roi))}</p><dl>` +
     items.map(([name, v]) => `<div><dt>${esc(name)}</dt><dd>${esc(v)}</dd></div>`).join('') + '</dl>';
   box.hidden = false;
 }
@@ -736,7 +743,7 @@ const summaries = () => S.rois.filter(r => r.labels).map(r => ({r, s: summarise(
 // The first columns of the region results; the measures follow (mean ± SD on screen; mean, SD and
 // median in the CSV file and the copied table).
 const regionBasics = ({r, s}) => [
-  [TEXT.cols.region, r.id], [TEXT.cols.tissue, TEXT.tissues[r.tissue]], [TEXT.cols.count, s.count, r.params.frame === 'part' ? 1 : null],
+  [TEXT.cols.region, r.id], [TEXT.cols.name, r.name.trim()], [TEXT.cols.count, s.count, r.params.frame === 'part' ? 1 : null],
   [TEXT.cols.whole, s.whole], [TEXT.cols.cut, s.cut], [TEXT.cols.measured, s.measured],
   [TEXT.cols.density, s.density, 1], [TEXT.cols.space, s.spaceFraction * 100, 2], [TEXT.cols.tissueArea, s.tissueArea, 0], [TEXT.cols.roiArea, s.roiArea, 0],
 ];
@@ -795,8 +802,8 @@ function regionRows(){
 }
 
 $('csv-cells').addEventListener('click', () => {
-  const rows = [[TEXT.cols.image, TEXT.cols.region, TEXT.cols.tissue, TEXT.cols.cell, TEXT.cols.status, ...MEASURES.map(mLabel), TEXT.cols.angle, TEXT.cols.feretAngle, TEXT.cols.x, TEXT.cols.y]];
-  S.rois.forEach(r => r.cells.forEach(c => rows.push([S.img.name, r.id, TEXT.tissues[r.tissue], c.label, TEXT.status[c.status], ...MEASURES.map(m => csvNum(c[m.key], m.d + 2)), csvNum(c.angle, 2), csvNum(c.feretAngle, 2), csvNum(c.x, 2), csvNum(c.y, 2)])));
+  const rows = [[TEXT.cols.image, TEXT.cols.region, TEXT.cols.name, TEXT.cols.cell, TEXT.cols.status, ...MEASURES.map(mLabel), TEXT.cols.angle, TEXT.cols.feretAngle, TEXT.cols.x, TEXT.cols.y]];
+  S.rois.forEach(r => r.cells.forEach(c => rows.push([S.img.name, r.id, r.name.trim(), c.label, TEXT.status[c.status], ...MEASURES.map(m => csvNum(c[m.key], m.d + 2)), csvNum(c.angle, 2), csvNum(c.feretAngle, 2), csvNum(c.x, 2), csvNum(c.y, 2)])));
   download(new Blob([csv(rows)], {type: 'text/csv'}), `${baseName()}_cells.csv`);
 });
 $('csv-regions').addEventListener('click', () => {

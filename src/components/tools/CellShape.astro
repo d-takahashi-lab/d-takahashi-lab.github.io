@@ -12,12 +12,10 @@ const year=tool.updated.slice(0,4);
 const url=toolUrlBase+pageUrl('tools/cellshape',lang);
 const citationEn=`Takahashi D (${year}) Cell Shape Analyzer, version ${tool.version}. Laboratory of Stress and Adaptation Biology, Saitama University. ${url}`;
 const citationJa=`高橋大輔 (${year}) Cell Shape Analyzer, バージョン ${tool.version}. 埼玉大学 生命適応科学研究室. ${url}`;
-const tissues=[
- {value:'adaxial-epidermis',ja:'上側表皮',en:'Adaxial epidermis'},
- {value:'palisade',ja:'柵状組織',en:'Palisade mesophyll'},
- {value:'spongy',ja:'海綿状組織',en:'Spongy mesophyll'},
- {value:'abaxial-epidermis',ja:'下側表皮',en:'Abaxial epidermis'},
- {value:'other',ja:'その他',en:'Other'},
+// Suggestions for region names; any name can be typed (leaf, stem, root, …).
+const names=[
+ ['上側表皮','Adaxial epidermis'],['柵状組織','Palisade mesophyll'],['海綿状組織','Spongy mesophyll'],['下側表皮','Abaxial epidermis'],
+ ['表皮','Epidermis'],['皮層','Cortex'],['内皮','Endodermis'],['維管束','Vascular bundle'],['髄','Pith'],
 ];
 const modes=[
  {value:'info',label:t('細胞の値を見る','Show a cell’s values')},
@@ -35,7 +33,7 @@ const modes=[
  ]}/>
  <div class="tool-page" id="cs" data-version={tool.version} data-url={url}>
  <section class="section tool-intro">
-  <p class="page-intro">{t('葉の切片などの顕微鏡画像から、細胞を一つずつ見分けて数え、形を測るツールです。表皮・柵状組織・海綿状組織などの領域を囲むと、その中の細胞を自動で色分けして輪郭を描き、面積・長径と短径・円形度などを計算します。自動の結果はクリックで手直しできます。細胞壁が明るく写った画像（細胞壁の蛍光染色や自家蛍光など）を想定しています。','This tool finds, counts and measures individual cells in microscope images such as leaf sections. Outline a region such as the epidermis, palisade or spongy mesophyll, and the cells inside are coloured and traced automatically; their area, major and minor axes, circularity and other shape measures are calculated. The automatic result can be corrected with a few clicks. It is designed for images with bright cell walls (cell wall staining or autofluorescence).')}</p>
+  <p class="page-intro">{t('葉・茎・根の切片などの顕微鏡画像から、細胞を一つずつ見分けて数え、形を測るツールです。表皮・柵状組織・皮層などの領域を囲んで名前を付けると、その中の細胞を自動で色分けして輪郭を描き、面積・長径と短径・円形度などを計算します。自動の結果はクリックで手直しできます。細胞壁が明るく写った画像（細胞壁の蛍光染色や自家蛍光など）を想定しています。','This tool finds, counts and measures individual cells in microscope images such as sections of leaves, stems and roots. Outline and name a region such as the epidermis, palisade mesophyll or cortex, and the cells inside are coloured and traced automatically; their area, major and minor axes, circularity and other shape measures are calculated. The automatic result can be corrected with a few clicks. It is designed for images with bright cell walls (cell wall staining or autofluorescence).')}</p>
   <p class="body-note">{t('画像はどこにも送信されず、お使いのブラウザの中だけで処理します。','Your images are never uploaded: everything runs in your browser.')}</p>
  </section>
 
@@ -45,7 +43,7 @@ const modes=[
     <h3 class="cs-step"><span>1</span>{t('画像','Image')}</h3>
     <div class="tool-buttons cs-first">
      <label class="tool-button primary cs-file">{t('画像を選ぶ','Choose image')}<input type="file" id="cs-file" accept="image/*,.tif,.tiff"/></label>
-     <button type="button" class="tool-button" id="cs-example" data-src={`${import.meta.env.BASE_URL}images/tools/cellshape-example.webp`} data-bar-um="100" data-bar-px="296" data-diameter="25" data-faces="false">{t('例の画像で試す','Try the example image')}</button>
+     <button type="button" class="tool-button" id="cs-example" data-src={`${import.meta.env.BASE_URL}images/tools/cellshape-example.webp`} data-bar-um="20" data-bar-px="176" data-diameter="18" data-faces="false">{t('例の画像で試す','Try the example image')}</button>
     </div>
     <p class="tool-format" id="cs-image-info"></p>
     <div class="cs-row">
@@ -71,7 +69,7 @@ const modes=[
      <input type="number" id="cs-scale" class="cs-input" min="0" step="any" placeholder={t('なぞるか、直接入力','Trace the bar or type it')}/>
     </div>
 
-    <h3 class="cs-step"><span>3</span>{t('葉の表面の向き','Leaf surface direction')}</h3>
+    <h3 class="cs-step"><span>3</span>{t('表面の向き','Surface direction')}</h3>
     <p class="cs-note" id="cs-ref-info">{t('画像の横方向（0°）','Image horizontal (0°)')}</p>
     <div class="tool-buttons cs-first">
      <button type="button" class="tool-button" id="cs-draw-ref" disabled>{t('表面に沿って線を引く','Draw along the surface')}</button>
@@ -80,8 +78,9 @@ const modes=[
 
     <h3 class="cs-step"><span>4</span>{t('領域','Regions')}</h3>
     <div class="cs-row">
-     <label class="tool-label" for="cs-tissue">{t('組織','Tissue')}</label>
-     <select id="cs-tissue" class="cs-select">{tissues.map(x=><option value={x.value}>{en?x.en:x.ja}</option>)}</select>
+     <label class="tool-label" for="cs-name">{t('名前','Name')}</label>
+     <input type="text" id="cs-name" class="cs-input cs-name" list="cs-names" autocomplete="off" placeholder={t('例：柵状組織、皮層','e.g. Palisade mesophyll, Cortex')}/>
+     <datalist id="cs-names">{names.map(([ja,english])=><option value={en?english:ja}/>)}</datalist>
     </div>
     <fieldset class="tool-options">
      <legend>{t('領域の描き方','How the region is drawn')}</legend>
@@ -176,9 +175,10 @@ const modes=[
   <details class="tool-help cs-usage">
    <summary>{t('使い方とコツ','How to use it, and tips')}</summary>
    <p>{t('画像の拡大・縮小は、⌘キー（WindowsではCtrlキー）を押しながらのスクロール、トラックパッドのピンチ、または「＋」「−」ボタンで行います。ふつうにスクロールするとページが動きます。画像はドラッグで移動できます。','Zoom with ⌘ (Ctrl on Windows) plus scrolling, a trackpad pinch, or the “+” and “−” buttons; plain scrolling moves the page. Drag to move the image.')}</p>
+   <p>{t('領域の名前は、候補から選ぶか自由に入力します（葉・茎・根など、何でもかまいません）。描いたあとも、領域の一覧で書き換えられます。同じ名前の領域は同じ色になります。','Pick a region name from the suggestions or type any name (leaf, stem, root tissues, or anything else). Names can be changed later in the list of regions. Regions with the same name share a colour.')}</p>
    <p>{t('領域は、クリックで角を置いていき、最初の点をクリックするか、ダブルクリック・Enterキーで閉じます。Escキーで取り消し、Backspaceキーで1つ前の点を消せます。','Click to place the corners of a region; click the first point, double-click or press Enter to close it. Esc cancels and Backspace removes the last point.')}</p>
    <p>{t('「分け方」と「輪郭のなめらかさ」は、動かして指を離すと、選んでいる領域をすぐに検出し直します（それまでの手直しは消えますが、「元に戻す」で戻せます）。輪郭がギザギザのときは、なめらかさを上げてください。上げすぎると、細い細胞や小さな細胞の角が丸まります。','Moving “Splitting” or “Outline smoothing” re-detects the selected region as soon as you let go (earlier corrections are replaced, but “Undo” brings them back). Raise the smoothing if outlines are jagged; too much rounds off the corners of thin or small cells.')}</p>
-   <p>{t('細胞が大きくまとまりすぎるときは「細かく分ける」側へ、1つの細胞が割れるときは「大きくまとめる」側へ動かしてから、もう一度「細胞を検出」を押してください。表皮と葉肉では細胞の大きさが違うので、組織ごとに領域を分けると精度が上がります。','If cells are merged, move the slider towards “More cells”; if single cells are broken up, move it towards “Fewer cells”, then press “Detect cells” again. Epidermis and mesophyll cells differ in size, so separate regions per tissue give better results.')}</p>
+   <p>{t('細胞が大きくまとまりすぎるときは「細かく分ける」側へ、1つの細胞が割れるときは「大きくまとめる」側へ動かしてから、もう一度「細胞を検出」を押してください。表皮と葉肉（皮層）では細胞の大きさが違うので、組織ごとに領域を分けると精度が上がります。','If cells are merged, move the slider towards “More cells”; if single cells are broken up, move it towards “Fewer cells”, then press “Detect cells” again. Epidermal and mesophyll (or cortical) cells differ in size, so separate regions per tissue give better results.')}</p>
    <p>{t('切片が細胞壁の面を通った細胞は、中が暗く抜けず、ぼんやり明るく写ります。こうした細胞が多いときは「細胞壁の面で切れた細胞も探す」にチェックを入れてください（壁の太い交点を細胞と間違えることがあるので、初期状態ではオフです）。それでも取れない細胞は「輪郭をなぞって細胞を描く」で描けます。描いた範囲は、元の細胞から切り取られて新しい細胞になります。','Cells cut through the plane of a wall look evenly bright instead of dark inside. If there are many, tick “Also find cells cut through a wall face” (it is off by default because thick wall junctions can be mistaken for such cells). Any cell still missed can be drawn with “Draw a cell’s outline”: the drawn area is taken from the cells it overlaps and becomes a new cell.')}</p>
    <p>{t('海綿状組織では、細胞間隙も1つの区画として検出されます。「細胞間隙にする」でクリックすると、細胞の数と形から外し、細胞間隙の割合に数えます。','In spongy mesophyll, intercellular spaces are also detected as compartments. Click them with “Mark intercellular space” to remove them from the cell counts and shapes and count them towards the intercellular space fraction.')}</p>
    <p>{t('CSVと「結果をコピー」の列は、画面の結果の表と同じ名前・同じ順番です（各指標は平均・標準偏差・中央値に分かれ、最後に解析の設定が付きます）。細胞ごとのCSVの列は、細胞をクリックしたときの表示と同じ順番です。英語のページで保存すると、列名が英語になります。','The columns of the CSV files and of “Copy results” have the same names and order as the results table on screen (each measure split into mean, SD and median, followed by the settings used). The per-cell CSV follows the order of the values shown when a cell is clicked. Files saved from the Japanese page have Japanese column names.')}</p>
@@ -191,14 +191,14 @@ const modes=[
   <h2>{t('計算方法','Method')}</h2>
   <p class="tool-prose">{t('論文の材料と方法に、次の説明を使えます。','You may use the following description in the methods section of a paper.')}</p>
   {en
-   ?<p class="tool-prose">Cells were segmented and measured with Cell Shape Analyzer version {tool.version} (Takahashi, {year}). Regions corresponding to each tissue were outlined manually. Within each region, the image was smoothed with a Gaussian filter (σ = 0.12 d, where d is the expected cell diameter), and every regional minimum deeper than a set height (h-minima transform) was taken as the seed of one cell. [When cells cut through a wall face were included: bright patches remaining after stronger smoothing (σ = 0.25 d) that were broad and compact were taken as additional cells, each claiming the pixels closest to its own brightness.] Cell outlines were obtained by a seeded watershed on a lightly smoothed image (σ = u(1 + s/2), where u = 0.02 d and s is the outline smoothing level, 0–5), so that neighbouring cells meet along the middle of the cell wall, and were then smoothed with a majority filter of radius s × u. The segmentation was inspected and corrected manually (joining, cutting and drawing cells, and excluding cells). For each cell, the area, perimeter, major and minor axes of the ellipse with the same second moments and area, aspect ratio (major/minor), circularity (4π × area/perimeter²), roundness (4 × area/(π × major²)), solidity (area/convex hull area), maximum and minimum Feret diameters, the perimeter-to-area ratio (P/A) and the box-counting fractal dimension of the outline (box sizes 2–64 pixels) were calculated following the definitions in ImageJ. The angle between the major axis and the leaf surface was expressed from 0° (parallel) to 90° (perpendicular). Each region enclosed the whole tissue with a margin; cells cut by its edge, which belonged to the neighbouring tissue, were excluded, and cell density and intercellular space fraction were calculated per area of the compartments not touching the edge. [For regions sampling part of a tissue: cells cut by the edge were excluded from shape statistics and counted as the fraction lying inside the region (area inside divided by the mean area of the uncut cells, at most 1), per region area.]</p>
-   :<p class="tool-prose">細胞の検出と計測にはCell Shape Analyzer バージョン{tool.version}（高橋, {year}）を用いた。組織ごとに領域を手作業で囲み、その中で画像をガウシアンフィルター（σ = 0.12 d、dは細胞の直径の目安）で平滑化し、一定の深さ以上の極小点（h-minima変換）を細胞1個ずつの種とした。［細胞壁の面で切れた細胞も含めた場合：より強く平滑化した画像（σ = 0.25 d）で残る、幅があってまとまった形の明るい区画も細胞とし、それぞれ自分の明るさに近い画素を取り合わせた。］軽く平滑化した画像（σ = u(1 + s/2)、u = 0.02 d、sは輪郭のなめらかさの段階0〜5）上で種から領域を広げる（seeded watershed）ことで、隣り合う細胞の境界が細胞壁の中央を通るように細胞の輪郭を求め、半径 s × u の多数決フィルターで輪郭をなめらかにした。検出結果は目視で確認し、手作業で修正した（細胞の結合・切り分け・輪郭の描画、計測からの除外）。各細胞について、面積、周囲長、同じ二次モーメントと面積をもつ楕円の長径と短径、縦横比（長径／短径）、円形度（4π × 面積／周囲長²）、真円度（4 × 面積／(π × 長径²)）、充実度（面積／凸包の面積）、最大・最小フェレ径、周囲長と面積の比（P/A）、輪郭のボックスカウントによるフラクタル次元（箱の大きさ2〜64ピクセル）を、ImageJと同じ定義で計算した。長径と葉の表面がなす角度は、0°（平行）から90°（垂直）で表した。領域は組織全体を少し大きめに囲み、縁にかかる細胞は隣接する組織の細胞として除いた。細胞密度と細胞間隙の割合は、縁にかからない区画の面積の合計（組織の面積）あたりで求めた。［組織の一部を囲んだ場合：縁にかかる細胞は形の統計から除き、細胞数には、領域内にある部分の面積を縁にかからない細胞の平均面積で割った値（最大1）として数え、領域の面積あたりで求めた。］</p>}
+   ?<p class="tool-prose">Cells were segmented and measured with Cell Shape Analyzer version {tool.version} (Takahashi, {year}). Regions corresponding to each tissue were outlined manually. Within each region, the image was smoothed with a Gaussian filter (σ = 0.12 d, where d is the expected cell diameter), and every regional minimum deeper than a set height (h-minima transform) was taken as the seed of one cell. [When cells cut through a wall face were included: bright patches remaining after stronger smoothing (σ = 0.25 d) that were broad and compact were taken as additional cells, each claiming the pixels closest to its own brightness.] Cell outlines were obtained by a seeded watershed on a lightly smoothed image (σ = u(1 + s/2), where u = 0.02 d and s is the outline smoothing level, 0–5), so that neighbouring cells meet along the middle of the cell wall, and were then smoothed with a majority filter of radius s × u. The segmentation was inspected and corrected manually (joining, cutting and drawing cells, and excluding cells). For each cell, the area, perimeter, major and minor axes of the ellipse with the same second moments and area, aspect ratio (major/minor), circularity (4π × area/perimeter²), roundness (4 × area/(π × major²)), solidity (area/convex hull area), maximum and minimum Feret diameters, the perimeter-to-area ratio (P/A) and the box-counting fractal dimension of the outline (box sizes 2–64 pixels) were calculated following the definitions in ImageJ. The angle between the major axis and the organ surface was expressed from 0° (parallel) to 90° (perpendicular). Each region enclosed the whole tissue with a margin; cells cut by its edge, which belonged to the neighbouring tissue, were excluded, and cell density and intercellular space fraction were calculated per area of the compartments not touching the edge. [For regions sampling part of a tissue: cells cut by the edge were excluded from shape statistics and counted as the fraction lying inside the region (area inside divided by the mean area of the uncut cells, at most 1), per region area.]</p>
+   :<p class="tool-prose">細胞の検出と計測にはCell Shape Analyzer バージョン{tool.version}（高橋, {year}）を用いた。組織ごとに領域を手作業で囲み、その中で画像をガウシアンフィルター（σ = 0.12 d、dは細胞の直径の目安）で平滑化し、一定の深さ以上の極小点（h-minima変換）を細胞1個ずつの種とした。［細胞壁の面で切れた細胞も含めた場合：より強く平滑化した画像（σ = 0.25 d）で残る、幅があってまとまった形の明るい区画も細胞とし、それぞれ自分の明るさに近い画素を取り合わせた。］軽く平滑化した画像（σ = u(1 + s/2)、u = 0.02 d、sは輪郭のなめらかさの段階0〜5）上で種から領域を広げる（seeded watershed）ことで、隣り合う細胞の境界が細胞壁の中央を通るように細胞の輪郭を求め、半径 s × u の多数決フィルターで輪郭をなめらかにした。検出結果は目視で確認し、手作業で修正した（細胞の結合・切り分け・輪郭の描画、計測からの除外）。各細胞について、面積、周囲長、同じ二次モーメントと面積をもつ楕円の長径と短径、縦横比（長径／短径）、円形度（4π × 面積／周囲長²）、真円度（4 × 面積／(π × 長径²)）、充実度（面積／凸包の面積）、最大・最小フェレ径、周囲長と面積の比（P/A）、輪郭のボックスカウントによるフラクタル次元（箱の大きさ2〜64ピクセル）を、ImageJと同じ定義で計算した。長径と器官の表面がなす角度は、0°（平行）から90°（垂直）で表した。領域は組織全体を少し大きめに囲み、縁にかかる細胞は隣接する組織の細胞として除いた。細胞密度と細胞間隙の割合は、縁にかからない区画の面積の合計（組織の面積）あたりで求めた。［組織の一部を囲んだ場合：縁にかかる細胞は形の統計から除き、細胞数には、領域内にある部分の面積を縁にかからない細胞の平均面積で割った値（最大1）として数え、領域の面積あたりで求めた。］</p>}
   <p class="body-note">{t('形の指標は、答えが分かっている図形（長方形・回転した楕円・円・星形）で、理論値と一致することを確認しています。','The shape measures were checked against the exact values for known shapes (rectangle, rotated ellipse, disc and star).')}</p>
   <dl class="cs-defs">
    <div><dt>{t('面積','Area')}</dt><dd>{t('細胞のピクセル数 × (1ピクセルの長さ)²','Number of pixels × pixel size²')}</dd></div>
    <div><dt>{t('周囲長','Perimeter')}</dt><dd>{t('ピクセルの縁に沿った輪郭の長さから、斜めに切れる角ごとに (2 − √2) を引いた値（ImageJと同じ）','Length of the outline along pixel edges, minus (2 − √2) for each corner that can be cut diagonally (as in ImageJ)')}</dd></div>
    <div><dt>{t('長径・短径・角度','Major, minor, angle')}</dt><dd>{t('細胞と同じ二次モーメント・同じ面積の楕円の軸。角度は横から反時計回り（0〜180°）','Axes of the ellipse with the cell’s second moments and area; the angle is counter-clockwise from horizontal (0–180°)')}</dd></div>
-   <div><dt>{t('表面との角度','Angle to surface')}</dt><dd>{t('長径と、手順3で決めた葉の表面の向きとの角度（0〜90°）。柵状組織の細胞が表面に垂直に並ぶほど90°に近づく','Angle between the major axis and the leaf surface set in step 3 (0–90°); palisade cells standing perpendicular to the surface approach 90°')}</dd></div>
+   <div><dt>{t('表面との角度','Angle to surface')}</dt><dd>{t('長径と、手順3で決めた表面の向きとの角度（0〜90°）。柵状組織の細胞が表面に垂直に並ぶほど90°に近づく','Angle between the major axis and the surface direction set in step 3 (0–90°); palisade cells standing perpendicular to the surface approach 90°')}</dd></div>
    <div><dt>P/A</dt><dd>{t('周囲長 ÷ 面積（µm⁻¹）。同じ形なら細胞が小さいほど大きく、輪郭の凹凸が多いほど大きい','Perimeter ÷ area (µm⁻¹); larger for smaller cells of the same shape and for more wavy outlines')}</dd></div>
    <div><dt>{t('縦横比','Aspect ratio')}</dt><dd>{t('長径 ÷ 短径（1以上）','Major ÷ minor (1 or more)')}</dd></div>
    <div><dt>{t('円形度','Circularity')}</dt><dd>{t('4π × 面積 ÷ 周囲長²。円で1、凹凸や細長さが増えるほど小さい','4π × area ÷ perimeter²; 1 for a circle, smaller for wavy or elongated outlines')}</dd></div>
