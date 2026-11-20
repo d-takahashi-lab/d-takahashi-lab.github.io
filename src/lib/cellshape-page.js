@@ -1,6 +1,7 @@
 // Browser side of the Cell Shape tool: loads the image, lets the user draw regions and correct cells,
 // and shows, saves and copies the results. All image analysis lives in cellshape.js.
 // The page language comes from <html lang>.
+import {decodeTiff, isTiff} from './tiff.js';
 import {VERSION, toGray, polygonMask, segment, measure, classify, summarise, splitCells, mergeCells, areAdjacent, axisDifference, METRICS} from './cellshape.js';
 
 const root = document.getElementById('cs');
@@ -12,7 +13,11 @@ const TEXT = en ? {
   tissues: {'adaxial-epidermis': 'Adaxial epidermis', palisade: 'Palisade mesophyll', spongy: 'Spongy mesophyll', 'abaxial-epidermis': 'Abaxial epidermis', other: 'Other'},
   status: {ok: 'Measured', edge: 'Cut by the region edge', small: 'Below the minimum area', large: 'Above the maximum area', excluded: 'Left out by hand', space: 'Intercellular space'},
   imageInfo: (name, w, h) => `${name} — ${w} × ${h} px`,
-  cannotRead: 'This image could not be read. Please use PNG or JPEG (TIFF opens only in Safari).',
+  cannotRead: 'This image could not be read. Please use TIFF, PNG or JPEG.',
+  loading: 'Loading the image…',
+  scaledTiff: bits => `This is a ${bits}-bit image: brightness was scaled to 8 bits for display and analysis (0.05–99.95th percentile).`,
+  tiffErrors: {bigtiff: 'BigTIFF files cannot be read. Save the image as an ordinary TIFF or PNG.', compression: 'This TIFF uses a compression that cannot be read here (e.g. JPEG). Save it uncompressed, with LZW, or as PNG.', bits: 'Only 8-, 16- and 32-bit TIFF images can be read.'},
+  exampleLoaded: 'Example image loaded: a leaf cross-section, fluorescence, 40× objective. The scale (20 µm = 176 px) and a cell diameter are already set. Draw along the leaf surface (step 3), then outline a region (step 4).',
   replace: 'Load a new image? The regions drawn on the current image will be discarded.',
   needImage: 'Choose an image first.',
   needScale: 'Set the scale first (step 2): trace the scale bar or type the pixel size.',
@@ -56,7 +61,11 @@ const TEXT = en ? {
   tissues: {'adaxial-epidermis': '上側表皮', palisade: '柵状組織', spongy: '海綿状組織', 'abaxial-epidermis': '下側表皮', other: 'その他'},
   status: {ok: '計測', edge: '領域の縁にかかる', small: '最小面積より小さい', large: '最大面積より大きい', excluded: '手で除外', space: '細胞間隙'},
   imageInfo: (name, w, h) => `${name}（${w} × ${h} ピクセル）`,
-  cannotRead: 'この画像は読み込めません。PNGかJPEGを使ってください（TIFFはSafariでのみ読み込めます）。',
+  cannotRead: 'この画像は読み込めません。TIFF・PNG・JPEGのいずれかを使ってください。',
+  loading: '画像を読み込んでいます…',
+  scaledTiff: bits => `${bits}ビットの画像なので、明るさを8ビットに変換して表示・解析します（0.05〜99.95パーセンタイルの範囲）。`,
+  tiffErrors: {bigtiff: 'BigTIFF形式は読み込めません。通常のTIFFかPNGで保存し直してください。', compression: 'このTIFFの圧縮形式（JPEG圧縮など）は読み込めません。無圧縮・LZW圧縮のTIFFかPNGで保存し直してください。', bits: '8・16・32ビットのTIFFだけが読み込めます。'},
+  exampleLoaded: '例の画像（葉の横断切片の蛍光像、40倍対物レンズ）を読み込みました。スケール（20 µm = 176ピクセル）と細胞の直径の目安は設定済みです。手順3で葉の表面に沿って線を引き、手順4で領域を囲んでみてください。',
   replace: '新しい画像を読み込みますか？ 今の画像に描いた領域は消えます。',
   needImage: '先に画像を選んでください。',
   needScale: '先にスケールを決めてください（手順2）。スケールバーをなぞるか、1ピクセルの長さを入力します。',
@@ -279,9 +288,17 @@ function renderOverlay(r, metric, range){
 }
 
 /* ---------- Image ---------- */
-async function loadFile(file){
-  if (!file) return;
-  if (S.rois.length && !confirm(TEXT.replace)) return;
+// Reads a TIFF with tiff.js (every browser) and other formats with the browser's own decoder.
+async function readImage(file){
+  const head = new Uint8Array(await file.slice(0, 4).arrayBuffer());
+  if (isTiff(head)) {
+    try {
+      const d = await decodeTiff(await file.arrayBuffer());
+      const c = document.createElement('canvas'); c.width = d.width; c.height = d.height;
+      c.getContext('2d').putImageData(new ImageData(d.rgba, d.width, d.height), 0, 0);
+      return {canvas: c, rgba: d.rgba, w: d.width, h: d.height, note: d.scaled ? TEXT.scaledTiff(d.bits) : ''};
+    } catch (e) { throw new Error(TEXT.tiffErrors[e.message] || TEXT.cannotRead); }
+  }
   let src;
   try { src = await createImageBitmap(file); }
   catch {
@@ -289,22 +306,46 @@ async function loadFile(file){
       const url = URL.createObjectURL(file), im = new Image();
       im.src = url; await im.decode(); src = im;
       setTimeout(() => URL.revokeObjectURL(url), 1000);
-    } catch { message(TEXT.cannotRead); return; }
+    } catch { throw new Error(TEXT.cannotRead); }
   }
   const w = src.naturalWidth || src.width, h = src.naturalHeight || src.height;
   const c = document.createElement('canvas'); c.width = w; c.height = h;
   const g = c.getContext('2d', {willReadFrequently: true});
   g.drawImage(src, 0, 0);
-  S.img = {w, h, name: file.name, canvas: c, rgba: g.getImageData(0, 0, w, h).data};
+  return {canvas: c, rgba: g.getImageData(0, 0, w, h).data, w, h, note: ''};
+}
+async function loadFile(file, example){
+  if (!file) return;
+  if (S.rois.length && !confirm(TEXT.replace)) return;
+  message(TEXT.loading);
+  let im;
+  try { im = await readImage(file); } catch (e) { message(e.message); return; }
+  S.img = {w: im.w, h: im.h, name: file.name, canvas: im.canvas, rgba: im.rgba};
   S.rois = []; S.sel = -1; S.nextId = 1; S.tool = null; S.pts = []; S.pick = null; history = [];
   $('drop').hidden = true;
   sizeViewer();
-  $('image-info').textContent = TEXT.imageInfo(file.name, w, h);
+  $('image-info').textContent = TEXT.imageInfo(file.name, im.w, im.h);
   ['draw-scale', 'draw-ref', 'reset-ref', 'draw-roi', 'detect'].forEach(id => { $(id).disabled = false; });
   $('modes').disabled = false;
-  message(S.scale > 0 ? TEXT.scaleSaved : '');
+  if (example) {
+    // the example's scale bar: 20 µm = 176 px; not remembered as the user's own scale
+    S.scale = 20 / 176; $('scale').value = fmtSig(S.scale); $('bar').value = 20;
+    $('diameter').value = 12;
+    setRef(0);
+    message(TEXT.exampleLoaded);
+  } else message([im.note, S.scale > 0 ? TEXT.scaleSaved : ''].filter(Boolean).join('\n'));
   fit(); refresh();
 }
+$('example').addEventListener('click', async e => {
+  const button = e.currentTarget;
+  button.disabled = true;
+  try {
+    const res = await fetch(button.dataset.src);
+    if (!res.ok) throw new Error();
+    await loadFile(new File([await res.blob()], 'example-leaf-section.webp', {type: 'image/webp'}), true);
+  } catch { message(TEXT.cannotRead); }
+  button.disabled = false;
+});
 $('file').addEventListener('change', e => { loadFile(e.target.files[0]); e.target.value = ''; });
 viewer.addEventListener('dragover', e => { e.preventDefault(); viewer.classList.add('is-drag'); });
 viewer.addEventListener('dragleave', () => viewer.classList.remove('is-drag'));

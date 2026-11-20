@@ -44,6 +44,7 @@ const modes=[
     <h3 class="cs-step"><span>1</span>{t('画像','Image')}</h3>
     <div class="tool-buttons cs-first">
      <label class="tool-button primary cs-file">{t('画像を選ぶ','Choose image')}<input type="file" id="cs-file" accept="image/*,.tif,.tiff"/></label>
+     <button type="button" class="tool-button" id="cs-example" data-src={`${import.meta.env.BASE_URL}images/tools/cellshape-example.webp`}>{t('例の画像で試す','Try the example image')}</button>
     </div>
     <p class="tool-format" id="cs-image-info"></p>
     <div class="cs-row">
@@ -165,7 +166,7 @@ const modes=[
    <p>{t('細胞が大きくまとまりすぎるときは「細かく分ける」側へ、1つの細胞が割れるときは「大きくまとめる」側へ動かしてから、もう一度「細胞を検出」を押してください。表皮と葉肉では細胞の大きさが違うので、組織ごとに領域を分けると精度が上がります。','If cells are merged, move the slider towards “More cells”; if single cells are broken up, move it towards “Fewer cells”, then press “Detect cells” again. Epidermis and mesophyll cells differ in size, so separate regions per tissue give better results.')}</p>
    <p>{t('海綿状組織では、細胞間隙も1つの区画として検出されます。「細胞間隙にする」でクリックすると、細胞の数と形から外し、細胞間隙の割合に数えます。','In spongy mesophyll, intercellular spaces are also detected as compartments. Click them with “Mark intercellular space” to remove them from the cell counts and shapes and count them towards the intercellular space fraction.')}</p>
    <p>{t('輪郭は細胞壁の中央を通ります。面積などには、細胞壁の半分の厚さが含まれます。','Outlines run along the middle of the cell walls, so areas include half the wall thickness.')}</p>
-   <p>{t('PNGとJPEGが読み込めます。TIFFはSafariでのみ読み込めるので、他のブラウザではPNGに書き出してから使ってください。','PNG and JPEG can be loaded. TIFF opens only in Safari; in other browsers, export the image as PNG first.')}</p>
+   <p>{t('TIFF（8・16・32ビット、無圧縮・LZW・Deflate・PackBits）、PNG、JPEGが読み込めます。複数ページのTIFFは1ページ目を使います。16ビット以上の画像は、明るさを8ビットに変換してから解析します。','TIFF (8, 16 or 32 bit; uncompressed, LZW, Deflate or PackBits), PNG and JPEG can be loaded. For multi-page TIFFs the first page is used. Images deeper than 8 bits are scaled to 8 bits before analysis.')}</p>
   </details>
  </section>
 
