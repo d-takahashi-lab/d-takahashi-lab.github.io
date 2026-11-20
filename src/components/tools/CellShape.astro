@@ -1,0 +1,220 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import PageHeading from '../PageHeading.astro';
+import {tools,toolUrlBase} from '../../data/tools';
+import {choose,pageUrl,type Language} from '../../lib/i18n';
+interface Props{lang?:Language;}
+const {lang='ja'}=Astro.props;
+const en=lang==='en',t=(ja:string,english:string)=>choose(lang,ja,english);
+const tool=tools.find(x=>x.slug==='cellshape')!;
+const year=tool.updated.slice(0,4);
+// Citations always point at the public domain, also in local builds.
+const url=toolUrlBase+pageUrl('tools/cellshape',lang);
+const citationEn=`Takahashi D (${year}) Cell Shape Analyzer, version ${tool.version}. Laboratory of Stress and Adaptation Biology, Saitama University. ${url}`;
+const citationJa=`高橋大輔 (${year}) 細胞形態解析ツール, バージョン ${tool.version}. 埼玉大学 生命適応科学研究室. ${url}`;
+const tissues=[
+ {value:'adaxial-epidermis',ja:'上側表皮',en:'Adaxial epidermis'},
+ {value:'palisade',ja:'柵状組織',en:'Palisade mesophyll'},
+ {value:'spongy',ja:'海綿状組織',en:'Spongy mesophyll'},
+ {value:'abaxial-epidermis',ja:'下側表皮',en:'Abaxial epidermis'},
+ {value:'other',ja:'その他',en:'Other'},
+];
+const modes=[
+ {value:'info',label:t('細胞の値を見る','Show a cell’s values')},
+ {value:'exclude',label:t('計測から外す・戻す','Leave out / include')},
+ {value:'space',label:t('細胞間隙にする・戻す','Mark / unmark intercellular space')},
+ {value:'merge',label:t('2つの細胞をつなぐ','Join two cells')},
+ {value:'split',label:t('線を引いて切り分ける','Cut along a line')},
+];
+---
+<Layout lang={lang} title={tool.title[lang]} current="tools" alternateSlug="tools/cellshape" description={tool.summary[lang]}>
+ <PageHeading lang={lang} title={tool.title[lang]} en={tool.name} meta={`v${tool.version} · ${tool.updated.replaceAll('-','.')}`} sections={[
+  {label:t('解析','Analysis'),href:'#analyzer'},{label:t('計算方法','Method'),href:'#method'},
+  {label:t('引用のしかた','How to cite'),href:'#citation'},{label:t('免責事項','Disclaimer'),href:'#disclaimer'},
+ ]}/>
+ <div class="tool-page" id="cs" data-version={tool.version} data-url={url}>
+ <section class="section tool-intro">
+  <p class="page-intro">{t('葉の切片などの顕微鏡画像から、細胞を一つずつ見分けて数え、形を測るツールです。表皮・柵状組織・海綿状組織などの領域を囲むと、その中の細胞を自動で色分けして輪郭を描き、面積・長径と短径・円形度などを計算します。自動の結果はクリックで手直しできます。細胞壁が明るく写った画像（細胞壁の蛍光染色や自家蛍光など）を想定しています。','This tool finds, counts and measures individual cells in microscope images such as leaf sections. Outline a region such as the epidermis, palisade or spongy mesophyll, and the cells inside are coloured and traced automatically; their area, major and minor axes, circularity and other shape measures are calculated. The automatic result can be corrected with a few clicks. It is designed for images with bright cell walls (cell wall staining or autofluorescence).')}</p>
+  <p class="body-note">{t('画像はどこにも送信されず、お使いのブラウザの中だけで処理します。','Your images are never uploaded: everything runs in your browser.')}</p>
+ </section>
+
+ <section class="section tool-section" id="analyzer" aria-label={t('解析','Analysis')}>
+  <div class="tool-grid cs-grid">
+   <div class="tool-form">
+    <h3 class="cs-step"><span>1</span>{t('画像','Image')}</h3>
+    <div class="tool-buttons cs-first">
+     <label class="tool-button primary cs-file">{t('画像を選ぶ','Choose image')}<input type="file" id="cs-file" accept="image/*,.tif,.tiff"/></label>
+    </div>
+    <p class="tool-format" id="cs-image-info"></p>
+    <div class="cs-row">
+     <label class="tool-label" for="cs-channel">{t('使う色','Channel')}</label>
+     <select id="cs-channel" class="cs-select">
+      <option value="auto">{t('自動（最も明るい色）','Auto (brightest channel)')}</option>
+      <option value="r">{t('赤','Red')}</option><option value="g">{t('緑','Green')}</option><option value="b">{t('青','Blue')}</option>
+      <option value="luma">{t('明るさ（グレー）','Brightness (grey)')}</option>
+     </select>
+    </div>
+    <fieldset class="tool-options">
+     <label><input type="checkbox" id="cs-invert"/><span>{t('細胞壁が暗く写っている（明視野・トルイジンブルー染色など）','Cell walls are dark (bright field, toluidine blue, …)')}</span></label>
+    </fieldset>
+
+    <h3 class="cs-step"><span>2</span>{t('スケール','Scale')}</h3>
+    <div class="cs-pair">
+     <label class="tool-label" for="cs-bar">{t('スケールバーの長さ (µm)','Scale bar length (µm)')}</label>
+     <input type="number" id="cs-bar" class="cs-input" value="100" min="0" step="any"/>
+    </div>
+    <div class="tool-buttons cs-first"><button type="button" class="tool-button" id="cs-draw-scale" disabled>{t('スケールバーをなぞる','Trace the scale bar')}</button></div>
+    <div class="cs-pair">
+     <label class="tool-label" for="cs-scale">{t('1ピクセルの長さ (µm)','Pixel size (µm)')}</label>
+     <input type="number" id="cs-scale" class="cs-input" min="0" step="any" placeholder={t('なぞるか、直接入力','Trace the bar or type it')}/>
+    </div>
+
+    <h3 class="cs-step"><span>3</span>{t('葉の表面の向き','Leaf surface direction')}</h3>
+    <p class="cs-note" id="cs-ref-info">{t('画像の横方向（0°）','Image horizontal (0°)')}</p>
+    <div class="tool-buttons cs-first">
+     <button type="button" class="tool-button" id="cs-draw-ref" disabled>{t('表面に沿って線を引く','Draw along the surface')}</button>
+     <button type="button" class="tool-button" id="cs-reset-ref" disabled>{t('横に戻す','Reset to horizontal')}</button>
+    </div>
+
+    <h3 class="cs-step"><span>4</span>{t('領域','Regions')}</h3>
+    <div class="cs-row">
+     <label class="tool-label" for="cs-tissue">{t('組織','Tissue')}</label>
+     <select id="cs-tissue" class="cs-select">{tissues.map(x=><option value={x.value}>{en?x.en:x.ja}</option>)}</select>
+    </div>
+    <div class="tool-buttons cs-first"><button type="button" class="tool-button" id="cs-draw-roi" disabled>{t('領域を囲む','Outline a region')}</button></div>
+    <ul class="cs-rois" id="cs-rois"></ul>
+
+    <h3 class="cs-step"><span>5</span>{t('細胞の検出（選んだ領域）','Cell detection (selected region)')}</h3>
+    <div class="cs-pair">
+     <label class="tool-label" for="cs-diameter">{t('細胞の直径の目安 (µm)','Typical cell diameter (µm)')}</label>
+     <input type="number" id="cs-diameter" class="cs-input" value="25" min="1" step="any"/>
+    </div>
+    <label class="tool-label" for="cs-split">{t('分け方','Splitting')}<output id="cs-split-out">5</output></label>
+    <div class="cs-range"><span>{t('大きくまとめる','Fewer cells')}</span><input type="range" id="cs-split" min="1" max="9" step="1" value="5"/><span>{t('細かく分ける','More cells')}</span></div>
+    <details class="tool-help">
+     <summary>{t('詳しい設定','More settings')}</summary>
+     <div class="cs-pair">
+      <label class="tool-label" for="cs-min">{t('最小面積 (µm²)','Minimum area (µm²)')}</label>
+      <input type="number" id="cs-min" class="cs-input" min="0" step="any"/>
+     </div>
+     <div class="cs-pair">
+      <label class="tool-label" for="cs-max">{t('最大面積 (µm²)','Maximum area (µm²)')}</label>
+      <input type="number" id="cs-max" class="cs-input" min="0" step="any"/>
+     </div>
+     <p>{t('空欄のときは、直径の目安から決めます（細胞1個の面積の0.1倍と8倍）。範囲外のものは計測から外します。','When blank, these follow the typical diameter (0.1 and 8 times the area of one cell). Objects outside the range are left out of the measurements.')}</p>
+     <fieldset class="tool-options">
+      <label><input type="checkbox" id="cs-edge" checked/><span>{t('領域の縁にかかる細胞は、形の計測から外す（数には含める）','Leave cells cut by the region’s edge out of the shape measurements (they are still counted)')}</span></label>
+     </fieldset>
+    </details>
+    <div class="tool-buttons">
+     <button type="button" class="tool-button primary" id="cs-detect" disabled>{t('細胞を検出','Detect cells')}</button>
+    </div>
+
+    <h3 class="cs-step"><span>6</span>{t('手直し','Corrections')}</h3>
+    <fieldset class="tool-options cs-modes" id="cs-modes" disabled>
+     <legend class="sr-only">{t('クリックしたときの動作','What a click does')}</legend>
+     {modes.map((m,i)=><label><input type="radio" name="cs-mode" value={m.value} checked={i===0}/><span>{m.label}</span></label>)}
+    </fieldset>
+    <div class="tool-buttons"><button type="button" class="tool-button" id="cs-undo" disabled>{t('元に戻す','Undo')}</button></div>
+    <p class="tool-message" id="cs-message" role="status"></p>
+   </div>
+
+   <div class="tool-output">
+    <div class="cs-toolbar">
+     <button type="button" class="tool-button" id="cs-zoom-in" aria-label={t('拡大','Zoom in')}>＋</button>
+     <button type="button" class="tool-button" id="cs-zoom-out" aria-label={t('縮小','Zoom out')}>−</button>
+     <button type="button" class="tool-button" id="cs-fit">{t('全体','Fit')}</button>
+     <label class="cs-inline" for="cs-color">{t('色','Colour')}
+      <select id="cs-color" class="cs-select">
+       <option value="cell">{t('細胞ごと','Each cell')}</option>
+       <option value="area">{t('面積','Area')}</option>
+       <option value="aspect">{t('縦横比','Aspect ratio')}</option>
+       <option value="circularity">{t('円形度','Circularity')}</option>
+       <option value="solidity">{t('充実度','Solidity')}</option>
+       <option value="surfaceAngle">{t('表面との角度','Angle to surface')}</option>
+      </select>
+     </label>
+     <label class="cs-inline"><input type="checkbox" id="cs-show-fill" checked/>{t('塗り','Fill')}</label>
+     <label class="cs-inline"><input type="checkbox" id="cs-show-number"/>{t('番号','Numbers')}</label>
+    </div>
+    <div class="cs-viewer" id="cs-viewer">
+     <canvas id="cs-canvas"></canvas>
+     <p class="cs-drop" id="cs-drop">{t('ここに画像をドラッグするか、「画像を選ぶ」を押してください。','Drop an image here or press “Choose image”.')}</p>
+    </div>
+    <p class="cs-hint" id="cs-hint" aria-live="polite"></p>
+    <p class="cs-legend" id="cs-legend" hidden></p>
+    <div class="cs-info" id="cs-info" hidden></div>
+   </div>
+  </div>
+
+  <div class="cs-results">
+   <h3>{t('結果','Results')}</h3>
+   <div class="tool-table" id="cs-table"><p class="cs-note">{t('領域を囲んで細胞を検出すると、ここに領域ごとの結果が出ます。','Results for each region appear here once cells are detected.')}</p></div>
+   <div class="tool-buttons">
+    <button type="button" class="tool-button" id="cs-csv-cells" disabled>{t('細胞ごとの値を保存（CSV）','Save values per cell (CSV)')}</button>
+    <button type="button" class="tool-button" id="cs-csv-regions" disabled>{t('領域ごとの値を保存（CSV）','Save values per region (CSV)')}</button>
+    <button type="button" class="tool-button" id="cs-copy" disabled>{t('結果をコピー（Excelに貼れる形式）','Copy results (for Excel)')}</button>
+    <button type="button" class="tool-button" id="cs-png" disabled>{t('輪郭を重ねた画像を保存（PNG）','Save image with outlines (PNG)')}</button>
+   </div>
+  </div>
+
+  <details class="tool-help cs-usage">
+   <summary>{t('使い方とコツ','How to use it, and tips')}</summary>
+   <p>{t('画像を拡大・移動するには、マウスのホイール（トラックパッドの2本指）と、ドラッグを使います。','Zoom with the mouse wheel (two fingers on a trackpad) and drag to move the image.')}</p>
+   <p>{t('領域は、クリックで角を置いていき、最初の点をクリックするか、ダブルクリック・Enterキーで閉じます。Escキーで取り消し、Backspaceキーで1つ前の点を消せます。','Click to place the corners of a region; click the first point, double-click or press Enter to close it. Esc cancels and Backspace removes the last point.')}</p>
+   <p>{t('細胞が大きくまとまりすぎるときは「細かく分ける」側へ、1つの細胞が割れるときは「大きくまとめる」側へ動かしてから、もう一度「細胞を検出」を押してください。表皮と葉肉では細胞の大きさが違うので、組織ごとに領域を分けると精度が上がります。','If cells are merged, move the slider towards “More cells”; if single cells are broken up, move it towards “Fewer cells”, then press “Detect cells” again. Epidermis and mesophyll cells differ in size, so separate regions per tissue give better results.')}</p>
+   <p>{t('海綿状組織では、細胞間隙も1つの区画として検出されます。「細胞間隙にする」でクリックすると、細胞の数と形から外し、細胞間隙の割合に数えます。','In spongy mesophyll, intercellular spaces are also detected as compartments. Click them with “Mark intercellular space” to remove them from the cell counts and shapes and count them towards the intercellular space fraction.')}</p>
+   <p>{t('輪郭は細胞壁の中央を通ります。面積などには、細胞壁の半分の厚さが含まれます。','Outlines run along the middle of the cell walls, so areas include half the wall thickness.')}</p>
+   <p>{t('PNGとJPEGが読み込めます。TIFFはSafariでのみ読み込めるので、他のブラウザではPNGに書き出してから使ってください。','PNG and JPEG can be loaded. TIFF opens only in Safari; in other browsers, export the image as PNG first.')}</p>
+  </details>
+ </section>
+
+ <section class="section tool-section" id="method">
+  <h2>{t('計算方法','Method')}</h2>
+  <p class="tool-prose">{t('論文の材料と方法に、次の説明を使えます。','You may use the following description in the methods section of a paper.')}</p>
+  {en
+   ?<p class="tool-prose">Cells were segmented and measured with Cell Shape Analyzer version {tool.version} (Takahashi, {year}). Regions corresponding to each tissue were outlined manually. Within each region, the image was smoothed with a Gaussian filter (σ = 0.12 d, where d is the expected cell diameter), and every regional minimum deeper than a set height (h-minima transform) was taken as the seed of one cell. Cell outlines were obtained by a seeded watershed on a lightly smoothed image (σ = 0.02 d), so that neighbouring cells meet along the middle of the cell wall. The segmentation was inspected and corrected manually. For each cell, the area, perimeter, major and minor axes of the ellipse with the same second moments and area, aspect ratio (major/minor), circularity (4π × area/perimeter²), roundness (4 × area/(π × major²)), solidity (area/convex hull area) and maximum and minimum Feret diameters were calculated following the definitions in ImageJ. The angle between the major axis and the leaf surface was expressed from 0° (parallel) to 90° (perpendicular). Cells touching the edge of the region were counted but excluded from shape statistics.</p>
+   :<p class="tool-prose">細胞の検出と計測には細胞形態解析ツール バージョン{tool.version}（高橋, {year}）を用いた。組織ごとに領域を手作業で囲み、その中で画像をガウシアンフィルター（σ = 0.12 d、dは細胞の直径の目安）で平滑化し、一定の深さ以上の極小点（h-minima変換）を細胞1個ずつの種とした。軽く平滑化した画像（σ = 0.02 d）上で種から領域を広げる（seeded watershed）ことで、隣り合う細胞の境界が細胞壁の中央を通るように細胞の輪郭を求めた。検出結果は目視で確認し、手作業で修正した。各細胞について、面積、周囲長、同じ二次モーメントと面積をもつ楕円の長径と短径、縦横比（長径／短径）、円形度（4π × 面積／周囲長²）、真円度（4 × 面積／(π × 長径²)）、充実度（面積／凸包の面積）、最大・最小フェレ径を、ImageJと同じ定義で計算した。長径と葉の表面がなす角度は、0°（平行）から90°（垂直）で表した。領域の縁にかかる細胞は、細胞数には含め、形の統計からは除いた。</p>}
+  <p class="body-note">{t('形の指標は、答えが分かっている図形（長方形・回転した楕円・円・星形）で、理論値と一致することを確認しています。','The shape measures were checked against the exact values for known shapes (rectangle, rotated ellipse, disc and star).')}</p>
+  <dl class="cs-defs">
+   <div><dt>{t('面積','Area')}</dt><dd>{t('細胞のピクセル数 × (1ピクセルの長さ)²','Number of pixels × pixel size²')}</dd></div>
+   <div><dt>{t('周囲長','Perimeter')}</dt><dd>{t('ピクセルの縁に沿った輪郭の長さから、斜めに切れる角ごとに (2 − √2) を引いた値（ImageJと同じ）','Length of the outline along pixel edges, minus (2 − √2) for each corner that can be cut diagonally (as in ImageJ)')}</dd></div>
+   <div><dt>{t('長径・短径・角度','Major, minor, angle')}</dt><dd>{t('細胞と同じ二次モーメント・同じ面積の楕円の軸。角度は横から反時計回り（0〜180°）','Axes of the ellipse with the cell’s second moments and area; the angle is counter-clockwise from horizontal (0–180°)')}</dd></div>
+   <div><dt>{t('表面との角度','Angle to surface')}</dt><dd>{t('長径と、手順3で決めた葉の表面の向きとの角度（0〜90°）。柵状組織の細胞が表面に垂直に並ぶほど90°に近づく','Angle between the major axis and the leaf surface set in step 3 (0–90°); palisade cells standing perpendicular to the surface approach 90°')}</dd></div>
+   <div><dt>{t('縦横比','Aspect ratio')}</dt><dd>{t('長径 ÷ 短径（1以上）','Major ÷ minor (1 or more)')}</dd></div>
+   <div><dt>{t('円形度','Circularity')}</dt><dd>{t('4π × 面積 ÷ 周囲長²。円で1、凹凸や細長さが増えるほど小さい','4π × area ÷ perimeter²; 1 for a circle, smaller for wavy or elongated outlines')}</dd></div>
+   <div><dt>{t('真円度','Roundness')}</dt><dd>{t('4 × 面積 ÷ (π × 長径²)','4 × area ÷ (π × major²)')}</dd></div>
+   <div><dt>{t('充実度','Solidity')}</dt><dd>{t('面積 ÷ 凸包の面積。表皮細胞のジグソー状の凹凸が強いほど小さい','Area ÷ convex hull area; smaller for more lobed (jigsaw-like) cells')}</dd></div>
+   <div><dt>{t('フェレ径','Feret diameter')}</dt><dd>{t('輪郭上の2点間の最大距離。最小フェレ径は、細胞を2本の平行線で挟んだときの最小の幅','Longest distance between two points on the outline; the minimum Feret diameter is the narrowest width between two parallel lines')}</dd></div>
+   <div><dt>{t('細胞密度','Cell density')}</dt><dd>{t('領域内の細胞数（縁にかかる細胞を含む）÷ 領域の面積（1 mm²あたり）','Cells in the region (including those cut by the edge) ÷ region area, per mm²')}</dd></div>
+   <div><dt>{t('細胞間隙の割合','Intercellular space')}</dt><dd>{t('「細胞間隙」にした区画の面積 ÷ 領域の面積','Area of compartments marked as intercellular space ÷ region area')}</dd></div>
+  </dl>
+ </section>
+
+ <section class="section tool-section" id="citation">
+  <h2>{t('引用のしかた','How to cite')}</h2>
+  <p class="tool-prose">{t('このツールで得た結果を論文や発表に使う場合は、次のように引用してください。末尾の参照日は、お使いになった日付に置き換えてください。','If you use results from this tool in a paper or presentation, please cite it as follows. Replace the access date with the date you used it.')}</p>
+  <div class="tool-citation">
+   <p id="cs-cite-en" lang="en" data-citation={citationEn}>{citationEn} (accessed <span data-today>{tool.updated}</span>)</p>
+   {!en&&<p id="cs-cite-ja" data-citation={citationJa}>{citationJa}（参照 <span data-today>{tool.updated}</span>）</p>}
+  </div>
+  <div class="tool-buttons">
+   <button type="button" class="tool-button" data-copy="cs-cite-en">{t('英語の引用文をコピー','Copy citation')}</button>
+   {!en&&<button type="button" class="tool-button" data-copy="cs-cite-ja">日本語の引用文をコピー</button>}
+  </div>
+  <p class="body-note">{t('保存したCSVとコピーした表にも、計算に使ったバージョンが記録されます。','Saved CSV files and copied results also record the version used.')}</p>
+ </section>
+
+ <section class="section tool-section" id="disclaimer">
+  <h2>{t('免責事項','Disclaimer')}</h2>
+  <p class="tool-prose">{t('このツールは研究の補助を目的として、現状のまま無償で提供しています。計算結果の正確性や、特定の目的への適合性は保証しません。自動の検出結果は必ず目で確かめ、必要に応じて手直ししてからお使いください。本ツールの利用によって生じたいかなる損害についても、作成者および埼玉大学 生命適応科学研究室は責任を負いません。ツールの内容は予告なく変更することがあります。','This tool is provided free of charge, as is, to support research. We make no warranty as to the accuracy of the results or their fitness for any particular purpose. Always inspect the automatic detection and correct it where needed before relying on the results. The author and the Laboratory of Stress and Adaptation Biology, Saitama University, accept no liability for any loss or damage arising from the use of this tool. The tool may change without notice.')}</p>
+  <dl class="tool-history">
+   {tool.history.map(h=><div><dt>v{h.version}</dt><dd><time datetime={h.date}>{h.date.replaceAll('-','.')}</time>　{en?h.en:h.ja}</dd></div>)}
+  </dl>
+  <a class="text-link" href={pageUrl('tools',lang)}>{t('ツール一覧','All tools')} →</a>
+ </section>
+ </div>
+</Layout>
+<script>
+ import '../../lib/cellshape-page.js';
+</script>

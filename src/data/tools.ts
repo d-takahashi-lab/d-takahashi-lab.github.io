@@ -1,4 +1,5 @@
 import {VERSION as LT50_VERSION} from '../lib/lt50.js';
+import {VERSION as CELLSHAPE_VERSION} from '../lib/cellshape.js';
 // Research tools published on the site. Each tool has its own page at tools/<slug>/ in both languages.
 // version and updated also appear in the tool's citation, so change them together with the tool.
 export interface Tool {
@@ -17,6 +18,17 @@ export const tools:Tool[] = [
   history:[
    {version:'1.1',date:'2026-11-10',ja:'グラフの表示を改善（系列ごとの色の選択、LT50の値の表示切り替え、黒枠と目盛り、温度軸の向きの選択）。計算方法は変更なし',en:'Improved graph display (per-series colours, toggle for LT50 values, framed axes with ticks, choice of temperature direction). Calculations unchanged'},
    {version:'1.0',date:'2026-11-10',ja:'公開',en:'First release'},
+  ],
+ },
+ {
+  slug:'cellshape', name:'Cell Shape Analyzer', version:CELLSHAPE_VERSION, updated:'2026-11-20',
+  title:{ja:'細胞形態解析ツール（組織切片）',en:'Cell Shape Analyzer (tissue sections)'},
+  summary:{
+   ja:'葉の切片などの顕微鏡画像で表皮・柵状組織・海綿状組織などの領域を囲むと、その中の細胞を色分けして数え、輪郭をトレースして面積・縦横比・円形度・表面との角度などを計算します。',
+   en:'Outline a region such as the epidermis, palisade or spongy mesophyll in a microscope image of a leaf section: the cells inside are coloured, counted and traced, and their area, aspect ratio, circularity, angle to the leaf surface and other measures are calculated.',
+  },
+  history:[
+   {version:'1.0',date:'2026-11-20',ja:'公開',en:'First release'},
   ],
  },
 ];
