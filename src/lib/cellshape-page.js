@@ -53,9 +53,10 @@ const TEXT = en ? {
   },
   legend: (name, lo, hi, unit) => `${name}: ${lo} – ${hi}${unit}`,
   copied: 'Copied',
-  cols: {image: 'Image', region: 'Region', tissue: 'Tissue', cell: 'Cell', status: 'Status', estimated: 'Cells (estimated)', whole: 'Whole cells', cut: 'Cells cut by the edge', measured: 'Cells measured', density: 'Cell density (/mm²)', space: 'Intercellular space (%)', roiArea: 'Region area (µm²)', angle: 'Angle (°)', feretAngle: 'Feret angle (°)', x: 'Centroid x (µm)', y: 'Centroid y (µm)', pixel: 'Pixel size (µm)', surface: 'Leaf surface direction (°)', diameter: 'Typical cell diameter (µm)', split: 'Splitting', smooth: 'Outline smoothing', faces: 'Wall-face cells searched', minArea: 'Minimum area (µm²)', maxArea: 'Maximum area (µm²)', edge: 'Edge cells excluded', version: 'Tool version', date: 'Date analysed'},
+  cols: {image: 'Image', region: 'Region', tissue: 'Tissue', cell: 'Cell', status: 'Status', count: 'Cells', tissueArea: 'Tissue area (µm²)', frame: 'Region drawn around', whole: 'Whole cells', cut: 'Cells cut by the edge', measured: 'Cells measured', density: 'Cell density (/mm²)', space: 'Intercellular space (%)', roiArea: 'Region area (µm²)', angle: 'Angle (°)', feretAngle: 'Feret angle (°)', x: 'Centroid x (µm)', y: 'Centroid y (µm)', pixel: 'Pixel size (µm)', surface: 'Leaf surface direction (°)', diameter: 'Typical cell diameter (µm)', split: 'Splitting', smooth: 'Outline smoothing', faces: 'Wall-face cells searched', minArea: 'Minimum area (µm²)', maxArea: 'Maximum area (µm²)', edge: 'Edge cells excluded', version: 'Tool version', date: 'Date analysed'},
   stat: {mean: 'mean', sd: 'SD', median: 'median'},
   yes: 'yes', no: 'no',
+  frames: {tissue: 'whole tissue', part: 'part of a tissue'},
   footer: (v, url, date, image, scale) => `Analysed with Cell Shape Analyzer version ${v} (${url}) on ${date}. Image: ${image}; pixel size ${fmtSig(scale)} µm.`,
 } : {
   tissues: {'adaxial-epidermis': '上側表皮', palisade: '柵状組織', spongy: '海綿状組織', 'abaxial-epidermis': '下側表皮', other: 'その他'},
@@ -101,9 +102,10 @@ const TEXT = en ? {
   },
   legend: (name, lo, hi, unit) => `${name}：${lo} – ${hi}${unit}`,
   copied: 'コピーしました',
-  cols: {image: '画像', region: '領域', tissue: '組織', cell: '番号', status: '状態', estimated: '細胞数（推定）', whole: '縁にかからない細胞', cut: '縁にかかる細胞', measured: '計測数', density: '細胞密度 (/mm²)', space: '細胞間隙 (%)', roiArea: '領域の面積 (µm²)', angle: '角度 (°)', feretAngle: 'フェレ径の角度 (°)', x: '重心 x (µm)', y: '重心 y (µm)', pixel: '1ピクセルの長さ (µm)', surface: '葉の表面の向き (°)', diameter: '細胞の直径の目安 (µm)', split: '分け方', smooth: '輪郭のなめらかさ', faces: '面の細胞を探した', minArea: '最小面積 (µm²)', maxArea: '最大面積 (µm²)', edge: '縁の細胞を除外', version: 'ツールのバージョン', date: '解析日'},
+  cols: {image: '画像', region: '領域', tissue: '組織', cell: '番号', status: '状態', count: '細胞数', tissueArea: '組織の面積 (µm²)', frame: '領域の描き方', whole: '縁にかからない細胞', cut: '縁にかかる細胞', measured: '計測数', density: '細胞密度 (/mm²)', space: '細胞間隙 (%)', roiArea: '領域の面積 (µm²)', angle: '角度 (°)', feretAngle: 'フェレ径の角度 (°)', x: '重心 x (µm)', y: '重心 y (µm)', pixel: '1ピクセルの長さ (µm)', surface: '葉の表面の向き (°)', diameter: '細胞の直径の目安 (µm)', split: '分け方', smooth: '輪郭のなめらかさ', faces: '面の細胞を探した', minArea: '最小面積 (µm²)', maxArea: '最大面積 (µm²)', edge: '縁の細胞を除外', version: 'ツールのバージョン', date: '解析日'},
   stat: {mean: '平均', sd: '標準偏差', median: '中央値'},
   yes: 'はい', no: 'いいえ',
+  frames: {tissue: '組織全体', part: '組織の一部'},
   footer: (v, url, date, image, scale) => `細胞形態解析ツール バージョン${v}（${url}）で${date}に解析。画像：${image}、1ピクセル ${fmtSig(scale)} µm`,
 };
 
@@ -189,7 +191,6 @@ function zoomAt(sx, sy, f){
 }
 
 function draw(){
-  $('cancel').disabled = !busy();
   const W = canvas.width / dpr, H = canvas.height / dpr;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.fillStyle = '#f5f5f3'; ctx.fillRect(0, 0, W, H);
@@ -375,11 +376,12 @@ viewer.addEventListener('drop', e => { e.preventDefault(); viewer.classList.remo
 
 /* ---------- Regions ---------- */
 function params(){
-  return {diameter: num('diameter'), split: +$('split').value, smooth: +$('smooth').value, faces: $('faces').checked, minArea: num('min'), maxArea: num('max'), excludeEdge: $('edge').checked};
+  return {frame: document.querySelector('input[name=cs-frame]:checked').value, diameter: num('diameter'), split: +$('split').value, smooth: +$('smooth').value, faces: $('faces').checked, minArea: num('min'), maxArea: num('max'), excludeEdge: $('edge').checked};
 }
 function setParams(p){
   $('diameter').value = p.diameter; $('split').value = p.split; $('split-out').value = p.split;
   $('smooth').value = p.smooth; $('smooth-out').value = p.smooth;
+  document.querySelector(`input[name=cs-frame][value=${p.frame || 'tissue'}]`).checked = true;
   $('min').value = Number.isFinite(p.minArea) ? p.minArea : ''; $('max').value = Number.isFinite(p.maxArea) ? p.maxArea : '';
   $('edge').checked = p.excludeEdge; $('faces').checked = !!p.faces;
 }
@@ -417,7 +419,7 @@ function renderRoiList(){
   const ul = $('rois');
   const options = sel => Object.entries(TEXT.tissues).map(([v, name]) => `<option value="${v}"${v === sel ? ' selected' : ''}>${esc(name)}</option>`).join('');
   ul.innerHTML = S.rois.map((r, i) => `<li class="${i === S.sel ? 'is-selected' : ''}">
-    <button type="button" class="cs-roi" data-i="${i}" aria-pressed="${i === S.sel}"><span class="cs-swatch" style="background:${TISSUE_COLORS[r.tissue]}"></span>${esc(TEXT.roiItem(r.id, r.labels ? r.cells.filter(c => c.status === 'ok' || c.status === 'edge').length : null))}</button>
+    <button type="button" class="cs-roi" data-i="${i}" aria-pressed="${i === S.sel}"><span class="cs-swatch" style="background:${TISSUE_COLORS[r.tissue]}"></span>${esc(TEXT.roiItem(r.id, r.labels ? Math.round(summarise(r.cells, r.area * S.scale * S.scale, r.params.frame).count * 10) / 10 : null))}</button>
     <select class="cs-roi-tissue" data-tissue="${i}" aria-label="${esc(TEXT.tissueOf(r.id))}">${options(r.tissue)}</select>
     <button type="button" class="cs-remove" data-remove="${i}">${TEXT.remove}</button></li>`).join('');
 }
@@ -433,6 +435,11 @@ $('rois').addEventListener('change', e => {
   S.rois[+i].tissue = e.target.value;
   refresh(); redraw();
 });
+// How the region was drawn only changes the counting.
+document.querySelectorAll('input[name=cs-frame]').forEach(el => el.addEventListener('change', () => {
+  const r = S.rois[S.sel];
+  if (r) { r.params = params(); refresh(); }
+}));
 // Settings belong to the selected region; they take effect when cells are detected again,
 // except the area limits and the edge rule, which only change the classification.
 ['diameter', 'split', 'smooth', 'faces', 'min', 'max', 'edge'].forEach(id => $(id).addEventListener('input', () => {
@@ -567,8 +574,8 @@ function undo(){
   remeasure(h.roi);
 }
 $('undo').addEventListener('click', undo);
-// Abandons what is under way: a line or outline being drawn, the first cell picked for joining, or the
-// scale, surface or region tool.
+// Esc abandons what is under way: a line or outline being drawn, the first cell picked for joining, or
+// the scale, surface or region tool.
 const busy = () => !!(S.tool || S.pts.length || (S.pick && mode() === 'merge'));
 function cancelAction(){
   S.pts = [];
@@ -576,7 +583,7 @@ function cancelAction(){
   if (S.tool) setTool(S.tool); else { hint(); redraw(); }
   message('');
 }
-$('cancel').addEventListener('click', cancelAction);
+
 
 function cellAt(ix, iy){
   const order = [S.sel, ...S.rois.map((_, i) => i).reverse().filter(i => i !== S.sel)];
@@ -725,13 +732,13 @@ function showInfo(roi, c){
 }
 const meanSd = (s, d) => Number.isFinite(s.mean) ? `${s.mean.toFixed(d)} ± ${Number.isFinite(s.sd) ? s.sd.toFixed(d) : '—'}` : '—';
 const EMPTY_TABLE = $('table').innerHTML;
-const summaries = () => S.rois.filter(r => r.labels).map(r => ({r, s: summarise(r.cells, r.area * S.scale * S.scale)}));
+const summaries = () => S.rois.filter(r => r.labels).map(r => ({r, s: summarise(r.cells, r.area * S.scale * S.scale, r.params.frame)}));
 // The first columns of the region results; the measures follow (mean ± SD on screen; mean, SD and
 // median in the CSV file and the copied table).
 const regionBasics = ({r, s}) => [
-  [TEXT.cols.region, r.id], [TEXT.cols.tissue, TEXT.tissues[r.tissue]], [TEXT.cols.estimated, s.estimated, 1],
+  [TEXT.cols.region, r.id], [TEXT.cols.tissue, TEXT.tissues[r.tissue]], [TEXT.cols.count, s.count, r.params.frame === 'part' ? 1 : null],
   [TEXT.cols.whole, s.whole], [TEXT.cols.cut, s.cut], [TEXT.cols.measured, s.measured],
-  [TEXT.cols.density, s.density, 1], [TEXT.cols.space, s.spaceFraction * 100, 2], [TEXT.cols.roiArea, s.roiArea, 0],
+  [TEXT.cols.density, s.density, 1], [TEXT.cols.space, s.spaceFraction * 100, 2], [TEXT.cols.tissueArea, s.tissueArea, 0], [TEXT.cols.roiArea, s.roiArea, 0],
 ];
 function refresh(){
   renderRoiList();
@@ -776,13 +783,13 @@ function regionRows(){
   const rows = summaries();
   const head = [TEXT.cols.image, ...regionBasics(rows[0]).map(c => c[0])];
   MEASURES.forEach(m => head.push(...['mean', 'sd', 'median'].map(k => `${mLabel(m)} ${TEXT.stat[k]}`)));
-  head.push(TEXT.cols.pixel, TEXT.cols.surface, TEXT.cols.diameter, TEXT.cols.split, TEXT.cols.smooth, TEXT.cols.faces, TEXT.cols.minArea, TEXT.cols.maxArea, TEXT.cols.edge, TEXT.cols.version, TEXT.cols.date);
+  head.push(TEXT.cols.frame, TEXT.cols.pixel, TEXT.cols.surface, TEXT.cols.diameter, TEXT.cols.split, TEXT.cols.smooth, TEXT.cols.faces, TEXT.cols.minArea, TEXT.cols.maxArea, TEXT.cols.edge, TEXT.cols.version, TEXT.cols.date);
   const yn = v => v ? TEXT.yes : TEXT.no;
   return [head, ...rows.map(row => {
     const {r, s} = row, lim = limits(r.params);
     const out = [S.img.name, ...regionBasics(row).map(([, v, d]) => d == null ? v : csvNum(v, d))];
     MEASURES.forEach(m => out.push(...['mean', 'sd', 'median'].map(k => csvNum(s[m.key][k], m.d + 2))));
-    out.push(fmtSig(S.scale), csvNum(S.ref, 1), r.params.diameter, r.params.split, r.params.smooth, yn(r.params.faces), csvNum(lim.minArea, 1), csvNum(lim.maxArea, 1), yn(lim.excludeEdge), VERSION, today());
+    out.push(TEXT.frames[r.params.frame || 'tissue'], fmtSig(S.scale), csvNum(S.ref, 1), r.params.diameter, r.params.split, r.params.smooth, yn(r.params.faces), csvNum(lim.minArea, 1), csvNum(lim.maxArea, 1), yn(lim.excludeEdge), VERSION, today());
     return out;
   })];
 }

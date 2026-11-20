@@ -709,24 +709,37 @@ function stats(values){
   return {mean, sd, median};
 }
 
-// Summary of one region. roiArea is the drawn region's area (µm²).
-// Cells: 'ok' and 'edge' cells (manually excluded cells, intercellular spaces and cells outside the
-// area limits are not cells). Cells cut by the region's edge lie only partly inside it, so counting each
-// as one would overestimate the number of cells; each counts as the fraction of a cell that lies inside:
-// its area inside the region divided by the mean area of the whole (uncut) cells, at most 1. Without
-// whole cells to compare with, each cut cell counts as one half.
-// Shape statistics: 'ok' cells only. Space fraction: area of 'space' regions / region area.
-export function summarise(cells, roiArea){
+// Summary of one region. roiArea is the drawn region's area (µm²). Cells are 'ok' and 'edge' cells
+// (manually excluded cells, intercellular spaces and objects outside the area limits are not cells).
+// How cells cut by the region's edge are treated depends on how the region was drawn (frame):
+// 'tissue' — the region encloses the whole tissue with some margin, so the cells it cuts belong to the
+//   neighbouring tissue: they are not counted, and the tissue area is the area of all compartments that
+//   do not touch the edge (cells, spaces and anything else inside the tissue).
+// 'part' — the region is a sample within a larger tissue, so a cut cell is partly in the sample: each
+//   counts as its area inside the region divided by the mean area of the whole cells (at most 1; one half
+//   when there are no whole cells), and the tissue area is the region's area.
+// Density = cells / tissue area (per mm² when areas are in µm²); space fraction = area of intercellular
+// spaces (in 'tissue', those not touching the edge) / tissue area. Shape statistics use 'ok' cells only.
+export function summarise(cells, roiArea, frame = 'tissue'){
   const ok = cells.filter(c => c.status === 'ok');
   const cellsIn = cells.filter(c => c.status === 'ok' || c.status === 'edge');
   const whole = cellsIn.filter(c => !c.edge), cut = cellsIn.filter(c => c.edge);
-  const wholeMean = whole.length ? whole.reduce((a, c) => a + c.area, 0) / whole.length : NaN;
-  const estimated = whole.length + cut.reduce((a, c) => a + (wholeMean > 0 ? Math.min(1, c.area / wholeMean) : 0.5), 0);
-  const space = cells.filter(c => c.status === 'space').reduce((a, c) => a + c.area, 0);
+  let count, tissueArea, spaces;
+  if (frame === 'part') {
+    const wholeMean = whole.length ? whole.reduce((a, c) => a + c.area, 0) / whole.length : NaN;
+    count = whole.length + cut.reduce((a, c) => a + (wholeMean > 0 ? Math.min(1, c.area / wholeMean) : 0.5), 0);
+    tissueArea = roiArea;
+    spaces = cells.filter(c => c.status === 'space');
+  } else {
+    count = whole.length;
+    tissueArea = cells.filter(c => !c.edge).reduce((a, c) => a + c.area, 0);
+    spaces = cells.filter(c => c.status === 'space' && !c.edge);
+  }
+  const space = spaces.reduce((a, c) => a + c.area, 0);
   const out = {
-    estimated, whole: whole.length, cut: cut.length, measured: ok.length, roiArea,
-    density: roiArea > 0 ? estimated / roiArea * 1e6 : NaN, // per mm² when roiArea is in µm²
-    spaceFraction: roiArea > 0 ? space / roiArea : NaN,
+    count, whole: whole.length, cut: cut.length, measured: ok.length, roiArea, tissueArea,
+    density: tissueArea > 0 ? count / tissueArea * 1e6 : NaN,
+    spaceFraction: tissueArea > 0 ? space / tissueArea : NaN,
   };
   for (const m of METRICS) out[m] = stats(ok.map(c => c[m]));
   return out;

@@ -189,20 +189,24 @@ test('classification and summary', () => {
   const cells = [
     {label: 1, area: 100, edge: false}, {label: 2, area: 300, edge: false}, {label: 3, area: 5, edge: false},
     {label: 4, area: 100, edge: true}, {label: 5, area: 400, edge: false}, {label: 6, area: 900, edge: true},
+    {label: 7, area: 50, edge: true},
   ];
-  classify(cells, {minArea: 10, excludeEdge: true}, {5: 'space'});
-  assert.deepEqual(cells.map(c => c.status), ['ok', 'ok', 'small', 'edge', 'space', 'edge']);
+  classify(cells, {minArea: 10, excludeEdge: true}, {5: 'space', 7: 'space'});
+  assert.deepEqual(cells.map(c => c.status), ['ok', 'ok', 'small', 'edge', 'space', 'edge', 'space']);
+  // the whole tissue is enclosed: cut cells belong to the neighbouring tissue
   const s = summarise(cells, 4000);
-  assert.equal(s.measured, 2); assert.equal(s.whole, 2); assert.equal(s.cut, 2);
-  // whole cells average 200 µm²: the cut cells count as 100 / 200 = 0.5 and min(1, 900 / 200) = 1
-  assert.equal(s.estimated, 3.5);
-  assert.equal(s.density, 3.5 / 4000 * 1e6);
+  assert.equal(s.count, 2); assert.equal(s.whole, 2); assert.equal(s.cut, 2); assert.equal(s.measured, 2);
+  assert.equal(s.tissueArea, 805);             // 100 + 300 + 5 + 400: compartments not touching the edge
+  assert.equal(s.density, 2 / 805 * 1e6);
+  assert.equal(s.spaceFraction, 400 / 805);
   assert.equal(s.area.mean, 200); close(s.area.sd, Math.SQRT2 * 100, 1e-9, 'sd');
-  assert.equal(s.spaceFraction, 0.1);
+  // a sample within the tissue: cut cells count as 100 / 200 = 0.5 and min(1, 900 / 200) = 1
+  const p = summarise(cells, 4000, 'part');
+  assert.equal(p.count, 3.5); assert.equal(p.tissueArea, 4000);
+  assert.equal(p.density, 3.5 / 4000 * 1e6); assert.equal(p.spaceFraction, 450 / 4000);
   // with edge cells measured too, the count still treats them as cut
-  classify(cells, {minArea: 10, excludeEdge: false}, {5: 'space'});
-  const t = summarise(cells, 4000);
-  assert.equal(t.measured, 4); assert.equal(t.estimated, 3.5);
-  // no whole cells: each cut cell counts as one half
-  assert.equal(summarise([{area: 50, edge: true, status: 'edge'}], 1000).estimated, 0.5);
+  classify(cells, {minArea: 10, excludeEdge: false}, {5: 'space', 7: 'space'});
+  assert.equal(summarise(cells, 4000).measured, 4); assert.equal(summarise(cells, 4000).count, 2);
+  // no whole cells in a sample: each cut cell counts as one half
+  assert.equal(summarise([{area: 50, edge: true, status: 'edge'}], 1000, 'part').count, 0.5);
 });
