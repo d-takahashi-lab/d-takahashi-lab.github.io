@@ -45,7 +45,7 @@ const modes=[
     <h3 class="cs-step"><span>1</span>{t('画像','Image')}</h3>
     <div class="tool-buttons cs-first">
      <label class="tool-button primary cs-file">{t('画像を選ぶ','Choose image')}<input type="file" id="cs-file" accept="image/*,.tif,.tiff"/></label>
-     <button type="button" class="tool-button" id="cs-example" data-src={`${import.meta.env.BASE_URL}images/tools/cellshape-example.webp`}>{t('例の画像で試す','Try the example image')}</button>
+     <button type="button" class="tool-button" id="cs-example" data-src={`${import.meta.env.BASE_URL}images/tools/cellshape-example.webp`} data-bar-um="100" data-bar-px="296" data-diameter="25" data-faces="false">{t('例の画像で試す','Try the example image')}</button>
     </div>
     <p class="tool-format" id="cs-image-info"></p>
     <div class="cs-row">

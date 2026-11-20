@@ -17,7 +17,7 @@ const TEXT = en ? {
   loading: 'Loading the image…',
   scaledTiff: bits => `This is a ${bits}-bit image: brightness was scaled to 8 bits for display and analysis (0.05–99.95th percentile).`,
   tiffErrors: {bigtiff: 'BigTIFF files cannot be read. Save the image as an ordinary TIFF or PNG.', compression: 'This TIFF uses a compression that cannot be read here (e.g. JPEG). Save it uncompressed, with LZW, or as PNG.', bits: 'Only 8-, 16- and 32-bit TIFF images can be read.'},
-  exampleLoaded: 'Example image loaded: a leaf cross-section, fluorescence, 40× objective. The scale (20 µm = 176 px) and a cell diameter are already set. Draw along the leaf surface (step 3), then outline a region (step 4).',
+  exampleLoaded: e => `Example image loaded: a leaf cross-section, fluorescence, 10× objective. The scale (${e.barUm} µm = ${e.barPx} px) and a cell diameter are already set. Outline a region such as the palisade mesophyll (step 4).`,
   replace: 'Load a new image? The regions drawn on the current image will be discarded.',
   needImage: 'Choose an image first.',
   needScale: 'Set the scale first (step 2): trace the scale bar or type the pixel size.',
@@ -68,7 +68,7 @@ const TEXT = en ? {
   loading: '画像を読み込んでいます…',
   scaledTiff: bits => `${bits}ビットの画像なので、明るさを8ビットに変換して表示・解析します（0.05〜99.95パーセンタイルの範囲）。`,
   tiffErrors: {bigtiff: 'BigTIFF形式は読み込めません。通常のTIFFかPNGで保存し直してください。', compression: 'このTIFFの圧縮形式（JPEG圧縮など）は読み込めません。無圧縮・LZW圧縮のTIFFかPNGで保存し直してください。', bits: '8・16・32ビットのTIFFだけが読み込めます。'},
-  exampleLoaded: '例の画像（葉の横断切片の蛍光像、40倍対物レンズ）を読み込みました。スケール（20 µm = 176ピクセル）と細胞の直径の目安は設定済みです。手順3で葉の表面に沿って線を引き、手順4で領域を囲んでみてください。',
+  exampleLoaded: e => `例の画像（葉の横断切片の蛍光像、10倍対物レンズ）を読み込みました。スケール（${e.barUm} µm = ${e.barPx}ピクセル）と細胞の直径の目安は設定済みです。手順4で柵状組織などの領域を囲んでみてください。`,
   replace: '新しい画像を読み込みますか？ 今の画像に描いた領域は消えます。',
   needImage: '先に画像を選んでください。',
   needScale: '先にスケールを決めてください（手順2）。スケールバーをなぞるか、1ピクセルの長さを入力します。',
@@ -334,11 +334,12 @@ async function loadFile(file, example){
   ['draw-scale', 'draw-ref', 'reset-ref', 'draw-roi', 'detect'].forEach(id => { $(id).disabled = false; });
   $('modes').disabled = false;
   if (example) {
-    // the example's scale bar: 20 µm = 176 px; not remembered as the user's own scale
-    S.scale = 20 / 176; $('scale').value = fmtSig(S.scale); $('bar').value = 20;
-    $('diameter').value = 12; $('faces').checked = true;
+    // settings of the example come from the button's data attributes; its scale is not remembered as
+    // the user's own
+    S.scale = example.barUm / example.barPx; $('scale').value = fmtSig(S.scale); $('bar').value = example.barUm;
+    $('diameter').value = example.diameter; $('faces').checked = example.faces === 'true';
     setRef(0);
-    message(TEXT.exampleLoaded);
+    message(TEXT.exampleLoaded(example));
   } else message([im.note, S.scale > 0 ? TEXT.scaleSaved : ''].filter(Boolean).join('\n'));
   fit(); refresh();
 }
@@ -348,7 +349,8 @@ $('example').addEventListener('click', async e => {
   try {
     const res = await fetch(button.dataset.src);
     if (!res.ok) throw new Error();
-    await loadFile(new File([await res.blob()], 'example-leaf-section.webp', {type: 'image/webp'}), true);
+    const {barUm, barPx, diameter, faces} = button.dataset;
+    await loadFile(new File([await res.blob()], 'example-leaf-section.webp', {type: 'image/webp'}), {barUm: +barUm, barPx: +barPx, diameter: +diameter, faces});
   } catch { message(TEXT.cannotRead); }
   button.disabled = false;
 });
