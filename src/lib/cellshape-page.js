@@ -53,7 +53,7 @@ const TEXT = en ? {
   },
   legend: (name, lo, hi, unit) => `${name}: ${lo} – ${hi}${unit}`,
   copied: 'Copied',
-  cols: {image: 'Image', region: 'Region', tissue: 'Tissue', cell: 'Cell', status: 'Status', counted: 'Cells', measured: 'Cells measured', density: 'Cell density (/mm²)', space: 'Intercellular space (%)', roiArea: 'Region area (µm²)', angle: 'Angle (°)', feretAngle: 'Feret angle (°)', x: 'Centroid x (µm)', y: 'Centroid y (µm)', pixel: 'Pixel size (µm)', surface: 'Leaf surface direction (°)', diameter: 'Typical cell diameter (µm)', split: 'Splitting', smooth: 'Outline smoothing', faces: 'Wall-face cells searched', minArea: 'Minimum area (µm²)', maxArea: 'Maximum area (µm²)', edge: 'Edge cells excluded', version: 'Tool version', date: 'Date analysed'},
+  cols: {image: 'Image', region: 'Region', tissue: 'Tissue', cell: 'Cell', status: 'Status', estimated: 'Cells (estimated)', whole: 'Whole cells', cut: 'Cells cut by the edge', measured: 'Cells measured', density: 'Cell density (/mm²)', space: 'Intercellular space (%)', roiArea: 'Region area (µm²)', angle: 'Angle (°)', feretAngle: 'Feret angle (°)', x: 'Centroid x (µm)', y: 'Centroid y (µm)', pixel: 'Pixel size (µm)', surface: 'Leaf surface direction (°)', diameter: 'Typical cell diameter (µm)', split: 'Splitting', smooth: 'Outline smoothing', faces: 'Wall-face cells searched', minArea: 'Minimum area (µm²)', maxArea: 'Maximum area (µm²)', edge: 'Edge cells excluded', version: 'Tool version', date: 'Date analysed'},
   stat: {mean: 'mean', sd: 'SD', median: 'median'},
   yes: 'yes', no: 'no',
   footer: (v, url, date, image, scale) => `Analysed with Cell Shape Analyzer version ${v} (${url}) on ${date}. Image: ${image}; pixel size ${fmtSig(scale)} µm.`,
@@ -101,7 +101,7 @@ const TEXT = en ? {
   },
   legend: (name, lo, hi, unit) => `${name}：${lo} – ${hi}${unit}`,
   copied: 'コピーしました',
-  cols: {image: '画像', region: '領域', tissue: '組織', cell: '番号', status: '状態', counted: '細胞数', measured: '計測数', density: '細胞密度 (/mm²)', space: '細胞間隙 (%)', roiArea: '領域の面積 (µm²)', angle: '角度 (°)', feretAngle: 'フェレ径の角度 (°)', x: '重心 x (µm)', y: '重心 y (µm)', pixel: '1ピクセルの長さ (µm)', surface: '葉の表面の向き (°)', diameter: '細胞の直径の目安 (µm)', split: '分け方', smooth: '輪郭のなめらかさ', faces: '面の細胞を探した', minArea: '最小面積 (µm²)', maxArea: '最大面積 (µm²)', edge: '縁の細胞を除外', version: 'ツールのバージョン', date: '解析日'},
+  cols: {image: '画像', region: '領域', tissue: '組織', cell: '番号', status: '状態', estimated: '細胞数（推定）', whole: '縁にかからない細胞', cut: '縁にかかる細胞', measured: '計測数', density: '細胞密度 (/mm²)', space: '細胞間隙 (%)', roiArea: '領域の面積 (µm²)', angle: '角度 (°)', feretAngle: 'フェレ径の角度 (°)', x: '重心 x (µm)', y: '重心 y (µm)', pixel: '1ピクセルの長さ (µm)', surface: '葉の表面の向き (°)', diameter: '細胞の直径の目安 (µm)', split: '分け方', smooth: '輪郭のなめらかさ', faces: '面の細胞を探した', minArea: '最小面積 (µm²)', maxArea: '最大面積 (µm²)', edge: '縁の細胞を除外', version: 'ツールのバージョン', date: '解析日'},
   stat: {mean: '平均', sd: '標準偏差', median: '中央値'},
   yes: 'はい', no: 'いいえ',
   footer: (v, url, date, image, scale) => `細胞形態解析ツール バージョン${v}（${url}）で${date}に解析。画像：${image}、1ピクセル ${fmtSig(scale)} µm`,
@@ -189,6 +189,7 @@ function zoomAt(sx, sy, f){
 }
 
 function draw(){
+  $('cancel').disabled = !busy();
   const W = canvas.width / dpr, H = canvas.height / dpr;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.fillStyle = '#f5f5f3'; ctx.fillRect(0, 0, W, H);
@@ -566,6 +567,16 @@ function undo(){
   remeasure(h.roi);
 }
 $('undo').addEventListener('click', undo);
+// Abandons what is under way: a line or outline being drawn, the first cell picked for joining, or the
+// scale, surface or region tool.
+const busy = () => !!(S.tool || S.pts.length || (S.pick && mode() === 'merge'));
+function cancelAction(){
+  S.pts = [];
+  if (S.pick && mode() === 'merge') S.pick = null;
+  if (S.tool) setTool(S.tool); else { hint(); redraw(); }
+  message('');
+}
+$('cancel').addEventListener('click', cancelAction);
 
 function cellAt(ix, iy){
   const order = [S.sel, ...S.rois.map((_, i) => i).reverse().filter(i => i !== S.sel)];
@@ -691,8 +702,8 @@ $('fit').addEventListener('click', fit);
 window.addEventListener('keydown', e => {
   if (e.target.closest('input, select, textarea')) return;
   if ((e.metaKey || e.ctrlKey) && e.key === 'z') { if (history.length) { e.preventDefault(); undo(); } return; }
-  if (!S.tool && !S.pts.length) return;
-  if (e.key === 'Escape') { S.pts = []; if (S.tool) setTool(S.tool); else redraw(); }
+  if (!busy()) return;
+  if (e.key === 'Escape') cancelAction();
   else if (e.key === 'Enter' && drawingPolygon()) closePolygon();
   else if (e.key === 'Backspace' && S.pts.length) { e.preventDefault(); S.pts.pop(); redraw(); }
 });
@@ -718,7 +729,8 @@ const summaries = () => S.rois.filter(r => r.labels).map(r => ({r, s: summarise(
 // The first columns of the region results; the measures follow (mean ± SD on screen; mean, SD and
 // median in the CSV file and the copied table).
 const regionBasics = ({r, s}) => [
-  [TEXT.cols.region, r.id], [TEXT.cols.tissue, TEXT.tissues[r.tissue]], [TEXT.cols.counted, s.counted], [TEXT.cols.measured, s.measured],
+  [TEXT.cols.region, r.id], [TEXT.cols.tissue, TEXT.tissues[r.tissue]], [TEXT.cols.estimated, s.estimated, 1],
+  [TEXT.cols.whole, s.whole], [TEXT.cols.cut, s.cut], [TEXT.cols.measured, s.measured],
   [TEXT.cols.density, s.density, 1], [TEXT.cols.space, s.spaceFraction * 100, 2], [TEXT.cols.roiArea, s.roiArea, 0],
 ];
 function refresh(){

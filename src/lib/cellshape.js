@@ -710,15 +710,22 @@ function stats(values){
 }
 
 // Summary of one region. roiArea is the drawn region's area (µm²).
-// Cells counted: 'ok' and 'edge' cells (every cell in the region, whole or cut by the edge).
+// Cells: 'ok' and 'edge' cells (manually excluded cells, intercellular spaces and cells outside the
+// area limits are not cells). Cells cut by the region's edge lie only partly inside it, so counting each
+// as one would overestimate the number of cells; each counts as the fraction of a cell that lies inside:
+// its area inside the region divided by the mean area of the whole (uncut) cells, at most 1. Without
+// whole cells to compare with, each cut cell counts as one half.
 // Shape statistics: 'ok' cells only. Space fraction: area of 'space' regions / region area.
 export function summarise(cells, roiArea){
   const ok = cells.filter(c => c.status === 'ok');
-  const counted = cells.filter(c => c.status === 'ok' || c.status === 'edge');
+  const cellsIn = cells.filter(c => c.status === 'ok' || c.status === 'edge');
+  const whole = cellsIn.filter(c => !c.edge), cut = cellsIn.filter(c => c.edge);
+  const wholeMean = whole.length ? whole.reduce((a, c) => a + c.area, 0) / whole.length : NaN;
+  const estimated = whole.length + cut.reduce((a, c) => a + (wholeMean > 0 ? Math.min(1, c.area / wholeMean) : 0.5), 0);
   const space = cells.filter(c => c.status === 'space').reduce((a, c) => a + c.area, 0);
   const out = {
-    measured: ok.length, counted: counted.length, roiArea,
-    density: roiArea > 0 ? counted.length / roiArea * 1e6 : NaN, // per mm² when roiArea is in µm²
+    estimated, whole: whole.length, cut: cut.length, measured: ok.length, roiArea,
+    density: roiArea > 0 ? estimated / roiArea * 1e6 : NaN, // per mm² when roiArea is in µm²
     spaceFraction: roiArea > 0 ? space / roiArea : NaN,
   };
   for (const m of METRICS) out[m] = stats(ok.map(c => c[m]));

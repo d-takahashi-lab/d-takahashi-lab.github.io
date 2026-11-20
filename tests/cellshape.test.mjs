@@ -188,13 +188,21 @@ test('cells keep only their largest piece', () => {
 test('classification and summary', () => {
   const cells = [
     {label: 1, area: 100, edge: false}, {label: 2, area: 300, edge: false}, {label: 3, area: 5, edge: false},
-    {label: 4, area: 200, edge: true}, {label: 5, area: 400, edge: false},
+    {label: 4, area: 100, edge: true}, {label: 5, area: 400, edge: false}, {label: 6, area: 900, edge: true},
   ];
   classify(cells, {minArea: 10, excludeEdge: true}, {5: 'space'});
-  assert.deepEqual(cells.map(c => c.status), ['ok', 'ok', 'small', 'edge', 'space']);
+  assert.deepEqual(cells.map(c => c.status), ['ok', 'ok', 'small', 'edge', 'space', 'edge']);
   const s = summarise(cells, 4000);
-  assert.equal(s.measured, 2); assert.equal(s.counted, 3);
+  assert.equal(s.measured, 2); assert.equal(s.whole, 2); assert.equal(s.cut, 2);
+  // whole cells average 200 µm²: the cut cells count as 100 / 200 = 0.5 and min(1, 900 / 200) = 1
+  assert.equal(s.estimated, 3.5);
+  assert.equal(s.density, 3.5 / 4000 * 1e6);
   assert.equal(s.area.mean, 200); close(s.area.sd, Math.SQRT2 * 100, 1e-9, 'sd');
   assert.equal(s.spaceFraction, 0.1);
-  assert.equal(s.density, 3 / 4000 * 1e6);
+  // with edge cells measured too, the count still treats them as cut
+  classify(cells, {minArea: 10, excludeEdge: false}, {5: 'space'});
+  const t = summarise(cells, 4000);
+  assert.equal(t.measured, 4); assert.equal(t.estimated, 3.5);
+  // no whole cells: each cut cell counts as one half
+  assert.equal(summarise([{area: 50, edge: true, status: 'edge'}], 1000).estimated, 0.5);
 });
