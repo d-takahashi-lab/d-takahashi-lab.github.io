@@ -1,0 +1,225 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import PageHeading from '../PageHeading.astro';
+import {tools,toolUrlBase} from '../../data/tools';
+import {choose,pageUrl,type Language} from '../../lib/i18n';
+interface Props{lang?:Language;}
+const {lang='ja'}=Astro.props;
+const en=lang==='en',t=(ja:string,english:string)=>choose(lang,ja,english);
+const tool=tools.find(x=>x.slug==='leafarea')!;
+const year=tool.updated.slice(0,4);
+// Citations always point at the public domain, also in local builds.
+const url=toolUrlBase+pageUrl('tools/leafarea',lang);
+const citationEn=`Takahashi D (${year}) Leaf Area Analyzer, version ${tool.version}. Laboratory of Stress and Adaptation Biology, Saitama University. ${url}`;
+const citationJa=`高橋大輔 (${year}) Leaf Area Analyzer, バージョン ${tool.version}. 埼玉大学 生命適応科学研究室. ${url}`;
+const modes=[
+ {value:'info',label:t('株の値を見る','Show a plant’s values')},
+ {value:'exclude',label:t('結果から外す・戻す','Leave out / include')},
+ {value:'merge',label:t('2つの株をつなぐ','Join two plants')},
+ {value:'split',label:t('線を引いて2つの株に分ける','Divide along a line')},
+ {value:'add',label:t('囲んで株に足す','Outline an area to add')},
+ {value:'erase',label:t('囲んで株から消す','Outline an area to remove')},
+];
+---
+<Layout lang={lang} title={tool.name} current="tools" alternateSlug="tools/leafarea" description={tool.summary[lang]}>
+ <PageHeading lang={lang} title={tool.name} en={tool.name} meta={`v${tool.version} · ${tool.updated.replaceAll('-','.')}`} sections={[
+  {label:t('解析','Analysis'),href:'#analyzer'},{label:t('計算方法','Method'),href:'#method'},
+  {label:t('引用のしかた','How to cite'),href:'#citation'},{label:t('免責事項','Disclaimer'),href:'#disclaimer'},
+ ]}/>
+ <div class="tool-page" id="la" data-version={tool.version} data-url={url}>
+ <section class="section tool-intro">
+  <p class="page-intro">{t('植物を上から撮影した写真から、株ごとの葉の面積（投影面積）を測るツールです。シャーレやポットなどの領域を囲むと、その中の緑色の部分を株ごとに色分けし、面積・凸包の面積・直径などを計算します。自動の結果はクリックで手直しできます。白や灰色など、緑ではない背景の写真を想定しています。','This tool measures the leaf area (projected area) of each plant in photographs taken from above. Outline a region such as a plate or a pot, and the green parts inside are coloured plant by plant; their area, convex hull area, diameter and other measures are calculated. The automatic result can be corrected with a few clicks. It is designed for photographs with a background that is not green, such as white or grey.')}</p>
+  <p class="body-note">{t('画像はどこにも送信されず、お使いのブラウザの中だけで処理します。','Your images are never uploaded: everything runs in your browser.')}</p>
+ </section>
+
+ <section class="section tool-section" id="analyzer" aria-label={t('解析','Analysis')}>
+  <div class="tool-grid cs-grid">
+   <div class="tool-form">
+    <h3 class="cs-step"><span>1</span>{t('画像','Image')}</h3>
+    <div class="tool-buttons cs-first">
+     <label class="tool-button primary cs-file">{t('画像を選ぶ','Choose image')}<input type="file" id="la-file" accept="image/*,.tif,.tiff"/></label>
+     <button type="button" class="tool-button" id="la-example" data-src={`${import.meta.env.BASE_URL}images/tools/leafarea-example.webp`} data-bar-mm="90">{t('例の画像で試す','Try the example image')}</button>
+    </div>
+    <p class="tool-format" id="la-image-info"></p>
+
+    <h3 class="cs-step"><span>2</span>{t('スケール','Scale')}</h3>
+    <div class="cs-pair">
+     <label class="tool-label" for="la-bar">{t('長さの分かるものの長さ (mm)','Known length (mm)')}</label>
+     <input type="number" id="la-bar" class="cs-input" value="90" min="0" step="any"/>
+    </div>
+    <div class="tool-buttons cs-first"><button type="button" class="tool-button" id="la-draw-scale" disabled>{t('その長さをなぞる','Trace that length')}</button></div>
+    <div class="cs-pair">
+     <label class="tool-label" for="la-scale">{t('1ピクセルの長さ (mm)','Pixel size (mm)')}</label>
+     <input type="number" id="la-scale" class="cs-input" min="0" step="any" placeholder={t('なぞるか、直接入力','Trace a length or type it')}/>
+    </div>
+
+    <h3 class="cs-step"><span>3</span>{t('領域','Regions')}</h3>
+    <div class="cs-row">
+     <label class="tool-label" for="la-name">{t('次の領域の名前（系統名など）','Name of the next region (line, treatment, …)')}</label>
+     <input type="text" id="la-name" class="cs-input" placeholder={t('空欄なら番号','A number when blank')}/>
+    </div>
+    <fieldset class="tool-options">
+     <legend>{t('囲み方','Shape')}</legend>
+     <label><input type="radio" name="la-shape" value="circle" checked/><span>{t('円（シャーレなど）','Circle (plates, …)')}</span></label>
+     <label><input type="radio" name="la-shape" value="roi"/><span>{t('多角形','Polygon')}</span></label>
+    </fieldset>
+    <div class="tool-buttons cs-first">
+     <button type="button" class="tool-button" id="la-draw-roi" disabled>{t('領域を囲む','Outline a region')}</button>
+     <button type="button" class="tool-button" id="la-whole" disabled>{t('画像全体','Whole image')}</button>
+    </div>
+    <ul class="cs-rois" id="la-rois"></ul>
+
+    <h3 class="cs-step"><span>4</span>{t('株の検出（選んだ領域）','Plant detection (selected region)')}</h3>
+    <label class="tool-label" for="la-threshold">{t('緑のしきい値','Greenness threshold')}<output id="la-threshold-out">0.25</output></label>
+    <div class="cs-range"><span>{t('薄い緑も','Paler too')}</span><input type="range" id="la-threshold" min="0.05" max="0.8" step="0.01" value="0.25"/><span>{t('濃い緑だけ','Deep green only')}</span></div>
+    <fieldset class="tool-options">
+     <label><input type="checkbox" id="la-auto" checked/><span>{t('自動で決める（領域ごと）','Set automatically (per region)')} <span class="cs-note" id="la-auto-out"></span></span></label>
+    </fieldset>
+    <div class="cs-pair">
+     <label class="tool-label" for="la-gap">{t('1つの株にまとめる距離 (mm)','Joining distance (mm)')}</label>
+     <input type="number" id="la-gap" class="cs-input" value="5" min="0" step="any"/>
+    </div>
+    <p class="cs-note">{t('これより近い緑の部分は同じ株とみなします（葉柄が細くて写らない葉も株にまとまります）。株どうしの間隔より小さくします。','Green parts closer than this belong to the same plant (so leaves whose petioles are too thin to see stay with their rosette). Keep it smaller than the spacing between plants.')}</p>
+    <details class="tool-help">
+     <summary>{t('詳しい設定','More settings')}</summary>
+     <div class="cs-pair">
+      <label class="tool-label" for="la-min">{t('最小面積 (mm²)','Minimum area (mm²)')}</label>
+      <input type="number" id="la-min" class="cs-input" value="0.5" min="0" step="any"/>
+     </div>
+     <p>{t('これより小さい株はゴミとみなして数えません。葉の上の、これより小さい穴（光の反射など）は埋めます。','Plants smaller than this are treated as specks and not counted. Holes smaller than this inside the plants (reflections and so on) are filled.')}</p>
+     <fieldset class="tool-options">
+      <label><input type="checkbox" id="la-edge" checked/><span>{t('領域の縁にかかる株は、結果から外す（一部が領域の外に出ている可能性があるため）','Leave plants that touch the region’s edge out of the results (part of them may lie outside)')}</span></label>
+     </fieldset>
+    </details>
+    <div class="tool-buttons">
+     <button type="button" class="tool-button primary" id="la-detect" disabled>{t('株を検出','Detect plants')}</button>
+    </div>
+
+    <h3 class="cs-step"><span>5</span>{t('手直し','Corrections')}</h3>
+    <fieldset class="tool-options cs-modes" id="la-modes" disabled>
+     <legend class="sr-only">{t('クリックしたときの動作','What a click does')}</legend>
+     {modes.map((m,i)=><label><input type="radio" name="la-mode" value={m.value} checked={i===0}/><span>{m.label}</span></label>)}
+    </fieldset>
+    <div class="tool-buttons"><button type="button" class="tool-button" id="la-undo" disabled>{t('元に戻す','Undo')}</button></div>
+    <p class="tool-message" id="la-message" role="status"></p>
+
+    <h3 class="cs-step"><span>6</span>{t('まとめて解析（同じ位置で撮った写真）','Batch (photographs from the same position)')}</h3>
+    <p class="cs-note">{t('いま開いている画像で決めたスケール・領域・検出の設定を、選んだ画像すべてに使います。タイムラプスなど、カメラとシャーレの位置が同じ写真のシリーズ向けです。株は位置で追いかけ、どの画像でも同じ番号にします。','The scale, regions and detection settings of the open image are used for every image you choose: for a series taken with the camera and plates in the same place, such as a time-lapse. Plants are followed by position and keep the same number in every image.')}</p>
+    <div class="tool-buttons cs-first">
+     <label class="tool-button cs-file">{t('フォルダを選ぶ','Choose a folder')}<input type="file" id="la-batch-folder" multiple/></label>
+     <label class="tool-button cs-file">{t('画像を選ぶ（複数可）','Choose images')}<input type="file" id="la-batch-files" accept="image/*,.tif,.tiff" multiple/></label>
+     <button type="button" class="tool-button" id="la-batch-stop" hidden>{t('止める','Stop')}</button>
+    </div>
+    <p class="tool-message" id="la-batch-message" role="status"></p>
+   </div>
+
+   <div class="tool-output">
+    <div class="cs-toolbar">
+     <button type="button" class="tool-button" id="la-zoom-in" aria-label={t('拡大','Zoom in')}>＋</button>
+     <button type="button" class="tool-button" id="la-zoom-out" aria-label={t('縮小','Zoom out')}>−</button>
+     <button type="button" class="tool-button" id="la-fit">{t('全体','Fit')}</button>
+     <label class="cs-inline"><input type="checkbox" id="la-show-fill" checked/>{t('塗り','Fill')}</label>
+     <label class="cs-inline"><input type="checkbox" id="la-show-number" checked/>{t('番号','Numbers')}</label>
+     <label class="cs-inline"><input type="checkbox" id="la-show-hull"/>{t('凸包','Convex hulls')}</label>
+    </div>
+    <div class="cs-viewer" id="la-viewer">
+     <canvas id="la-canvas"></canvas>
+     <p class="cs-wheel" id="la-wheel" hidden></p>
+     <p class="cs-drop" id="la-drop">{t('ここに画像をドラッグするか、「画像を選ぶ」を押してください。','Drop an image here or press “Choose image”.')}</p>
+    </div>
+    <p class="cs-hint" id="la-hint" aria-live="polite"></p>
+    <div class="cs-info" id="la-info" hidden></div>
+   </div>
+  </div>
+
+  <div class="cs-results">
+   <h3>{t('結果','Results')}</h3>
+   <div class="tool-table" id="la-table"><p class="cs-note">{t('領域を囲んで株を検出すると、ここに領域ごとの結果が出ます。','Results for each region appear here once plants are detected.')}</p></div>
+   <div class="tool-buttons">
+    <button type="button" class="tool-button" id="la-csv-plants" disabled>{t('株ごとの値を保存（CSV）','Save values per plant (CSV)')}</button>
+    <button type="button" class="tool-button" id="la-csv-regions" disabled>{t('領域ごとの値を保存（CSV）','Save values per region (CSV)')}</button>
+    <button type="button" class="tool-button" id="la-copy" disabled>{t('結果をコピー（Excelに貼れる形式）','Copy results (for Excel)')}</button>
+    <button type="button" class="tool-button" id="la-png" disabled>{t('株を重ねた画像を保存（PNG）','Save image with plants (PNG)')}</button>
+   </div>
+  </div>
+
+  <div class="cs-results" id="la-batch" hidden>
+   <h3>{t('まとめて解析した結果','Batch results')}</h3>
+   <div class="cs-range la-batch-range"><span>{t('最初','First')}</span><input type="range" id="la-batch-slider" min="0" max="0" step="1" value="0" aria-label={t('表示する画像','Image shown')}/><span>{t('最後','Last')}</span></div>
+   <p class="cs-hint" id="la-batch-caption"></p>
+   <img class="la-batch-img" id="la-batch-img" alt={t('検出した株を重ねた画像','Image with the detected plants')}/>
+   <div class="tool-buttons">
+    <button type="button" class="tool-button" id="la-batch-open">{t('この画像を開いて確かめる・手直しする','Open this image to check or correct it')}</button>
+    <button type="button" class="tool-button" id="la-batch-update" disabled>{t('手直しをまとめた結果に反映','Use the corrections in the batch results')}</button>
+   </div>
+   <div class="tool-table la-batch-table" id="la-batch-table"></div>
+   <div class="tool-buttons">
+    <button type="button" class="tool-button" id="la-batch-csv-table" disabled>{t('株ごとの面積の表を保存（CSV、画像×株）','Save the area of each plant (CSV, images × plants)')}</button>
+    <button type="button" class="tool-button" id="la-batch-csv-plants" disabled>{t('株ごとの値を保存（CSV）','Save values per plant (CSV)')}</button>
+    <button type="button" class="tool-button" id="la-batch-csv-regions" disabled>{t('領域ごとの値を保存（CSV）','Save values per region (CSV)')}</button>
+    <button type="button" class="tool-button" id="la-batch-copy" disabled>{t('結果をコピー（Excelに貼れる形式）','Copy results (for Excel)')}</button>
+   </div>
+  </div>
+
+  <details class="tool-help cs-usage">
+   <summary>{t('使い方とコツ','How to use it, and tips')}</summary>
+   <p>{t('撮影するときは、カメラを真上に固定し、定規かシャーレなど長さの分かるものを同じ高さに写し込んでください。高さが違うと、レンズからの距離の差の分だけ大きさが変わります。背景は白・灰色・黒など緑ではないものにし、株に影や反射がかからないようにします。','When taking photographs, fix the camera straight above the plants and include something of known length, such as a ruler or the plate, at the same height as the leaves (objects nearer the lens look larger). Use a background that is not green (white, grey or black) and avoid shadows and reflections on the plants.')}</p>
+   <p>{t('画像の拡大・縮小は、⌘キー（WindowsではCtrlキー）を押しながらのスクロール、トラックパッドのピンチ、または「＋」「−」ボタンで行います。ふつうにスクロールするとページが動きます。画像はドラッグで移動できます。','Zoom with ⌘ (Ctrl on Windows) plus scrolling, a trackpad pinch, or the “+” and “−” buttons; plain scrolling moves the page. Drag to move the image.')}</p>
+   <p>{t('円の領域は、中心をクリックしてから円周上をクリックして描きます。多角形の領域は、クリックで角を置いていき、最初の点をクリックするか、ダブルクリック・Enterキーで閉じます。Escキーで取り消し、Backspaceキーで1つ前の点を消せます。領域の名前は一覧で後から書き換えられます。名前が「WT-1」のように数字で終わるときは、次の領域の名前が自動で「WT-2」になります。','Draw a circle by clicking its centre and then a point on its edge. For a polygon, click to place the corners; click the first point, double-click or press Enter to close it. Esc cancels and Backspace removes the last point. Region names can be changed later in the list. When a name ends in a number, such as “WT-1”, the next region is named “WT-2”.')}</p>
+   <p>{t('しきい値を動かして指を離すか、まとめる距離や最小面積を変えると、選んでいる領域をすぐに検出し直します（それまでの手直しは消えますが、「元に戻す」で戻せます）。葉の縁や葉柄が抜けるときはしきい値を「薄い緑も」の側へ、背景が株に入るときは「濃い緑だけ」の側へ動かします。','Moving the threshold and letting go, or changing the joining distance or the minimum area, re-detects the selected region at once (earlier corrections are replaced, but “Undo” brings them back). If leaf margins or petioles are missed, move the threshold towards “Paler too”; if background is taken as plant, move it towards “Deep green only”.')}</p>
+   <p>{t('隣の株と葉が触れて1つになったときは「線を引いて2つの株に分ける」で、株の間に線を引きます。1つの株が2つに分かれたときは「2つの株をつなぐ」でつなぎます。反射で白く写った葉は「囲んで株に足す」で足せます。','When the leaves of neighbouring plants touch and they are taken as one, use “Divide along a line” and draw a line between them. When one plant is split into two, join them with “Join two plants”. Leaves washed out by reflections can be added with “Outline an area to add”.')}</p>
+   <p>{t('同じ位置から撮った別の日の写真を続けて開くと、前の画像の領域とスケールをそのまま使えます。ほぼ同じ位置にある株は同じ番号を引き継ぐので、成長を追うのに便利です。','When you open a photograph taken from the same position on another day, the regions and the scale of the previous image can be used again. Plants in about the same place keep their numbers, which makes it easy to follow growth.')}</p>
+   <p>{t('まとめて解析するときは、シリーズの1枚（最初の1枚がおすすめ）でスケールと領域を決め、検出結果を確かめてから、手順6でフォルダか画像を選びます。画像は撮影日時（EXIF）の順に、撮影日時がない画像があるときはファイル名の順に解析します。手で外した株は外したままにしますが、つなぐ・分ける・足す・消すの手直しは繰り返しません。結果の画像をスライダーで順に見て、うまくいっていない画像は「この画像を開いて確かめる・手直しする」で開き、直してから「手直しをまとめた結果に反映」を押してください。大きさの違う画像は飛ばします。','For a batch, set the scale and regions on one image of the series (the first is a good choice) and check the detection, then choose a folder or images in step 6. Images are analysed in the order taken (EXIF date), or by file name if any image has no date. Plants left out by hand stay left out, but joining, dividing, adding and removing are not repeated. Step through the results with the slider; open any image that needs correcting with “Open this image to check or correct it”, correct it, then press “Use the corrections in the batch results”. Images of a different size are skipped.')}</p>
+   <p>{t('「株ごとの面積の表」は、1行が1枚の画像、1列が1つの株で、撮影日時と最初の画像からの経過時間（時間）が付きます。そのまま成長曲線のグラフにできます。結果から外れた株（縁にかかる・手で外した）は空欄になります。撮影日時はEXIFから読み、ない場合はファイルの更新日時を使います。','“The area of each plant” has one row per image and one column per plant, with the date taken and the hours since the first image, ready for a growth curve. Plants left out of the results (touching the edge or left out by hand) are blank. The date taken comes from EXIF, or the file’s modification time when there is none.')}</p>
+   <p>{t('CSVと「結果をコピー」の列は、画面の結果の表と同じ名前・同じ順番です（各指標は平均・標準偏差・中央値に分かれ、最後に解析の設定が付きます）。英語のページで保存すると、列名が英語になります。','The columns of the CSV files and of “Copy results” have the same names and order as the results table on screen (each measure split into mean, SD and median, followed by the settings used). Files saved from the Japanese page have Japanese column names.')}</p>
+   <p>{t('JPEG、PNG、TIFF（8・16・32ビット、無圧縮・LZW・Deflate・PackBits）が読み込めます。','JPEG, PNG and TIFF (8, 16 or 32 bit; uncompressed, LZW, Deflate or PackBits) can be loaded.')}</p>
+  </details>
+ </section>
+
+ <section class="section tool-section" id="method">
+  <h2>{t('計算方法','Method')}</h2>
+  <p class="tool-prose">{t('論文の材料と方法に、次の説明を使えます。','You may use the following description in the methods section of a paper.')}</p>
+  {en
+   ?<p class="tool-prose">Projected leaf area was measured with Leaf Area Analyzer version {tool.version} (Takahashi, {year}) from photographs taken from above. The colour cast of the lighting was removed by dividing each channel by its median over the image, and the greenness of each pixel was expressed as (2G − R − B)/(R + G + B). Regions containing the plants were outlined manually. Within each region, pixels with a greenness of at least t, together with pixels connected to them with a greenness of at least t/2, were taken as plant (t was set by Otsu’s method for each region [or: t = …]). Holes smaller than [a] mm² were filled, green parts closer than [d] mm to each other were assigned to the same plant, and plants smaller than [a] mm² were discarded. The detection was inspected and corrected manually. For each plant, the projected area, the perimeter, the area of the convex hull, compactness (area/convex hull area), the diameter (maximum Feret diameter) and the minimum width (minimum Feret diameter) were calculated.</p>
+   :<p class="tool-prose">葉の投影面積は、上から撮影した写真からLeaf Area Analyzer バージョン{tool.version}（高橋, {year}）を用いて測定した。各チャンネルを画像全体の中央値で割って照明の色かぶりを除き、各画素の緑の度合いを (2G − R − B)/(R + G + B) で表した。株を含む領域を手作業で囲み、その中で緑の度合いがt以上の画素と、それにつながるt/2以上の画素を株とした（tは領域ごとに大津の方法で決めた［または：t = …とした］）。［a］mm²より小さい穴は埋め、互いに［d］mmより近い緑の部分は同じ株とし、［a］mm²より小さいものは除いた。検出結果は目視で確認し、手作業で修正した。各株について、投影面積、周囲長、凸包の面積、充実度（面積／凸包の面積）、直径（最大フェレ径）、最小幅（最小フェレ径）を求めた。</p>}
+  <p class="body-note">{t('面積・周囲長・凸包・フェレ径は、答えが分かっている図形で理論値と一致することを確認しています。［ ］の中は、使った設定の値に置き換えてください（保存したCSVに記録されます）。','Area, perimeter, convex hull and Feret diameters were checked against the exact values for known shapes. Replace the values in [ ] with the settings you used (they are recorded in the saved CSV files).')}</p>
+  <dl class="cs-defs">
+   <div><dt>{t('緑の度合い','Greenness')}</dt><dd>{t('白の基準（各チャンネルの画像全体の中央値）で割ったR・G・Bから求めた (2G − R − B)/(R + G + B)。灰色や白で0、純粋な緑で2、赤・紫・青では負になる。明るさで割っているので、陰になった濃い緑も明るい緑と同じように緑と判定する','(2G − R − B)/(R + G + B) from R, G and B divided by the white reference (the median of each channel over the image). 0 for grey or white, 2 for pure green, negative for red, purple and blue. Dividing by brightness keeps shaded dark green as green as bright green')}</dd></div>
+   <div><dt>{t('自動のしきい値','Automatic threshold')}</dt><dd>{t('領域内の緑の度合いを大津の方法で2つに分ける値（0.15より小さいときは0.15）。株のない領域で背景のむらを株と間違えないよう、下限を設けている。時系列で比べるときは、しきい値を手で同じ値に固定することもできる','Otsu’s threshold of the greenness in the region, at least 0.15 so that a region without plants does not turn background noise into plants. To compare a time series, the threshold can also be fixed by hand at the same value')}</dd></div>
+   <div><dt>{t('面積','Area')}</dt><dd>{t('株のピクセル数 × (1ピクセルの長さ)²。葉が重なった部分は1回だけ数える（投影面積）','Number of plant pixels × pixel size². Overlapping leaves count once (projected area)')}</dd></div>
+   <div><dt>{t('周囲長','Perimeter')}</dt><dd>{t('株を作る各部分の外側の輪郭の長さの合計。ピクセルの縁に沿った長さから、斜めに切れる角ごとに (2 − √2) を引く（ImageJと同じ）','Sum of the outer outlines of the plant’s parts, along pixel edges minus (2 − √2) for each corner that can be cut diagonally (as in ImageJ)')}</dd></div>
+   <div><dt>{t('凸包の面積','Convex hull area')}</dt><dd>{t('株全体を囲む最小の凸多角形の面積。ロゼットが広がっている範囲の目安','Area of the smallest convex polygon around the whole plant: the area the rosette spans')}</dd></div>
+   <div><dt>{t('充実度','Compactness')}</dt><dd>{t('面積 ÷ 凸包の面積。葉が密に重なるほど1に近く、葉柄が長く葉がまばらなほど小さい','Area ÷ convex hull area; close to 1 for dense rosettes, smaller for long petioles and sparse leaves')}</dd></div>
+   <div><dt>{t('直径','Diameter')}</dt><dd>{t('株の輪郭上の2点間の最大距離（最大フェレ径）','Longest distance between two points of the plant (maximum Feret diameter)')}</dd></div>
+   <div><dt>{t('最小幅','Minimum width')}</dt><dd>{t('株を2本の平行線で挟んだときの最小の幅（最小フェレ径）','Narrowest width between two parallel lines enclosing the plant (minimum Feret diameter)')}</dd></div>
+   <div><dt>{t('面積の合計','Total area')}</dt><dd>{t('領域の中の、結果に含めた株の面積の合計','Sum of the areas of the plants included in the results')}</dd></div>
+  </dl>
+ </section>
+
+ <section class="section tool-section" id="citation">
+  <h2>{t('引用のしかた','How to cite')}</h2>
+  <p class="tool-prose">{t('このツールで得た結果を論文や発表に使う場合は、次のように引用してください。末尾の参照日は、お使いになった日付に置き換えてください。','If you use results from this tool in a paper or presentation, please cite it as follows. Replace the access date with the date you used it.')}</p>
+  <div class="tool-citation">
+   <p id="la-cite-en" lang="en" data-citation={citationEn}>{citationEn} (accessed <span data-today>{tool.updated}</span>)</p>
+   {!en&&<p id="la-cite-ja" data-citation={citationJa}>{citationJa}（参照 <span data-today>{tool.updated}</span>）</p>}
+  </div>
+  <div class="tool-buttons">
+   <button type="button" class="tool-button" data-copy="la-cite-en">{t('英語の引用文をコピー','Copy citation')}</button>
+   {!en&&<button type="button" class="tool-button" data-copy="la-cite-ja">日本語の引用文をコピー</button>}
+  </div>
+  <p class="body-note">{t('保存したCSVとコピーした表にも、計算に使ったバージョンが記録されます。','Saved CSV files and copied results also record the version used.')}</p>
+ </section>
+
+ <section class="section tool-section" id="disclaimer">
+  <h2>{t('免責事項','Disclaimer')}</h2>
+  <p class="tool-prose">{t('このツールは研究の補助を目的として、現状のまま無償で提供しています。計算結果の正確性や、特定の目的への適合性は保証しません。自動の検出結果は必ず目で確かめ、必要に応じて手直ししてからお使いください。本ツールの利用によって生じたいかなる損害についても、作成者および埼玉大学 生命適応科学研究室は責任を負いません。ツールの内容は予告なく変更することがあります。','This tool is provided free of charge, as is, to support research. We make no warranty as to the accuracy of the results or their fitness for any particular purpose. Always inspect the automatic detection and correct it where needed before relying on the results. The author and the Laboratory of Stress and Adaptation Biology, Saitama University, accept no liability for any loss or damage arising from the use of this tool. The tool may change without notice.')}</p>
+  <dl class="tool-history">
+   {tool.history.map(h=><div><dt>v{h.version}</dt><dd><time datetime={h.date}>{h.date.replaceAll('-','.')}</time>　{en?h.en:h.ja}</dd></div>)}
+  </dl>
+  <a class="text-link" href={pageUrl('tools',lang)}>{t('ツール一覧','All tools')} →</a>
+ </section>
+ </div>
+</Layout>
+<script>
+ import '../../lib/leafarea-page.js';
+</script>
