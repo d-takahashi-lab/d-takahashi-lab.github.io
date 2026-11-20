@@ -512,6 +512,34 @@ export function feret(hull){
   return {max, min, angle};
 }
 
+// Box-counting fractal dimension of a cell's outline, following ImageJ's Analyze ▸ Tools ▸ Fractal Box
+// Count: the outline is the cell's pixels that touch a non-cell pixel on one of their four sides
+// (Process ▸ Binary ▸ Outline); square boxes of each size are laid from the top-left corner of the cell's
+// bounding box, boxes containing any outline pixel are counted, and the dimension is minus the slope of
+// log(count) against log(box size). Box sizes are in pixels, so the value depends on the magnification.
+export const BOX_SIZES = [2, 3, 4, 6, 8, 12, 16, 32, 64];
+export function boxCountDimension(labels, w, h, L, bx0, by0, bx1, by1, sizes = BOX_SIZES){
+  const bw = bx1 - bx0 + 1, bh = by1 - by0 + 1, edge = new Uint8Array(bw * bh);
+  const inside = (x, y) => x >= 0 && y >= 0 && x < w && y < h && labels[y * w + x] === L;
+  for (let y = by0; y <= by1; y++) for (let x = bx0; x <= bx1; x++) {
+    if (labels[y * w + x] === L && !(inside(x - 1, y) && inside(x + 1, y) && inside(x, y - 1) && inside(x, y + 1))) edge[(y - by0) * bw + x - bx0] = 1;
+  }
+  const xs = [], ys = [];
+  for (const size of sizes) {
+    let count = 0;
+    for (let y = 0; y < bh; y += size) for (let x = 0; x < bw; x += size) {
+      let hit = false;
+      for (let yy = y; yy < Math.min(bh, y + size) && !hit; yy++) for (let xx = x; xx < Math.min(bw, x + size); xx++) if (edge[yy * bw + xx]) { hit = true; break; }
+      if (hit) count++;
+    }
+    xs.push(Math.log(size)); ys.push(Math.log(count));
+  }
+  const n = xs.length, mx = xs.reduce((a, b) => a + b) / n, my = ys.reduce((a, b) => a + b) / n;
+  let sxy = 0, sxx = 0;
+  for (let i = 0; i < n; i++) { sxy += (xs[i] - mx) * (ys[i] - my); sxx += (xs[i] - mx) ** 2; }
+  return -sxy / sxx;
+}
+
 // Folds the difference between two axis directions (degrees) into 0–90.
 export function axisDifference(a, b){
   let d = ((a - b) % 180 + 180) % 180;
@@ -527,10 +555,12 @@ export function measure(labels, mask, w, h, {scale = 1, x0 = 0, y0 = 0, refAngle
   const cnt = new Float64Array(n + 1), sx = new Float64Array(n + 1), sy = new Float64Array(n + 1);
   const sxx = new Float64Array(n + 1), syy = new Float64Array(n + 1), sxy = new Float64Array(n + 1);
   const first = new Int32Array(n + 1).fill(-1), edge = new Uint8Array(n + 1);
+  const bx0 = new Int32Array(n + 1).fill(w), by0 = new Int32Array(n + 1).fill(h), bx1 = new Int32Array(n + 1).fill(-1), by1 = new Int32Array(n + 1).fill(-1);
   for (let y = 0, i = 0; y < h; y++) for (let x = 0; x < w; x++, i++) {
     const L = labels[i];
     if (!L) continue;
     if (first[L] < 0) first[L] = i;
+    if (x < bx0[L]) bx0[L] = x; if (x > bx1[L]) bx1[L] = x; if (y < by0[L]) by0[L] = y; if (y > by1[L]) by1[L] = y;
     const cx = x + 0.5, cy = y + 0.5;
     cnt[L]++; sx[L] += cx; sy[L] += cy; sxx[L] += cx * cx; syy[L] += cy * cy; sxy[L] += cx * cy;
     if (!edge[L] && (x === 0 || y === 0 || x === w - 1 || y === h - 1 || !mask[i - 1] || !mask[i + 1] || !mask[i - w] || !mask[i + w])) edge[L] = 1;
@@ -558,7 +588,8 @@ export function measure(labels, mask, w, h, {scale = 1, x0 = 0, y0 = 0, refAngle
     cells.push({
       label: L, edge: !!edge[L], px: A,
       x: (mx + x0) * s, y: (my + y0) * s,
-      area: A * s2, perimeter: perim * s,
+      area: A * s2, perimeter: perim * s, pa: perim / (A * s),
+      fractal: boxCountDimension(labels, w, h, L, bx0[L], by0[L], bx1[L], by1[L]),
       major: major * s, minor: minor * s, angle,
       surfaceAngle: axisDifference(angle, refAngle),
       aspect: major / minor,
@@ -583,7 +614,7 @@ export function classify(cells, {minArea = 0, maxArea = Infinity, excludeEdge = 
   return cells;
 }
 
-export const METRICS = ['area', 'perimeter', 'major', 'minor', 'aspect', 'circularity', 'roundness', 'solidity', 'feret', 'minFeret', 'surfaceAngle'];
+export const METRICS = ['area', 'perimeter', 'pa', 'major', 'minor', 'aspect', 'circularity', 'roundness', 'solidity', 'fractal', 'feret', 'minFeret', 'surfaceAngle'];
 
 function stats(values){
   const n = values.length;

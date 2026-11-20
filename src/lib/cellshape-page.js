@@ -2,7 +2,7 @@
 // and shows, saves and copies the results. All image analysis lives in cellshape.js.
 // The page language comes from <html lang>.
 import {decodeTiff, isTiff} from './tiff.js';
-import {VERSION, toGray, polygonMask, segment, measure, classify, summarise, splitCells, mergeCells, areAdjacent, drawCell, axisDifference, METRICS} from './cellshape.js';
+import {VERSION, toGray, polygonMask, segment, measure, classify, summarise, splitCells, mergeCells, areAdjacent, drawCell, axisDifference} from './cellshape.js';
 
 const root = document.getElementById('cs');
 const en = document.documentElement.lang === 'en';
@@ -52,13 +52,10 @@ const TEXT = en ? {
     draw: 'Click around the cell’s outline; click the first point, double-click or press Enter to finish. Esc cancels.',
   },
   legend: (name, lo, hi, unit) => `${name}: ${lo} – ${hi}${unit}`,
-  metricNames: {area: 'Area', aspect: 'Aspect ratio', circularity: 'Circularity', solidity: 'Solidity', surfaceAngle: 'Angle to surface'},
-  info: [['label', 'Cell'], ['status', 'Status'], ['area', 'Area (µm²)'], ['perimeter', 'Perimeter (µm)'], ['major', 'Major axis (µm)'], ['minor', 'Minor axis (µm)'], ['aspect', 'Aspect ratio'], ['circularity', 'Circularity'], ['roundness', 'Roundness'], ['solidity', 'Solidity'], ['feret', 'Feret diameter (µm)'], ['minFeret', 'Min. Feret (µm)'], ['angle', 'Angle (°)'], ['surfaceAngle', 'Angle to surface (°)']],
-  head: ['Region', 'Tissue', 'Cells', 'Measured', 'Density (/mm²)', 'Area (µm²)', 'Major (µm)', 'Minor (µm)', 'Aspect ratio', 'Circularity', 'Solidity', 'Angle to surface (°)', 'Intercellular space (%)'],
-  copyHead: ['Region', 'Tissue', 'Cells', 'Measured', 'Density (/mm²)', 'Region area (µm²)', 'Intercellular space (%)'],
-  copyMetric: {area: 'Area (µm²)', perimeter: 'Perimeter (µm)', major: 'Major (µm)', minor: 'Minor (µm)', aspect: 'Aspect ratio', circularity: 'Circularity', roundness: 'Roundness', solidity: 'Solidity', feret: 'Feret (µm)', minFeret: 'Min Feret (µm)', surfaceAngle: 'Angle to surface (°)'},
-  mean: 'mean', sd: 'SD',
   copied: 'Copied',
+  cols: {image: 'Image', region: 'Region', tissue: 'Tissue', cell: 'Cell', status: 'Status', counted: 'Cells', measured: 'Cells measured', density: 'Cell density (/mm²)', space: 'Intercellular space (%)', roiArea: 'Region area (µm²)', angle: 'Angle (°)', feretAngle: 'Feret angle (°)', x: 'Centroid x (µm)', y: 'Centroid y (µm)', pixel: 'Pixel size (µm)', surface: 'Leaf surface direction (°)', diameter: 'Typical cell diameter (µm)', split: 'Splitting', faces: 'Wall-face cells searched', minArea: 'Minimum area (µm²)', maxArea: 'Maximum area (µm²)', edge: 'Edge cells excluded', version: 'Tool version', date: 'Date analysed'},
+  stat: {mean: 'mean', sd: 'SD', median: 'median'},
+  yes: 'yes', no: 'no',
   footer: (v, url, date, image, scale) => `Analysed with Cell Shape Analyzer version ${v} (${url}) on ${date}. Image: ${image}; pixel size ${fmtSig(scale)} µm.`,
 } : {
   tissues: {'adaxial-epidermis': '上側表皮', palisade: '柵状組織', spongy: '海綿状組織', 'abaxial-epidermis': '下側表皮', other: 'その他'},
@@ -103,23 +100,38 @@ const TEXT = en ? {
     draw: '細胞の輪郭に沿ってクリックしていき、最初の点のクリック・ダブルクリック・Enterキーで閉じます。Escキーで取り消します。',
   },
   legend: (name, lo, hi, unit) => `${name}：${lo} – ${hi}${unit}`,
-  metricNames: {area: '面積', aspect: '縦横比', circularity: '円形度', solidity: '充実度', surfaceAngle: '表面との角度'},
-  info: [['label', '番号'], ['status', '状態'], ['area', '面積 (µm²)'], ['perimeter', '周囲長 (µm)'], ['major', '長径 (µm)'], ['minor', '短径 (µm)'], ['aspect', '縦横比'], ['circularity', '円形度'], ['roundness', '真円度'], ['solidity', '充実度'], ['feret', 'フェレ径 (µm)'], ['minFeret', '最小フェレ径 (µm)'], ['angle', '角度 (°)'], ['surfaceAngle', '表面との角度 (°)']],
-  head: ['領域', '組織', '細胞数', '計測数', '細胞密度 (/mm²)', '面積 (µm²)', '長径 (µm)', '短径 (µm)', '縦横比', '円形度', '充実度', '表面との角度 (°)', '細胞間隙 (%)'],
-  copyHead: ['領域', '組織', '細胞数', '計測数', '細胞密度(/mm2)', '領域の面積(µm2)', '細胞間隙(%)'],
-  copyMetric: {area: '面積(µm2)', perimeter: '周囲長(µm)', major: '長径(µm)', minor: '短径(µm)', aspect: '縦横比', circularity: '円形度', roundness: '真円度', solidity: '充実度', feret: 'フェレ径(µm)', minFeret: '最小フェレ径(µm)', surfaceAngle: '表面との角度(°)'},
-  mean: '平均', sd: '標準偏差',
   copied: 'コピーしました',
+  cols: {image: '画像', region: '領域', tissue: '組織', cell: '番号', status: '状態', counted: '細胞数', measured: '計測数', density: '細胞密度 (/mm²)', space: '細胞間隙 (%)', roiArea: '領域の面積 (µm²)', angle: '角度 (°)', feretAngle: 'フェレ径の角度 (°)', x: '重心 x (µm)', y: '重心 y (µm)', pixel: '1ピクセルの長さ (µm)', surface: '葉の表面の向き (°)', diameter: '細胞の直径の目安 (µm)', split: '分け方', faces: '面の細胞を探した', minArea: '最小面積 (µm²)', maxArea: '最大面積 (µm²)', edge: '縁の細胞を除外', version: 'ツールのバージョン', date: '解析日'},
+  stat: {mean: '平均', sd: '標準偏差', median: '中央値'},
+  yes: 'はい', no: 'いいえ',
   footer: (v, url, date, image, scale) => `細胞形態解析ツール バージョン${v}（${url}）で${date}に解析。画像：${image}、1ピクセル ${fmtSig(scale)} µm`,
 };
 
-const UNITS = {area: ' µm²', aspect: '', circularity: '', solidity: '', surfaceAngle: '°'};
+// The measures, in the order used everywhere: the cell panel, the results table, both CSV files and the
+// copied table all take their columns, names and units from this one list.
+const MEASURES = [
+  {key: 'area', ja: '面積', en: 'Area', unit: 'µm²', d: 1},
+  {key: 'perimeter', ja: '周囲長', en: 'Perimeter', unit: 'µm', d: 1},
+  {key: 'pa', ja: 'P/A', en: 'P/A', unit: 'µm⁻¹', d: 4},
+  {key: 'major', ja: '長径', en: 'Major axis', unit: 'µm', d: 1},
+  {key: 'minor', ja: '短径', en: 'Minor axis', unit: 'µm', d: 1},
+  {key: 'aspect', ja: '縦横比', en: 'Aspect ratio', d: 2},
+  {key: 'circularity', ja: '円形度', en: 'Circularity', d: 3},
+  {key: 'roundness', ja: '真円度', en: 'Roundness', d: 3},
+  {key: 'solidity', ja: '充実度', en: 'Solidity', d: 3},
+  {key: 'fractal', ja: 'フラクタル次元', en: 'Fractal dimension', d: 3},
+  {key: 'feret', ja: 'フェレ径', en: 'Feret diameter', unit: 'µm', d: 1},
+  {key: 'minFeret', ja: '最小フェレ径', en: 'Min. Feret diameter', unit: 'µm', d: 1},
+  {key: 'surfaceAngle', ja: '表面との角度', en: 'Angle to surface', unit: '°', d: 1},
+];
+const BY_KEY = Object.fromEntries(MEASURES.map(m => [m.key, m]));
+const mName = m => en ? m.en : m.ja;
+const mLabel = m => m.unit ? `${mName(m)} (${m.unit})` : mName(m);
 const RAMP = [[68, 1, 84], [59, 82, 139], [33, 145, 140], [94, 201, 98], [253, 231, 37]];
 const FONT = 'Arial, Hiragino Kaku Gothic ProN, Yu Gothic, sans-serif';
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
 function fmtSig(v){ return Number.isFinite(v) ? String(Number(v.toPrecision(4))) : '—'; }
 const fmt = (v, d = 2) => Number.isFinite(v) ? v.toFixed(d) : '—';
-const DIGITS = {area: 1, perimeter: 1, major: 1, minor: 1, feret: 1, minFeret: 1, aspect: 2, circularity: 3, roundness: 3, solidity: 3, angle: 1, surfaceAngle: 1};
 const today = () => new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 const num = id => { const v = parseFloat($(id).value); return Number.isFinite(v) && v > 0 ? v : NaN; };
 
@@ -260,8 +272,8 @@ function renderAll(){
   S.rois.forEach(r => renderOverlay(r, metric, range));
   const legend = $('legend');
   if (range) {
-    const d = metric === 'area' ? 0 : metric === 'surfaceAngle' ? 0 : 2;
-    legend.innerHTML = `<span class="cs-ramp"></span>${esc(TEXT.legend(TEXT.metricNames[metric], range.lo.toFixed(d), range.hi.toFixed(d), UNITS[metric]))}`;
+    const m = BY_KEY[metric];
+    legend.innerHTML = `<span class="cs-ramp"></span>${esc(TEXT.legend(mName(m), range.lo.toFixed(m.d), range.hi.toFixed(m.d), m.unit ? ` ${m.unit}` : ''))}`;
     legend.hidden = false;
   } else legend.hidden = true;
   redraw();
@@ -692,15 +704,20 @@ function hint(text){
 function showInfo(roi, c){
   const box = $('info');
   if (!c) { box.hidden = true; return; }
-  box.innerHTML = `<p class="cs-info-head">${esc(`${roi.id} ${TEXT.tissues[roi.tissue]}`)}</p><dl>` + TEXT.info.map(([k, name]) => {
-    const v = k === 'status' ? TEXT.status[c.status] : k === 'label' ? c.label : fmt(c[k], DIGITS[k]);
-    return `<div><dt>${esc(name)}</dt><dd>${esc(v)}</dd></div>`;
-  }).join('') + '</dl>';
+  const items = [[TEXT.cols.cell, c.label], [TEXT.cols.status, TEXT.status[c.status]], ...MEASURES.map(m => [mLabel(m), fmt(c[m.key], m.d)]), [TEXT.cols.angle, fmt(c.angle, 1)]];
+  box.innerHTML = `<p class="cs-info-head">${esc(`${roi.id} ${TEXT.tissues[roi.tissue]}`)}</p><dl>` +
+    items.map(([name, v]) => `<div><dt>${esc(name)}</dt><dd>${esc(v)}</dd></div>`).join('') + '</dl>';
   box.hidden = false;
 }
 const meanSd = (s, d) => Number.isFinite(s.mean) ? `${s.mean.toFixed(d)} ± ${Number.isFinite(s.sd) ? s.sd.toFixed(d) : '—'}` : '—';
 const EMPTY_TABLE = $('table').innerHTML;
 const summaries = () => S.rois.filter(r => r.labels).map(r => ({r, s: summarise(r.cells, r.area * S.scale * S.scale)}));
+// The first columns of the region results; the measures follow (mean ± SD on screen; mean, SD and
+// median in the CSV file and the copied table).
+const regionBasics = ({r, s}) => [
+  [TEXT.cols.region, r.id], [TEXT.cols.tissue, TEXT.tissues[r.tissue]], [TEXT.cols.counted, s.counted], [TEXT.cols.measured, s.measured],
+  [TEXT.cols.density, s.density, 1], [TEXT.cols.space, s.spaceFraction * 100, 2], [TEXT.cols.roiArea, s.roiArea, 0],
+];
 function refresh(){
   renderRoiList();
   hint();
@@ -708,10 +725,12 @@ function refresh(){
   ['csv-cells', 'csv-regions', 'copy', 'png'].forEach(id => { $(id).disabled = !rows.length; });
   $('undo').disabled = !history.length;
   if (!rows.length) { $('table').innerHTML = EMPTY_TABLE; return; }
-  $('table').innerHTML = `<table><thead><tr>${TEXT.head.map(h => `<th scope="col">${esc(h)}</th>`).join('')}</tr></thead><tbody>` +
-    rows.map(({r, s}) => `<tr><th scope="row">${r.id}</th><td class="cs-left">${esc(TEXT.tissues[r.tissue])}</td><td>${s.counted}</td><td>${s.measured}</td><td>${fmt(s.density, 0)}</td>
-      <td>${meanSd(s.area, 1)}</td><td>${meanSd(s.major, 1)}</td><td>${meanSd(s.minor, 1)}</td><td>${meanSd(s.aspect, 2)}</td><td>${meanSd(s.circularity, 3)}</td><td>${meanSd(s.solidity, 3)}</td><td>${meanSd(s.surfaceAngle, 1)}</td><td>${fmt(s.spaceFraction * 100, 1)}</td></tr>`).join('') +
-    '</tbody></table>';
+  const head = [...regionBasics(rows[0]).map(c => c[0]), ...MEASURES.map(mLabel)];
+  $('table').innerHTML = `<table><thead><tr>${head.map(h => `<th scope="col">${esc(h)}</th>`).join('')}</tr></thead><tbody>` +
+    rows.map(row => {
+      const basics = regionBasics(row).map(([, v, d], i) => i === 0 ? `<th scope="row">${esc(v)}</th>` : i === 1 ? `<td class="cs-left">${esc(v)}</td>` : `<td>${d == null ? v : fmt(v, d)}</td>`);
+      return `<tr>${basics.join('')}${MEASURES.map(m => `<td>${meanSd(row.s[m.key], m.d)}</td>`).join('')}</tr>`;
+    }).join('') + '</tbody></table>';
 }
 
 /* ---------- Saving and copying ---------- */
@@ -736,37 +755,33 @@ const csvCell = v => { const s = String(v ?? ''); return /[",\n]/.test(s) ? `"${
 const csv = rows => '﻿' + rows.map(r => r.map(csvCell).join(',')).join('\r\n') + '\r\n';
 const baseName = () => (S.img?.name || 'image').replace(/\.[^.]+$/, '');
 const csvNum = (v, d) => Number.isFinite(v) ? Number(v.toFixed(d)) : '';
-const CELL_COLS = [['area', 'area_um2'], ['perimeter', 'perimeter_um'], ['major', 'major_um'], ['minor', 'minor_um'], ['aspect', 'aspect_ratio'], ['circularity', 'circularity'], ['roundness', 'roundness'], ['solidity', 'solidity'], ['feret', 'feret_um'], ['minFeret', 'min_feret_um'], ['angle', 'angle_deg'], ['surfaceAngle', 'angle_to_surface_deg'], ['feretAngle', 'feret_angle_deg']];
-const METRIC_COLS = {area: 'area_um2', perimeter: 'perimeter_um', major: 'major_um', minor: 'minor_um', aspect: 'aspect_ratio', circularity: 'circularity', roundness: 'roundness', solidity: 'solidity', feret: 'feret_um', minFeret: 'min_feret_um', surfaceAngle: 'angle_to_surface_deg'};
+// Region results as rows of cells for the CSV file and the copied table (same columns as the table on
+// screen, with each measure split into mean, SD and median, followed by the settings used).
+function regionRows(){
+  const rows = summaries();
+  const head = [TEXT.cols.image, ...regionBasics(rows[0]).map(c => c[0])];
+  MEASURES.forEach(m => head.push(...['mean', 'sd', 'median'].map(k => `${mLabel(m)} ${TEXT.stat[k]}`)));
+  head.push(TEXT.cols.pixel, TEXT.cols.surface, TEXT.cols.diameter, TEXT.cols.split, TEXT.cols.faces, TEXT.cols.minArea, TEXT.cols.maxArea, TEXT.cols.edge, TEXT.cols.version, TEXT.cols.date);
+  const yn = v => v ? TEXT.yes : TEXT.no;
+  return [head, ...rows.map(row => {
+    const {r, s} = row, lim = limits(r.params);
+    const out = [S.img.name, ...regionBasics(row).map(([, v, d]) => d == null ? v : csvNum(v, d))];
+    MEASURES.forEach(m => out.push(...['mean', 'sd', 'median'].map(k => csvNum(s[m.key][k], m.d + 2))));
+    out.push(fmtSig(S.scale), csvNum(S.ref, 1), r.params.diameter, r.params.split, yn(r.params.faces), csvNum(lim.minArea, 1), csvNum(lim.maxArea, 1), yn(lim.excludeEdge), VERSION, today());
+    return out;
+  })];
+}
 
 $('csv-cells').addEventListener('click', () => {
-  const rows = [['image', 'region', 'tissue', 'cell', 'status', ...CELL_COLS.map(c => c[1]), 'x_um', 'y_um']];
-  S.rois.forEach(r => r.cells.forEach(c => rows.push([S.img.name, r.id, TEXT.tissues[r.tissue], c.label, c.status, ...CELL_COLS.map(([k]) => csvNum(c[k], 4)), csvNum(c.x, 2), csvNum(c.y, 2)])));
+  const rows = [[TEXT.cols.image, TEXT.cols.region, TEXT.cols.tissue, TEXT.cols.cell, TEXT.cols.status, ...MEASURES.map(mLabel), TEXT.cols.angle, TEXT.cols.feretAngle, TEXT.cols.x, TEXT.cols.y]];
+  S.rois.forEach(r => r.cells.forEach(c => rows.push([S.img.name, r.id, TEXT.tissues[r.tissue], c.label, TEXT.status[c.status], ...MEASURES.map(m => csvNum(c[m.key], m.d + 2)), csvNum(c.angle, 2), csvNum(c.feretAngle, 2), csvNum(c.x, 2), csvNum(c.y, 2)])));
   download(new Blob([csv(rows)], {type: 'text/csv'}), `${baseName()}_cells.csv`);
 });
 $('csv-regions').addEventListener('click', () => {
-  const head = ['image', 'region', 'tissue', 'region_area_um2', 'cells_counted', 'cells_measured', 'density_per_mm2', 'intercellular_space_fraction'];
-  METRICS.forEach(m => head.push(`${METRIC_COLS[m]}_mean`, `${METRIC_COLS[m]}_sd`, `${METRIC_COLS[m]}_median`));
-  head.push('pixel_size_um', 'surface_direction_deg', 'cell_diameter_um', 'splitting', 'min_area_um2', 'max_area_um2', 'edge_cells_excluded', 'tool_version', 'date');
-  const rows = [head];
-  summaries().forEach(({r, s}) => {
-    const lim = limits(r.params);
-    const row = [S.img.name, r.id, TEXT.tissues[r.tissue], csvNum(s.roiArea, 1), s.counted, s.measured, csvNum(s.density, 2), csvNum(s.spaceFraction, 4)];
-    METRICS.forEach(m => row.push(csvNum(s[m].mean, 4), csvNum(s[m].sd, 4), csvNum(s[m].median, 4)));
-    row.push(fmtSig(S.scale), csvNum(S.ref, 2), r.params.diameter, r.params.split, csvNum(lim.minArea, 2), csvNum(lim.maxArea, 2), lim.excludeEdge, VERSION, today());
-    rows.push(row);
-  });
-  download(new Blob([csv(rows)], {type: 'text/csv'}), `${baseName()}_regions.csv`);
+  download(new Blob([csv(regionRows())], {type: 'text/csv'}), `${baseName()}_regions.csv`);
 });
 $('copy').addEventListener('click', e => {
-  const head = [...TEXT.copyHead];
-  METRICS.forEach(m => head.push(`${TEXT.copyMetric[m]} ${TEXT.mean}`, `${TEXT.copyMetric[m]} ${TEXT.sd}`));
-  const lines = [head.join('\t')];
-  summaries().forEach(({r, s}) => {
-    const row = [r.id, TEXT.tissues[r.tissue], s.counted, s.measured, fmt(s.density, 1), fmt(s.roiArea, 0), fmt(s.spaceFraction * 100, 2)];
-    METRICS.forEach(m => row.push(fmt(s[m].mean, 4), fmt(s[m].sd, 4)));
-    lines.push(row.join('\t'));
-  });
+  const lines = regionRows().map(r => r.join('\t'));
   lines.push('', TEXT.footer(VERSION, root.dataset.url, today(), S.img.name, S.scale));
   copyText(lines.join('\n'), e.currentTarget);
 });

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {measure, segment, polygonMask, polygonArea, splitCells, mergeCells, areAdjacent, classify, summarise, axisDifference, tracedPerimeter, absorbSlivers, drawCell} from '../src/lib/cellshape.js';
+import {measure, segment, polygonMask, polygonArea, splitCells, mergeCells, areAdjacent, classify, summarise, axisDifference, tracedPerimeter, absorbSlivers, drawCell, boxCountDimension} from '../src/lib/cellshape.js';
 import {shapes, W, H} from './cellshape-shapes.mjs';
 
 const close = (a, b, tol, what) => assert.ok(Math.abs(a - b) <= tol, `${what}: ${a} vs ${b}`);
@@ -19,6 +19,22 @@ test('rectangle: every measure has its exact value', () => {
   close(c.minFeret, 12, 1e-9, 'minimum Feret');
   close(c.solidity, 1, 1e-9, 'solidity');
   close(c.x, 25, 1e-9, 'centroid x'); close(c.y, 16, 1e-9, 'centroid y');
+  close(c.pa, c.perimeter / 360, 1e-12, 'P/A');
+});
+
+test('fractal dimension: a smooth outline is close to 1; box counts follow ImageJ', () => {
+  // a 200 × 200 square: its outline is a line, so counts fall as 1 / box size
+  const w = 220, h = 220, labels = new Int32Array(w * h);
+  for (let y = 10; y < 210; y++) for (let x = 10; x < 210; x++) labels[y * w + x] = 1;
+  close(boxCountDimension(labels, w, h, 1, 10, 10, 209, 209), 1, 0.06, 'square');
+  // a 4 × 4 square: outline 12 pixels; boxes of 2 → 4 (all hit), 3 → 4, 4 and larger → 1
+  const small = new Int32Array(16).fill(1);
+  const expected = (() => { const xs = [2, 3, 4, 6, 8, 12, 16, 32, 64].map(Math.log), ys = [4, 4, 1, 1, 1, 1, 1, 1, 1].map(Math.log);
+    const mx = xs.reduce((a, b) => a + b) / 9, my = ys.reduce((a, b) => a + b) / 9;
+    let sxy = 0, sxx = 0; xs.forEach((x, i) => { sxy += (x - mx) * (ys[i] - my); sxx += (x - mx) ** 2; }); return -sxy / sxx; })();
+  close(boxCountDimension(small, 4, 4, 1, 0, 0, 3, 3), expected, 1e-12, '4 × 4 square');
+  // every test shape gets a value near 1 (box counting is size-dependent, so shapes are not compared)
+  for (const c of measure(shapes(), all(W, H), W, H)) assert.ok(c.fractal > 0.7 && c.fractal < 1.5, `label ${c.label}: ${c.fractal}`);
 });
 
 test('rotated ellipse, disc and star have the expected shape', () => {
