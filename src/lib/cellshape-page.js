@@ -106,7 +106,7 @@ const TEXT = en ? {
   stat: {mean: '平均', sd: '標準偏差', median: '中央値'},
   yes: 'はい', no: 'いいえ',
   frames: {tissue: '組織全体', part: '組織の一部'},
-  footer: (v, url, date, image, scale) => `細胞形態解析ツール バージョン${v}（${url}）で${date}に解析。画像：${image}、1ピクセル ${fmtSig(scale)} µm`,
+  footer: (v, url, date, image, scale) => `Cell Shape Analyzer バージョン${v}（${url}）で${date}に解析。画像：${image}、1ピクセル ${fmtSig(scale)} µm`,
 };
 
 // The measures, in the order used everywhere: the cell panel, the results table, both CSV files and the

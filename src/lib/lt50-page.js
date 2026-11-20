@@ -43,7 +43,7 @@ const TEXT = en ? {
   copyHead: ['グループ', 'LT50(℃)', '95%CI下限', '95%CI上限', '標準誤差', '傾きk', '下限', '上限', 'R2', 'n'],
   copied: 'コピーしました',
   colorFor: g => `${g}の色`,
-  footer: (v, url, date) => `LT50 計算ツール バージョン${v}（${url}）で${date}に計算`,
+  footer: (v, url, date) => `LT50 Calculator バージョン${v}（${url}）で${date}に計算`,
 };
 
 const SAMPLE = (en

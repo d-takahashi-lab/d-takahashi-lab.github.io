@@ -11,10 +11,10 @@ const year=tool.updated.slice(0,4);
 // Citations always point at the public domain, also in local builds.
 const url=toolUrlBase+pageUrl('tools/lt50',lang);
 const citationEn=`Takahashi D (${year}) LT50 Calculator, version ${tool.version}. Laboratory of Stress and Adaptation Biology, Saitama University. ${url}`;
-const citationJa=`高橋大輔 (${year}) LT50 計算ツール, バージョン ${tool.version}. 埼玉大学 生命適応科学研究室. ${url}`;
+const citationJa=`高橋大輔 (${year}) LT50 Calculator, バージョン ${tool.version}. 埼玉大学 生命適応科学研究室. ${url}`;
 ---
-<Layout lang={lang} title={tool.title[lang]} current="tools" alternateSlug="tools/lt50" description={tool.summary[lang]}>
- <PageHeading lang={lang} title={tool.title[lang]} en={tool.name} meta={`v${tool.version} · ${tool.updated.replaceAll('-','.')}`} sections={[
+<Layout lang={lang} title={tool.title} current="tools" alternateSlug="tools/lt50" description={tool.summary[lang]}>
+ <PageHeading lang={lang} title={tool.title} en={tool.name} meta={`v${tool.version} · ${tool.updated.replaceAll('-','.')}`} sections={[
   {label:t('計算','Calculator'),href:'#calculator'},{label:t('計算方法','Method'),href:'#method'},
   {label:t('引用のしかた','How to cite'),href:'#citation'},{label:t('免責事項','Disclaimer'),href:'#disclaimer'},
  ]}/>
@@ -86,7 +86,7 @@ const citationJa=`高橋大輔 (${year}) LT50 計算ツール, バージョン $
   <p class="tool-prose">{t('論文の材料と方法に、次の説明を使えます。','You may use the following description in the methods section of a paper.')}</p>
   {en
    ?<p class="tool-prose">A four-parameter logistic function, y = L + (U − L) / (1 + exp(−k (T − T<sub>m</sub>))), was fitted by nonlinear least squares using the Levenberg–Marquardt algorithm, where L and U are the lower and upper asymptotes, k is the slope and T<sub>m</sub> is the temperature at the inflection point. When the asymptotes were fixed (L = 0, U = 100), T<sub>m</sub> was taken as LT50. When they were estimated from the data, LT50 was taken as either T<sub>m</sub> or the temperature at which the fitted curve crosses 50%. The standard error of LT50 was obtained by the delta method, and the 95% confidence interval was calculated from the t distribution with n − p degrees of freedom (n, number of data points; p, number of estimated parameters). Calculations were performed with LT50 Calculator version {tool.version} (Takahashi, {year}).</p>
-   :<p class="tool-prose">4パラメータロジスティック関数 y = L + (U − L) / (1 + exp(−k (T − T<sub>m</sub>))) を、Levenberg–Marquardt法による非線形最小二乗法で当てはめた。L・Uはそれぞれ下限・上限、kは傾き、T<sub>m</sub>は変曲点の温度である。上限・下限を固定した場合はL = 0、U = 100とし、T<sub>m</sub>をLT50とした。上限・下限をデータから推定した場合は、T<sub>m</sub>、または当てはめた曲線が50%となる温度をLT50とした。LT50の標準誤差はデルタ法で求め、95%信頼区間は自由度 n − p（n：データ数、p：推定したパラメータ数）のt分布から計算した。計算にはLT50 計算ツール バージョン{tool.version}（高橋, {year}）を用いた。</p>}
+   :<p class="tool-prose">4パラメータロジスティック関数 y = L + (U − L) / (1 + exp(−k (T − T<sub>m</sub>))) を、Levenberg–Marquardt法による非線形最小二乗法で当てはめた。L・Uはそれぞれ下限・上限、kは傾き、T<sub>m</sub>は変曲点の温度である。上限・下限を固定した場合はL = 0、U = 100とし、T<sub>m</sub>をLT50とした。上限・下限をデータから推定した場合は、T<sub>m</sub>、または当てはめた曲線が50%となる温度をLT50とした。LT50の標準誤差はデルタ法で求め、95%信頼区間は自由度 n − p（n：データ数、p：推定したパラメータ数）のt分布から計算した。計算にはLT50 Calculator バージョン{tool.version}（高橋, {year}）を用いた。</p>}
   <p class="body-note">{t('計算結果は、統計ソフトR（nls関数）による当てはめと、LT50・標準誤差とも小数第4位まで一致することを確認しています。','Results were checked against fits in R (the nls function): LT50 and its standard error agree to four decimal places.')}</p>
  </section>
 
