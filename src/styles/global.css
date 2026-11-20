@@ -443,6 +443,8 @@ html[lang=en] .alumni-year li { grid-template-columns:minmax(0,12em) 4em; }
 .cs-viewer canvas.is-panning { cursor: grabbing; }
 .cs-viewer.is-busy canvas { cursor: progress; }
 .cs-viewer.is-drag { outline: 2px dashed var(--control-line); outline-offset: -8px; }
+.cs-wheel { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); margin: 0; padding: var(--space-3) var(--space-4); background: rgba(23,23,23,.82); color: #fff; font-size: var(--text-small); pointer-events: none; }
+.cs-wheel[hidden] { display: none; }
 .cs-drop { position: absolute; inset: 0; display: grid; place-items: center; padding: var(--space-5); color: var(--muted); font-size: var(--text-small); text-align: center; pointer-events: none; }
 .cs-drop[hidden] { display: none; }
 .cs-hint { min-height: calc(var(--text-small) * 1.75); margin-top: var(--space-2); font-size: var(--text-small); line-height: var(--leading-meta); color: var(--muted); }

@@ -2,7 +2,7 @@
 // and shows, saves and copies the results. All image analysis lives in cellshape.js.
 // The page language comes from <html lang>.
 import {decodeTiff, isTiff} from './tiff.js';
-import {VERSION, toGray, polygonMask, segment, measure, classify, summarise, splitCells, mergeCells, areAdjacent, axisDifference, METRICS} from './cellshape.js';
+import {VERSION, toGray, polygonMask, segment, measure, classify, summarise, splitCells, mergeCells, areAdjacent, drawCell, axisDifference, METRICS} from './cellshape.js';
 
 const root = document.getElementById('cs');
 const en = document.documentElement.lang === 'en';
@@ -36,17 +36,20 @@ const TEXT = en ? {
   roiItem: (n, cells) => `Region ${n}${cells == null ? '' : ` — ${cells} cell${cells === 1 ? '' : 's'}`}`,
   tissueOf: n => `Tissue of region ${n}`,
   remove: 'Delete',
+  wheel: key => `Hold ${key} and scroll to zoom`,
+  noDraw: 'The outline must lie inside a region. Outline a region first (step 4).',
   hints: {
     none: '',
     scale: 'Click the two ends of the scale bar.',
     ref: 'Click two points along the leaf surface.',
     roi: 'Click to place corners; click the first point, double-click or press Enter to close. Esc cancels.',
-    info: 'Click a cell to see its values. Drag to move; scroll to zoom.',
+    info: 'Click a cell to see its values. Drag to move; ⌘ (Ctrl) + scroll to zoom.',
     exclude: 'Click a cell to leave it out of the measurements; click again to include it.',
     space: 'Click a compartment to mark it as intercellular space; click again to unmark it.',
     merge: 'Click the two cells to join, one after the other.',
     mergeSecond: 'Now click the neighbouring cell to join.',
     split: 'Click the start and end of a line across the cell, from wall to wall. Only the cell under the middle of the line is cut.',
+    draw: 'Click around the cell’s outline; click the first point, double-click or press Enter to finish. Esc cancels.',
   },
   legend: (name, lo, hi, unit) => `${name}: ${lo} – ${hi}${unit}`,
   metricNames: {area: 'Area', aspect: 'Aspect ratio', circularity: 'Circularity', solidity: 'Solidity', surfaceAngle: 'Angle to surface'},
@@ -84,17 +87,20 @@ const TEXT = en ? {
   roiItem: (n, cells) => `領域${n}${cells == null ? '' : `（${cells}細胞）`}`,
   tissueOf: n => `領域${n}の組織`,
   remove: '削除',
+  wheel: key => `${key}キーを押しながらスクロールすると拡大・縮小します`,
+  noDraw: '輪郭は領域の中に描いてください。先に領域を囲みます（手順4）。',
   hints: {
     none: '',
     scale: 'スケールバーの両端をクリックしてください。',
     ref: '葉の表面に沿って2点をクリックしてください。',
     roi: 'クリックで角を置き、最初の点のクリック・ダブルクリック・Enterキーで閉じます。Escキーで取り消します。',
-    info: '細胞をクリックすると値を表示します。ドラッグで移動、ホイールで拡大・縮小します。',
+    info: '細胞をクリックすると値を表示します。ドラッグで移動、⌘（Ctrl）キー＋スクロールで拡大・縮小します。',
     exclude: 'クリックした細胞を計測から外します。もう一度クリックすると戻します。',
     space: 'クリックした区画を細胞間隙にします。もう一度クリックすると戻します。',
     merge: 'つなぐ2つの細胞を順にクリックしてください。',
     mergeSecond: '隣のつなぐ細胞をクリックしてください。',
     split: '細胞を横切る線の始点と終点を、壁から壁までクリックしてください。線の中点にある細胞だけを切ります。',
+    draw: '細胞の輪郭に沿ってクリックしていき、最初の点のクリック・ダブルクリック・Enterキーで閉じます。Escキーで取り消します。',
   },
   legend: (name, lo, hi, unit) => `${name}：${lo} – ${hi}${unit}`,
   metricNames: {area: '面積', aspect: '縦横比', circularity: '円形度', solidity: '充実度', surfaceAngle: '表面との角度'},
@@ -182,7 +188,7 @@ function draw(){
   ctx.restore();
   drawVectors(ctx, toScreen, 1, W, H);
   // the line or polygon being drawn
-  if (S.pts.length && (S.tool || mode() === 'split')) {
+  if (S.pts.length && (S.tool || mode() === 'split' || mode() === 'draw')) {
     ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.setLineDash([]);
     ctx.beginPath();
     S.pts.forEach((p, i) => { const [x, y] = toScreen(...p); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
@@ -330,7 +336,7 @@ async function loadFile(file, example){
   if (example) {
     // the example's scale bar: 20 µm = 176 px; not remembered as the user's own scale
     S.scale = 20 / 176; $('scale').value = fmtSig(S.scale); $('bar').value = 20;
-    $('diameter').value = 12;
+    $('diameter').value = 12; $('faces').checked = true;
     setRef(0);
     message(TEXT.exampleLoaded);
   } else message([im.note, S.scale > 0 ? TEXT.scaleSaved : ''].filter(Boolean).join('\n'));
@@ -353,12 +359,12 @@ viewer.addEventListener('drop', e => { e.preventDefault(); viewer.classList.remo
 
 /* ---------- Regions ---------- */
 function params(){
-  return {diameter: num('diameter'), split: +$('split').value, minArea: num('min'), maxArea: num('max'), excludeEdge: $('edge').checked};
+  return {diameter: num('diameter'), split: +$('split').value, faces: $('faces').checked, minArea: num('min'), maxArea: num('max'), excludeEdge: $('edge').checked};
 }
 function setParams(p){
   $('diameter').value = p.diameter; $('split').value = p.split; $('split-out').value = p.split;
   $('min').value = Number.isFinite(p.minArea) ? p.minArea : ''; $('max').value = Number.isFinite(p.maxArea) ? p.maxArea : '';
-  $('edge').checked = p.excludeEdge;
+  $('edge').checked = p.excludeEdge; $('faces').checked = !!p.faces;
 }
 function addRoi(poly){
   const {w: W, h: H} = S.img;
@@ -412,7 +418,7 @@ $('rois').addEventListener('change', e => {
 });
 // Settings belong to the selected region; they take effect when cells are detected again,
 // except the area limits and the edge rule, which only change the classification.
-['diameter', 'split', 'min', 'max', 'edge'].forEach(id => $(id).addEventListener('input', () => {
+['diameter', 'split', 'faces', 'min', 'max', 'edge'].forEach(id => $(id).addEventListener('input', () => {
   $('split-out').value = $('split').value;
   const r = S.rois[S.sel];
   if (!r) return;
@@ -433,7 +439,7 @@ function detect(roi){
     const rgba = new Uint8ClampedArray(roi.w * roi.h * 4), W = S.img.w;
     for (let y = 0; y < roi.h; y++) rgba.set(S.img.rgba.subarray(((y + roi.y0) * W + roi.x0) * 4, ((y + roi.y0) * W + roi.x0 + roi.w) * 4), y * roi.w * 4);
     const gray = toGray(rgba, roi.w, roi.h, $('channel').value, $('invert').checked);
-    const {labels} = segment(gray, roi.mask, roi.w, roi.h, {diameter: d, split: roi.params.split});
+    const {labels} = segment(gray, roi.mask, roi.w, roi.h, {diameter: d, split: roi.params.split, faces: roi.params.faces});
     if (roi.labels) snapshot(roi);
     roi.labels = labels; roi.manual = {};
     let max = 0; for (const v of labels) if (v > max) max = v;
@@ -499,6 +505,31 @@ function closeRoi(){
   const pts = S.pts;
   if (pts.length >= 3) { setTool(null); addRoi(pts); }
 }
+// A polygon is being drawn: a region (tool 'roi') or a cell outline (mode 'draw').
+const drawingPolygon = () => S.tool === 'roi' || (!S.tool && mode() === 'draw');
+function closePolygon(){
+  if (S.tool === 'roi') return closeRoi();
+  const pts = S.pts;
+  if (pts.length < 3) return;
+  S.pts = [];
+  drawOutline(pts);
+  redraw();
+}
+// The drawn outline becomes a new cell in the region that contains its first point.
+function drawOutline(pts){
+  const [px, py] = pts[0];
+  const roi = S.rois.find(r => { const x = Math.floor(px - r.x0), y = Math.floor(py - r.y0); return x >= 0 && y >= 0 && x < r.w && y < r.h && r.mask[y * r.w + x]; });
+  if (!roi) return message(TEXT.noDraw);
+  const inside = polygonMask(pts, roi.x0, roi.y0, roi.w, roi.h);
+  if (!inside.some((v, i) => v && roi.mask[i])) return message(TEXT.noDraw);
+  if (!roi.labels) roi.labels = new Int32Array(roi.w * roi.h);
+  snapshot(roi);
+  const L = roi.next;
+  roi.next = drawCell(roi.labels, roi.mask, roi.w, roi.h, inside, L, Math.max(20, (roi.params.diameter / S.scale * 0.2) ** 2));
+  delete roi.manual[L];
+  message('');
+  remeasure(roi);
+}
 
 /* ---------- Corrections ---------- */
 const mode = () => document.querySelector('input[name=cs-mode]:checked').value;
@@ -544,6 +575,11 @@ function click(ix, iy, sx, sy){
     return redraw();
   }
   const m = mode();
+  if (m === 'draw') {
+    const [fx, fy] = S.pts.length ? toScreen(...S.pts[0]) : [Infinity, Infinity];
+    if (S.pts.length >= 3 && Math.hypot(fx - sx, fy - sy) < 10) closePolygon(); else S.pts.push([ix, iy]);
+    return redraw();
+  }
   if (m === 'split') {
     S.pts.push([ix, iy]);
     if (S.pts.length === 2) cut();
@@ -609,17 +645,27 @@ canvas.addEventListener('pointerup', e => {
 });
 canvas.addEventListener('pointerleave', () => { S.hover = null; if (S.pts.length) redraw(); });
 canvas.addEventListener('dblclick', e => {
-  if (S.tool !== 'roi') return;
+  if (!drawingPolygon()) return;
   e.preventDefault();
   // the two clicks of a double-click each placed a point; keep one
   const n = S.pts.length;
   if (n >= 2) { const [a, b] = [toScreen(...S.pts[n - 2]), toScreen(...S.pts[n - 1])]; if (Math.hypot(a[0] - b[0], a[1] - b[1]) < 6) S.pts.pop(); }
-  closeRoi();
+  closePolygon();
 });
+// Zoom only with ⌘/Ctrl/Alt held or a trackpad pinch (sent as Ctrl + wheel), so that plain scrolling
+// still moves the page past the viewer.
+const MOD_KEY = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent) ? '⌘' : 'Ctrl';
+let wheelTimer = 0;
 canvas.addEventListener('wheel', e => {
   if (!S.img) return;
+  if (!(e.ctrlKey || e.metaKey || e.altKey)) {
+    const tip = $('wheel');
+    tip.textContent = TEXT.wheel(MOD_KEY); tip.hidden = false;
+    clearTimeout(wheelTimer); wheelTimer = setTimeout(() => { tip.hidden = true; }, 1200);
+    return;
+  }
   e.preventDefault();
-  zoomAt(e.offsetX, e.offsetY, Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0015)));
+  zoomAt(e.offsetX, e.offsetY, Math.exp(-e.deltaY * (e.ctrlKey && !e.metaKey ? 0.01 : 0.0015)));
 }, {passive: false});
 $('zoom-in').addEventListener('click', () => zoomAt(canvas.width / dpr / 2, canvas.height / dpr / 2, 1.5));
 $('zoom-out').addEventListener('click', () => zoomAt(canvas.width / dpr / 2, canvas.height / dpr / 2, 1 / 1.5));
@@ -627,9 +673,9 @@ $('fit').addEventListener('click', fit);
 window.addEventListener('keydown', e => {
   if (e.target.closest('input, select, textarea')) return;
   if ((e.metaKey || e.ctrlKey) && e.key === 'z') { if (history.length) { e.preventDefault(); undo(); } return; }
-  if (!S.tool && !(mode() === 'split' && S.pts.length)) return;
+  if (!S.tool && !S.pts.length) return;
   if (e.key === 'Escape') { S.pts = []; if (S.tool) setTool(S.tool); else redraw(); }
-  else if (e.key === 'Enter' && S.tool === 'roi') closeRoi();
+  else if (e.key === 'Enter' && drawingPolygon()) closePolygon();
   else if (e.key === 'Backspace' && S.pts.length) { e.preventDefault(); S.pts.pop(); redraw(); }
 });
 ['color', 'show-fill'].forEach(id => $(id).addEventListener('change', renderAll));

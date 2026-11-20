@@ -25,6 +25,7 @@ const modes=[
  {value:'space',label:t('細胞間隙にする・戻す','Mark / unmark intercellular space')},
  {value:'merge',label:t('2つの細胞をつなぐ','Join two cells')},
  {value:'split',label:t('線を引いて切り分ける','Cut along a line')},
+ {value:'draw',label:t('輪郭をなぞって細胞を描く','Draw a cell’s outline')},
 ];
 ---
 <Layout lang={lang} title={tool.title[lang]} current="tools" alternateSlug="tools/cellshape" description={tool.summary[lang]}>
@@ -92,6 +93,9 @@ const modes=[
     </div>
     <label class="tool-label" for="cs-split">{t('分け方','Splitting')}<output id="cs-split-out">5</output></label>
     <div class="cs-range"><span>{t('大きくまとめる','Fewer cells')}</span><input type="range" id="cs-split" min="1" max="9" step="1" value="5"/><span>{t('細かく分ける','More cells')}</span></div>
+    <fieldset class="tool-options">
+     <label><input type="checkbox" id="cs-faces"/><span>{t('細胞壁の面で切れた細胞（中が暗く抜けず、ぼんやり明るく写った細胞）も探す','Also find cells cut through a wall face (evenly bright instead of dark inside)')}</span></label>
+    </fieldset>
     <details class="tool-help">
      <summary>{t('詳しい設定','More settings')}</summary>
      <div class="cs-pair">
@@ -140,6 +144,7 @@ const modes=[
     </div>
     <div class="cs-viewer" id="cs-viewer">
      <canvas id="cs-canvas"></canvas>
+     <p class="cs-wheel" id="cs-wheel" hidden></p>
      <p class="cs-drop" id="cs-drop">{t('ここに画像をドラッグするか、「画像を選ぶ」を押してください。','Drop an image here or press “Choose image”.')}</p>
     </div>
     <p class="cs-hint" id="cs-hint" aria-live="polite"></p>
@@ -161,9 +166,10 @@ const modes=[
 
   <details class="tool-help cs-usage">
    <summary>{t('使い方とコツ','How to use it, and tips')}</summary>
-   <p>{t('画像を拡大・移動するには、マウスのホイール（トラックパッドの2本指）と、ドラッグを使います。','Zoom with the mouse wheel (two fingers on a trackpad) and drag to move the image.')}</p>
+   <p>{t('画像の拡大・縮小は、⌘キー（WindowsではCtrlキー）を押しながらのスクロール、トラックパッドのピンチ、または「＋」「−」ボタンで行います。ふつうにスクロールするとページが動きます。画像はドラッグで移動できます。','Zoom with ⌘ (Ctrl on Windows) plus scrolling, a trackpad pinch, or the “+” and “−” buttons; plain scrolling moves the page. Drag to move the image.')}</p>
    <p>{t('領域は、クリックで角を置いていき、最初の点をクリックするか、ダブルクリック・Enterキーで閉じます。Escキーで取り消し、Backspaceキーで1つ前の点を消せます。','Click to place the corners of a region; click the first point, double-click or press Enter to close it. Esc cancels and Backspace removes the last point.')}</p>
    <p>{t('細胞が大きくまとまりすぎるときは「細かく分ける」側へ、1つの細胞が割れるときは「大きくまとめる」側へ動かしてから、もう一度「細胞を検出」を押してください。表皮と葉肉では細胞の大きさが違うので、組織ごとに領域を分けると精度が上がります。','If cells are merged, move the slider towards “More cells”; if single cells are broken up, move it towards “Fewer cells”, then press “Detect cells” again. Epidermis and mesophyll cells differ in size, so separate regions per tissue give better results.')}</p>
+   <p>{t('切片が細胞壁の面を通った細胞は、中が暗く抜けず、ぼんやり明るく写ります。こうした細胞が多いときは「細胞壁の面で切れた細胞も探す」にチェックを入れてください（壁の太い交点を細胞と間違えることがあるので、初期状態ではオフです）。それでも取れない細胞は「輪郭をなぞって細胞を描く」で描けます。描いた範囲は、元の細胞から切り取られて新しい細胞になります。','Cells cut through the plane of a wall look evenly bright instead of dark inside. If there are many, tick “Also find cells cut through a wall face” (it is off by default because thick wall junctions can be mistaken for such cells). Any cell still missed can be drawn with “Draw a cell’s outline”: the drawn area is taken from the cells it overlaps and becomes a new cell.')}</p>
    <p>{t('海綿状組織では、細胞間隙も1つの区画として検出されます。「細胞間隙にする」でクリックすると、細胞の数と形から外し、細胞間隙の割合に数えます。','In spongy mesophyll, intercellular spaces are also detected as compartments. Click them with “Mark intercellular space” to remove them from the cell counts and shapes and count them towards the intercellular space fraction.')}</p>
    <p>{t('輪郭は細胞壁の中央を通ります。面積などには、細胞壁の半分の厚さが含まれます。','Outlines run along the middle of the cell walls, so areas include half the wall thickness.')}</p>
    <p>{t('TIFF（8・16・32ビット、無圧縮・LZW・Deflate・PackBits）、PNG、JPEGが読み込めます。複数ページのTIFFは1ページ目を使います。16ビット以上の画像は、明るさを8ビットに変換してから解析します。','TIFF (8, 16 or 32 bit; uncompressed, LZW, Deflate or PackBits), PNG and JPEG can be loaded. For multi-page TIFFs the first page is used. Images deeper than 8 bits are scaled to 8 bits before analysis.')}</p>
@@ -174,8 +180,8 @@ const modes=[
   <h2>{t('計算方法','Method')}</h2>
   <p class="tool-prose">{t('論文の材料と方法に、次の説明を使えます。','You may use the following description in the methods section of a paper.')}</p>
   {en
-   ?<p class="tool-prose">Cells were segmented and measured with Cell Shape Analyzer version {tool.version} (Takahashi, {year}). Regions corresponding to each tissue were outlined manually. Within each region, the image was smoothed with a Gaussian filter (σ = 0.12 d, where d is the expected cell diameter), and every regional minimum deeper than a set height (h-minima transform) was taken as the seed of one cell. Cell outlines were obtained by a seeded watershed on a lightly smoothed image (σ = 0.02 d), so that neighbouring cells meet along the middle of the cell wall. The segmentation was inspected and corrected manually. For each cell, the area, perimeter, major and minor axes of the ellipse with the same second moments and area, aspect ratio (major/minor), circularity (4π × area/perimeter²), roundness (4 × area/(π × major²)), solidity (area/convex hull area) and maximum and minimum Feret diameters were calculated following the definitions in ImageJ. The angle between the major axis and the leaf surface was expressed from 0° (parallel) to 90° (perpendicular). Cells touching the edge of the region were counted but excluded from shape statistics.</p>
-   :<p class="tool-prose">細胞の検出と計測には細胞形態解析ツール バージョン{tool.version}（高橋, {year}）を用いた。組織ごとに領域を手作業で囲み、その中で画像をガウシアンフィルター（σ = 0.12 d、dは細胞の直径の目安）で平滑化し、一定の深さ以上の極小点（h-minima変換）を細胞1個ずつの種とした。軽く平滑化した画像（σ = 0.02 d）上で種から領域を広げる（seeded watershed）ことで、隣り合う細胞の境界が細胞壁の中央を通るように細胞の輪郭を求めた。検出結果は目視で確認し、手作業で修正した。各細胞について、面積、周囲長、同じ二次モーメントと面積をもつ楕円の長径と短径、縦横比（長径／短径）、円形度（4π × 面積／周囲長²）、真円度（4 × 面積／(π × 長径²)）、充実度（面積／凸包の面積）、最大・最小フェレ径を、ImageJと同じ定義で計算した。長径と葉の表面がなす角度は、0°（平行）から90°（垂直）で表した。領域の縁にかかる細胞は、細胞数には含め、形の統計からは除いた。</p>}
+   ?<p class="tool-prose">Cells were segmented and measured with Cell Shape Analyzer version {tool.version} (Takahashi, {year}). Regions corresponding to each tissue were outlined manually. Within each region, the image was smoothed with a Gaussian filter (σ = 0.12 d, where d is the expected cell diameter), and every regional minimum deeper than a set height (h-minima transform) was taken as the seed of one cell. [When cells cut through a wall face were included: bright patches remaining after stronger smoothing (σ = 0.25 d) that were broad and compact were taken as additional cells, each claiming the pixels closest to its own brightness.] Cell outlines were obtained by a seeded watershed on a lightly smoothed image (σ = 0.02 d), so that neighbouring cells meet along the middle of the cell wall. The segmentation was inspected and corrected manually (joining, cutting and drawing cells, and excluding cells). For each cell, the area, perimeter, major and minor axes of the ellipse with the same second moments and area, aspect ratio (major/minor), circularity (4π × area/perimeter²), roundness (4 × area/(π × major²)), solidity (area/convex hull area) and maximum and minimum Feret diameters were calculated following the definitions in ImageJ. The angle between the major axis and the leaf surface was expressed from 0° (parallel) to 90° (perpendicular). Cells touching the edge of the region were counted but excluded from shape statistics.</p>
+   :<p class="tool-prose">細胞の検出と計測には細胞形態解析ツール バージョン{tool.version}（高橋, {year}）を用いた。組織ごとに領域を手作業で囲み、その中で画像をガウシアンフィルター（σ = 0.12 d、dは細胞の直径の目安）で平滑化し、一定の深さ以上の極小点（h-minima変換）を細胞1個ずつの種とした。［細胞壁の面で切れた細胞も含めた場合：より強く平滑化した画像（σ = 0.25 d）で残る、幅があってまとまった形の明るい区画も細胞とし、それぞれ自分の明るさに近い画素を取り合わせた。］軽く平滑化した画像（σ = 0.02 d）上で種から領域を広げる（seeded watershed）ことで、隣り合う細胞の境界が細胞壁の中央を通るように細胞の輪郭を求めた。検出結果は目視で確認し、手作業で修正した（細胞の結合・切り分け・輪郭の描画、計測からの除外）。各細胞について、面積、周囲長、同じ二次モーメントと面積をもつ楕円の長径と短径、縦横比（長径／短径）、円形度（4π × 面積／周囲長²）、真円度（4 × 面積／(π × 長径²)）、充実度（面積／凸包の面積）、最大・最小フェレ径を、ImageJと同じ定義で計算した。長径と葉の表面がなす角度は、0°（平行）から90°（垂直）で表した。領域の縁にかかる細胞は、細胞数には含め、形の統計からは除いた。</p>}
   <p class="body-note">{t('形の指標は、答えが分かっている図形（長方形・回転した楕円・円・星形）で、理論値と一致することを確認しています。','The shape measures were checked against the exact values for known shapes (rectangle, rotated ellipse, disc and star).')}</p>
   <dl class="cs-defs">
    <div><dt>{t('面積','Area')}</dt><dd>{t('細胞のピクセル数 × (1ピクセルの長さ)²','Number of pixels × pixel size²')}</dd></div>

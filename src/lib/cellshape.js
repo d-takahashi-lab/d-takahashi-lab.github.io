@@ -136,9 +136,11 @@ export function components(on, w, h, eight = true){
 
 /* ---------- Segmentation ---------- */
 // Default settings for a typical cell diameter d (pixels). split runs from 1 (fewer, larger cells)
-// to 9 (more, smaller cells); 5 is the default.
+// to 9 (more, smaller cells); 5 is the default. faces: also look for cells cut through the plane of a
+// wall, which show as broad, evenly bright areas instead of a dark interior (off by default, as thick
+// wall junctions in other images can be mistaken for them).
 export function defaultParams(d){
-  return {diameter: d, split: 5};
+  return {diameter: d, split: 5, faces: false};
 }
 
 // Finds cells inside mask, assuming bright walls around darker cell interiors (invert the image for
@@ -147,9 +149,19 @@ export function defaultParams(d){
 //    becomes one dark basin. Every local minimum at least h deeper than the lowest pass to a deeper
 //    minimum becomes one seed (h-minima; h = 0.12 standard deviations of the blurred image at split 5,
 //    halved for every two steps up).
-// 2. Outlines: a seeded watershed on the lightly blurred image (sigma = 0.02 d, at least 1 pixel) grows
-//    the seeds until they meet, so neighbouring cells meet along the brightest line of the wall between them.
-// Returns {labels (0 = no cell), n}.
+// 2. Cells cut through a wall face (only when p.faces is set): in an image blurred over a quarter of a cell
+//    (sigma = 0.25 d), thin walls fade but broad bright faces stay. Each bright dome that rises at least
+//    0.25 standard deviations above the pass to any higher one, and whose dome (the part brighter than
+//    halfway between the top and the darkest pixel around it) covers at least a quarter of a typical
+//    cell, gets a seed. All seeds then compete for pixels, each step costing 1 plus the difference from the
+//    seed's own brightness, so dark cells spread through dark areas and face cells through bright ones;
+//    the areas won by face seeds, within their bright domes, become cells if they are broad and compact (mean width at least 0.25 d,
+//    solidity at least 0.7, area at least 0.35 times a typical cell); others are thick wall junctions
+//    and are dropped.
+// 3. Outlines: a seeded watershed on the lightly blurred image (sigma = 0.02 d, at least 1 pixel) grows
+//    the dark seeds through the rest of the region until they meet, so neighbouring cells meet along the
+//    brightest line of the wall between them.
+// Returns {labels (0 = no cell), n, faces (number of face cells)}.
 export function segment(gray, mask, w, h, p){
   const d = p.diameter, n = w * h;
   const coarse = maskedBlur(gray, mask, w, h, d * 0.12);
@@ -162,13 +174,120 @@ export function segment(gray, mask, w, h, p){
   const neg = new Float32Array(n), lowered = new Float32Array(n);
   for (let i = 0; i < n; i++) { neg[i] = mask[i] ? -coarse[i] : -1e9; lowered[i] = neg[i] - hMin; }
   const rec = reconstruct(lowered, neg, w, h);
-  const seedOn = new Uint8Array(n);
-  for (let i = 0; i < n; i++) seedOn[i] = mask[i] && neg[i] - rec[i] >= hMin * (1 - 1e-4) ? 1 : 0;
-  const seeds = components(seedOn, w, h, true);
+  const dark = new Uint8Array(n);
+  for (let i = 0; i < n; i++) dark[i] = mask[i] && neg[i] - rec[i] >= hMin * (1 - 1e-4) ? 1 : 0;
+  const seeds = components(dark, w, h, true);
   const fine = maskedBlur(gray, mask, w, h, Math.max(1, d * 0.02));
-  const labels = watershed(fine, mask, seeds.labels, w, h);
+
+  let face = null, nFaces = 0;
+  const bright = !p.faces ? null : brightFaces(gray, mask, dark, w, h, d, 0.25 * sd);
+  if (bright && bright.n) {
+    const all = Int32Array.from(seeds.labels);
+    for (let i = 0; i < n; i++) if (bright.labels[i]) all[i] = seeds.n + bright.labels[i];
+    const won = competeFlood(fine, mask, all, seeds.n + bright.n, w, h);
+    // a face cell is what its seed wins within its own bright dome (so it cannot creep along the
+    // walls), keeping only the piece around the seed
+    const raw = new Uint8Array(n);
+    for (let i = 0; i < n; i++) if (won[i] > seeds.n && bright.dome[i] === won[i] - seeds.n) raw[i] = 1;
+    const pieces = components(raw, w, h, false), hasSeed = new Set();
+    for (let i = 0; i < n; i++) if (pieces.labels[i] && bright.labels[i]) hasSeed.add(pieces.labels[i]);
+    face = new Int32Array(n);
+    for (let i = 0; i < n; i++) if (hasSeed.has(pieces.labels[i])) face[i] = won[i];
+    // keep only broad, compact areas: thick wall junctions also form bright domes, but they are narrow
+    // (mean width 2 × area / perimeter below 0.25 d), branched (solidity below 0.7) or small (below
+    // 0.35 times the area of a typical cell)
+    const keep = compactRegions(face, w, h, 0.25 * d, 0.7, 0.35 * Math.PI * (d / 2) ** 2);
+    for (let i = 0; i < n; i++) if (face[i] && !keep.has(face[i])) face[i] = 0;
+    nFaces = keep.size;
+  }
+  let rest = mask;
+  if (face) { rest = new Uint8Array(n); for (let i = 0; i < n; i++) rest[i] = mask[i] && !face[i] ? 1 : 0; }
+  const labels = watershed(fine, rest, seeds.labels, w, h);
+  if (face) for (let i = 0; i < n; i++) if (face[i]) labels[i] = face[i];
   absorbSlivers(labels, w, h, Math.max(4, (d * 0.1) ** 2));
-  return {labels, n: seeds.n};
+  return {labels, n: seeds.n + nFaces, faces: nFaces};
+}
+
+// Seeds for cells cut through a wall face: cores of broad bright domes (see segment, step 2).
+export function brightFaces(gray, mask, dark, w, h, d, hB){
+  const n = w * h, blurred = maskedBlur(gray, mask, w, h, d * 0.25);
+  // tops: maxima rising at least hB above the lowest pass to a higher top (h-maxima)
+  const pos = new Float32Array(n), lowered = new Float32Array(n), neg = new Float32Array(n);
+  for (let i = 0; i < n; i++) { pos[i] = mask[i] ? blurred[i] : -1e9; lowered[i] = pos[i] - hB; neg[i] = -pos[i]; }
+  const rec = reconstruct(lowered, pos, w, h);
+  const topOn = new Uint8Array(n);
+  for (let i = 0; i < n; i++) topOn[i] = mask[i] && pos[i] - rec[i] >= hB * (1 - 1e-4) ? 1 : 0;
+  const tops = components(topOn, w, h, true);
+  // each top's dome: the pixels it wins (flooding downwards) that are brighter than halfway between
+  // the top and the darkest pixel it wins (the half-maximum outline of the bright patch)
+  const owner = watershed(neg, mask, tops.labels, w, h);
+  const height = new Float32Array(tops.n + 1).fill(-Infinity), low = new Float32Array(tops.n + 1).fill(Infinity);
+  for (let i = 0; i < n; i++) {
+    const L = owner[i];
+    if (!L) continue;
+    if (pos[i] > height[L]) height[L] = pos[i];
+    if (pos[i] < low[L]) low[L] = pos[i];
+  }
+  const dome = new Int32Array(n), area = new Int32Array(tops.n + 1);
+  for (let i = 0; i < n; i++) { const L = owner[i]; if (L && pos[i] >= low[L] + 0.65 * (height[L] - low[L])) { dome[i] = L; area[L]++; } }
+  // keep domes covering a quarter of a typical cell; their seed is the part within hB / 2 of the top
+  const minArea = 0.25 * Math.PI * (d / 2) ** 2, core = new Int32Array(n);
+  for (let i = 0; i < n; i++) { const L = dome[i]; if (L && area[L] >= minArea && pos[i] >= height[L] - hB / 2 && !dark[i]) core[i] = L; }
+  return {labels: core, n: tops.n, dome};
+}
+
+// Labels of regions of at least minArea pixels whose mean width (2 × area / perimeter, pixel edges) is at
+// least minWidth and whose solidity (area / convex hull area) is at least minSolidity.
+export function compactRegions(labels, w, h, minWidth, minSolidity, minArea = 0){
+  const area = new Map(), edges = new Map(), first = new Map(), keep = new Set();
+  for (let i = 0; i < labels.length; i++) {
+    const L = labels[i];
+    if (!L) continue;
+    if (!first.has(L)) first.set(L, i);
+    area.set(L, (area.get(L) || 0) + 1);
+    const x = i % w;
+    const e = (x === 0 || labels[i - 1] !== L) + (x === w - 1 || labels[i + 1] !== L) + (i < w || labels[i - w] !== L) + (i >= labels.length - w || labels[i + w] !== L);
+    if (e) edges.set(L, (edges.get(L) || 0) + e);
+  }
+  for (const [L, A] of area) {
+    if (A < minArea || 2 * A / (edges.get(L) || 1) < minWidth) continue;
+    const hull = polygonArea(convexHull(traceOutline(labels, w, h, L, first.get(L))));
+    if (hull > 0 && A / hull >= minSolidity) keep.add(L);
+  }
+  return keep;
+}
+
+// Seeded region competition: every seed grows step by step, each step into a pixel costing
+// 1 + 40 × |value − the seed's mean value| / (value range); each pixel goes to the seed that reaches it
+// most cheaply (Dijkstra with a bucket queue on whole-number costs).
+export function competeFlood(value, mask, seeds, nSeeds, w, h, K = 40){
+  const n = w * h, labels = Int32Array.from(seeds), dist = new Float64Array(n).fill(Infinity);
+  const sum = new Float64Array(nSeeds + 1), cnt = new Float64Array(nSeeds + 1);
+  let lo = Infinity, hi = -Infinity;
+  for (let i = 0; i < n; i++) if (mask[i]) {
+    if (value[i] < lo) lo = value[i]; if (value[i] > hi) hi = value[i];
+    if (seeds[i]) { sum[seeds[i]] += value[i]; cnt[seeds[i]]++; }
+  }
+  const ref = sum.map((v, i) => cnt[i] ? v / cnt[i] : 0), k = K / ((hi - lo) || 1);
+  const B = K + 2, buckets = Array.from({length: B}, () => []);
+  let pending = 0;
+  for (let i = 0; i < n; i++) if (labels[i] && mask[i]) { dist[i] = 0; buckets[0].push(i); pending++; }
+  for (let c = 0; pending; c++) {
+    const q = buckets[c % B];
+    while (q.length) {
+      const i = q.pop(); pending--;
+      if (dist[i] < c) continue;
+      const L = labels[i], x = i % w, r = ref[L];
+      const visit = j => {
+        if (!mask[j]) return;
+        const nd = c + 1 + Math.round(Math.abs(value[j] - r) * k);
+        if (nd < dist[j]) { dist[j] = nd; labels[j] = L; buckets[nd % B].push(j); pending++; }
+      };
+      if (x > 0) visit(i - 1); if (x < w - 1) visit(i + 1);
+      if (i >= w) visit(i - w); if (i < n - w) visit(i + w);
+    }
+  }
+  return labels;
 }
 
 // Regions smaller than minPx pixels (slivers squeezed between cells or the region's edge) join the
@@ -296,6 +415,29 @@ export function splitCells(labels, w, h, x1, y1, x2, y2, next, minPiece = 20, on
     for (let y = 0; y < bh; y++) for (let x = 0; x < bw; x++) { const j = y * bw + x; if (own[j]) labels[(y + y0) * w + x + x0] = own[j]; }
   }
   return created;
+}
+
+// Makes the pixels where inside is 1 (within the region mask) a new cell with label L. Cells that lose
+// pixels and fall apart keep their largest piece; pieces smaller than minPiece join the new cell, larger
+// ones become cells of their own (labels L + 1, …). Returns the next free label.
+export function drawCell(labels, mask, w, h, inside, L, minPiece = 20){
+  const affected = new Set();
+  for (let i = 0; i < labels.length; i++) if (inside[i] && mask[i]) { if (labels[i]) affected.add(labels[i]); labels[i] = L; }
+  let next = L + 1;
+  for (const A of affected) {
+    const on = new Uint8Array(labels.length);
+    let any = false;
+    for (let i = 0; i < labels.length; i++) if (labels[i] === A) { on[i] = 1; any = true; }
+    if (!any) continue;
+    const comp = components(on, w, h, false);
+    if (comp.n < 2) continue;
+    let big = 1;
+    for (let k = 2; k <= comp.n; k++) if (comp.sizes[k] > comp.sizes[big]) big = k;
+    const to = new Int32Array(comp.n + 1);
+    for (let k = 1; k <= comp.n; k++) to[k] = k === big ? A : comp.sizes[k] < minPiece ? L : next++;
+    for (let i = 0; i < labels.length; i++) if (comp.labels[i]) labels[i] = to[comp.labels[i]];
+  }
+  return next;
 }
 
 /* ---------- Shape measurement ---------- */

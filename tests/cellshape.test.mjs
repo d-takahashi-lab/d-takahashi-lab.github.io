@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {measure, segment, polygonMask, polygonArea, splitCells, mergeCells, areAdjacent, classify, summarise, axisDifference, tracedPerimeter, absorbSlivers} from '../src/lib/cellshape.js';
+import {measure, segment, polygonMask, polygonArea, splitCells, mergeCells, areAdjacent, classify, summarise, axisDifference, tracedPerimeter, absorbSlivers, drawCell} from '../src/lib/cellshape.js';
 import {shapes, W, H} from './cellshape-shapes.mjs';
 
 const close = (a, b, tol, what) => assert.ok(Math.abs(a - b) <= tol, `${what}: ${a} vs ${b}`);
@@ -109,6 +109,42 @@ test('slivers join the neighbour they share the longest border with', () => {
   absorbSlivers(labels, w, h, 4);
   assert.deepEqual([...new Set(labels)].sort(), [1, 2]);
   assert.equal(labels[9 * w + 9], 2);
+});
+
+test('a drawn outline becomes a new cell; cut-off pieces are tidied', () => {
+  const w = 40, h = 20, labels = new Int32Array(w * h).fill(1), inside = new Uint8Array(w * h);
+  // a band across the whole height splits cell 1 into a left part (10 columns) and a right part (25)
+  for (let y = 0; y < h; y++) for (let x = 10; x < 15; x++) inside[y * w + x] = 1;
+  // and a 1-pixel corner piece cut off by a notch
+  labels[0] = 1;
+  const next = drawCell(labels, new Uint8Array(w * h).fill(1), w, h, inside, 7, 20);
+  assert.equal(next, 9);
+  const count = L => labels.filter(v => v === L).length;
+  assert.equal(count(7), 100); assert.equal(count(1), 500); assert.equal(count(8), 200);
+});
+
+test('cells cut through a wall face (bright areas) are found when asked', () => {
+  // dark compartments 60 px apart with bright walls; one compartment shows a wall face instead of a
+  // dark interior: evenly bright (plateau) or a soft bright patch (bump)
+  const P = 60, w = P * 5, h = P * 4;
+  const mask = polygonMask([[3, 3], [w, 3], [w, h], [3, h]], 0, 0, w, h);
+  const centre = Math.round(1.5 * P) * w + Math.round(2.5 * P);
+  for (const kind of ['plateau', 'bump']) {
+    const img = new Float32Array(w * h);
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const wall = x % P < 3 || y % P < 3, inFace = x >= 2 * P + 3 && x < 3 * P && y >= P + 3 && y < 2 * P;
+      const face = kind === 'plateau' ? (inFace ? 0.4 : 0) : 0.45 * Math.exp(-(((x - 2.5 * P) / 22) ** 2 + ((y - 1.5 * P) / 14) ** 2) / 2);
+      img[y * w + x] = wall ? 0.8 : 0.2 + face;
+    }
+    const off = segment(img, mask, w, h, {diameter: P, split: 5});
+    const on = segment(img, mask, w, h, {diameter: P, split: 5, faces: true});
+    assert.equal(off.faces, 0, kind);
+    assert.ok(measure(off.labels, mask, w, h).length < 20, `${kind}: without the option the face is absorbed`);
+    assert.equal(on.faces, 1, kind);
+    assert.equal(measure(on.labels, mask, w, h).length, 20, kind);
+    const c = byLabel(measure(on.labels, mask, w, h))[on.labels[centre]];
+    assert.ok(c.area > 1200 && c.area < 63 * 63, `${kind} face area ${c.area}`);
+  }
 });
 
 test('classification and summary', () => {
