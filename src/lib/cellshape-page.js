@@ -2,7 +2,7 @@
 // and shows, saves and copies the results. All image analysis lives in cellshape.js.
 // The page language comes from <html lang>.
 import {decodeTiff, isTiff} from './tiff.js';
-import {VERSION, toGray, polygonMask, segment, measure, classify, summarise, splitCells, mergeCells, areAdjacent, drawCell, axisDifference} from './cellshape.js';
+import {VERSION, toGray, polygonMask, segment, measure, classify, summarise, splitCells, autoSplit, mergeCells, areAdjacent, drawCell, axisDifference} from './cellshape.js';
 
 const root = document.getElementById('cs');
 const en = document.documentElement.lang === 'en';
@@ -33,6 +33,7 @@ const TEXT = en ? {
   refDefault: 'Image horizontal (0°)',
   notAdjacent: 'These two cells do not touch. Choose neighbouring cells.',
   noSplit: 'The line did not cut a cell into two. Draw it right across one cell, from wall to wall, with its middle inside that cell.',
+  noAuto: 'No wall was found inside this cell. Cut it with “Cut along a line”, drawing the line along the wall.',
   nothingToUndo: 'Nothing to undo.',
   deleteRoi: n => `Delete region ${n}?`,
   roiItem: (n, cells) => `Region ${n}${cells == null ? '' : ` — ${cells} cell${cells === 1 ? '' : 's'}`}`,
@@ -50,7 +51,8 @@ const TEXT = en ? {
     space: 'Click a compartment to mark it as intercellular space; click again to unmark it.',
     merge: 'Click the two cells to join, one after the other.',
     mergeSecond: 'Now click the neighbouring cell to join.',
-    split: 'Click the start and end of a line across the cell, from wall to wall. Only the cell under the middle of the line is cut.',
+    auto: 'Click a cell that is really two or three cells: it is split along the faint walls inside it. Click a piece again to split it further.',
+    split: 'Click the two ends of a line along the wall between the cells, reaching the outline at both ends. The cut follows the nearest wall; only the cell under the middle of the line is cut.',
     draw: 'Click around the cell’s outline; click the first point, double-click or press Enter to finish. Esc cancels.',
   },
   legend: (name, lo, hi, unit) => `${name}: ${lo} – ${hi}${unit}`,
@@ -82,6 +84,7 @@ const TEXT = en ? {
   refDefault: '画像の横方向（0°）',
   notAdjacent: 'この2つの細胞は接していません。隣り合う細胞を選んでください。',
   noSplit: '線で細胞が2つに分かれませんでした。1つの細胞を横切るように、壁から壁まで線を引いてください（線の中点がその細胞の中に来るようにします）。',
+  noAuto: 'この細胞の中に壁が見つかりませんでした。「線を引いて切り分ける」で、壁に沿って線を引いてください。',
   nothingToUndo: '元に戻す操作はありません。',
   deleteRoi: n => `領域${n}を削除しますか？`,
   roiItem: (n, cells) => `領域${n}${cells == null ? '' : `（${cells}細胞）`}`,
@@ -99,7 +102,8 @@ const TEXT = en ? {
     space: 'クリックした区画を細胞間隙にします。もう一度クリックすると戻します。',
     merge: 'つなぐ2つの細胞を順にクリックしてください。',
     mergeSecond: '隣のつなぐ細胞をクリックしてください。',
-    split: '細胞を横切る線の始点と終点を、壁から壁までクリックしてください。線の中点にある細胞だけを切ります。',
+    auto: '2〜3個がつながった細胞をクリックすると、中の薄い壁を探して自動で分けます。分け足りない部分は、もう一度クリックします。',
+    split: '細胞の間の壁に沿って、輪郭から輪郭まで線の両端をクリックしてください。近くの壁に沿って切り分けます（線の中点にある細胞だけを切ります）。',
     draw: '細胞の輪郭に沿ってクリックしていき、最初の点のクリック・ダブルクリック・Enterキーで閉じます。Escキーで取り消します。',
   },
   legend: (name, lo, hi, unit) => `${name}：${lo} – ${hi}${unit}`,
@@ -488,6 +492,14 @@ function detect(roi){
     hint();
   }, 30);
 }
+// The analysed brightness (channel and inversion as chosen) of a region, for the corrections that
+// follow the walls.
+function roiGray(roi){
+  const rgba = new Uint8ClampedArray(roi.w * roi.h * 4), W = S.img.w;
+  for (let y = 0; y < roi.h; y++) rgba.set(S.img.rgba.subarray(((y + roi.y0) * W + roi.x0) * 4, ((y + roi.y0) * W + roi.x0 + roi.w) * 4), y * roi.w * 4);
+  return toGray(rgba, roi.w, roi.h, $('channel').value, $('invert').checked);
+}
+const minPieceOf = roi => Math.max(20, (roi.params.diameter / S.scale * 0.2) ** 2);
 function limits(p){
   const one = Math.PI * (p.diameter / 2) ** 2;
   return {minArea: Number.isFinite(p.minArea) ? p.minArea : 0.1 * one, maxArea: Number.isFinite(p.maxArea) ? p.maxArea : 8 * one, excludeEdge: p.excludeEdge};
@@ -646,6 +658,18 @@ function click(ix, iy, sx, sy){
     else if (cell.status === 'space') delete roi.manual[L]; else roi.manual[L] = 'space';
     return remeasure(roi);
   }
+  if (m === 'auto') {
+    const d = roi.params.diameter / S.scale, gray = roiGray(roi);
+    const before = {labels: roi.labels.slice(), manual: {...roi.manual}, next: roi.next};
+    // a clear wall first; if there is none, a fainter one
+    let created = [];
+    for (const strength of [0.3, 0.2]) { created = autoSplit(roi.labels, gray, roi.w, roi.h, L, d, roi.next, minPieceOf(roi), strength); if (created.length) break; }
+    if (!created.length) { message(TEXT.noAuto); return; }
+    history.push({roi, ...before}); $('undo').disabled = false;
+    roi.next += created.length;
+    message('');
+    return remeasure(roi);
+  }
   if (m === 'merge') {
     if (!S.pick || S.pick.roi !== roi) { S.pick = {roi, label: L}; hint(TEXT.hints.mergeSecond); return redraw(); }
     if (S.pick.label === L) { S.pick = null; hint(); return redraw(); }
@@ -665,8 +689,9 @@ function cut(){
   if (!mid) { message(TEXT.noSplit); return; }
   const roi = mid.roi;
   const before = {labels: roi.labels.slice(), manual: {...roi.manual}, next: roi.next};
-  const minPiece = Math.max(20, (roi.params.diameter / S.scale * 0.2) ** 2);
-  const created = splitCells(roi.labels, roi.w, roi.h, x1 - roi.x0, y1 - roi.y0, x2 - roi.x0, y2 - roi.y0, roi.next, minPiece, mid.label);
+  // the cut follows the brightest wall within a tenth of a cell diameter of the line
+  const band = Math.max(3, 0.1 * roi.params.diameter / S.scale);
+  const created = splitCells(roi.labels, roi.w, roi.h, x1 - roi.x0, y1 - roi.y0, x2 - roi.x0, y2 - roi.y0, roi.next, minPieceOf(roi), mid.label, roiGray(roi), band);
   if (!created.length) { message(TEXT.noSplit); return; }
   history.push({roi, ...before}); $('undo').disabled = false;
   roi.next += created.length;

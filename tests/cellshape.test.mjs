@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {measure, segment, polygonMask, polygonArea, splitCells, mergeCells, areAdjacent, classify, summarise, axisDifference, tracedPerimeter, absorbSlivers, drawCell, boxCountDimension, smoothOutlines, keepLargestPieces} from '../src/lib/cellshape.js';
+import {measure, segment, polygonMask, polygonArea, splitCells, mergeCells, areAdjacent, classify, summarise, axisDifference, tracedPerimeter, absorbSlivers, drawCell, boxCountDimension, smoothOutlines, keepLargestPieces, autoSplit} from '../src/lib/cellshape.js';
 import {shapes, W, H} from './cellshape-shapes.mjs';
 
 const close = (a, b, tol, what) => assert.ok(Math.abs(a - b) <= tol, `${what}: ${a} vs ${b}`);
@@ -115,6 +115,40 @@ test('only the chosen cell is cut when the line crosses its neighbour too', () =
   assert.deepEqual(splitCells(labels, w, h, -1, 15.5, 61, 15.5, 3, 20, 1), [[1, 3]]);
   assert.deepEqual([...new Set(labels)].sort(), [1, 2, 3]);
   assert.equal(labels.filter(v => v === 2).length, 900);
+});
+
+// Three cells in a row (dark insides, bright walls) whose two inner walls are faint, all labelled as one cell.
+function fusedRow(faint){
+  const w = 140, h = 50, img = new Float32Array(w * h), labels = new Int32Array(w * h);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const i = y * w + x, outer = x < 5 || x >= 135 || y < 5 || y >= 45;
+    const inner = (Math.abs(x - 50) < 2 || Math.abs(x - 90) < 2) && !outer;
+    img[i] = outer ? 1 : inner ? faint : 0.1 + 0.02 * Math.sin(x * 0.7 + y);
+    if (x >= 3 && x < 137 && y >= 3 && y < 47) labels[i] = 1;
+  }
+  return {w, h, img, labels};
+}
+
+test('clicking a fused cell splits it along its faint inner walls', () => {
+  const {w, h, img, labels} = fusedRow(0.45);
+  const created = autoSplit(labels, img, w, h, 1, 38, 2, 200);
+  assert.equal(created.length, 2);
+  const at = (x, y) => labels[y * w + x];
+  assert.deepEqual(new Set([at(25, 25), at(70, 25), at(115, 25)]).size, 3);
+  // the new boundaries lie on the faint walls
+  for (const wall of [50, 90]) assert.notEqual(at(wall - 4, 25), at(wall + 4, 25));
+  // a cell with no inner wall and a compact shape is left alone
+  const one = new Int32Array(w * h), flat = new Float32Array(w * h).fill(0.1);
+  for (let y = 10; y < 40; y++) for (let x = 55; x < 85; x++) one[y * w + x] = 1;
+  assert.equal(autoSplit(one, flat, w, h, 1, 38, 2, 200).length, 0);
+});
+
+test('a line near a faint wall cuts along the wall, not along the line', () => {
+  const {w, h, img, labels} = fusedRow(0.45);
+  // a slanted line a few pixels off the wall at x = 50
+  const created = splitCells(labels, w, h, 45, 0, 55, 50, 2, 100, 1, img, 8);
+  assert.equal(created.length, 1);
+  for (const y of [8, 25, 42]) { assert.notEqual(labels[y * w + 47], labels[y * w + 53], `row ${y}`); assert.equal(labels[y * w + 46], labels[y * w + 30]); assert.equal(labels[y * w + 54], labels[y * w + 70]); }
 });
 
 test('slivers join the neighbour they share the longest border with', () => {

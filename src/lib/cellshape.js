@@ -164,6 +164,17 @@ export function defaultParams(d){
 //    brightest line of the wall between them.
 // 4. Smoothing (s > 0): a majority filter of radius s × u rounds off jagged outlines.
 // Returns {labels (0 = no cell), n, faces (number of face cells)}.
+// Pixels of the regional minima of value inside mask that are at least hMin deep (h-minima transform:
+// the h-maxima of the negative, by morphological reconstruction).
+export function hMinima(value, mask, w, h, hMin){
+  const n = w * h, neg = new Float32Array(n), lowered = new Float32Array(n);
+  for (let i = 0; i < n; i++) { neg[i] = mask[i] ? -value[i] : -1e9; lowered[i] = neg[i] - hMin; }
+  const rec = reconstruct(lowered, neg, w, h);
+  const out = new Uint8Array(n);
+  for (let i = 0; i < n; i++) out[i] = mask[i] && neg[i] - rec[i] >= hMin * (1 - 1e-4) ? 1 : 0;
+  return out;
+}
+
 export function segment(gray, mask, w, h, p){
   const d = p.diameter, n = w * h;
   const coarse = maskedBlur(gray, mask, w, h, d * 0.12);
@@ -172,12 +183,7 @@ export function segment(gray, mask, w, h, p){
   mean /= count || 1;
   const sd = Math.sqrt(Math.max(0, sq / (count || 1) - mean * mean));
   const hMin = 0.12 * sd * 2 ** ((5 - p.split) / 2);
-  // h-minima of the blurred image = h-maxima of its negative
-  const neg = new Float32Array(n), lowered = new Float32Array(n);
-  for (let i = 0; i < n; i++) { neg[i] = mask[i] ? -coarse[i] : -1e9; lowered[i] = neg[i] - hMin; }
-  const rec = reconstruct(lowered, neg, w, h);
-  const dark = new Uint8Array(n);
-  for (let i = 0; i < n; i++) dark[i] = mask[i] && neg[i] - rec[i] >= hMin * (1 - 1e-4) ? 1 : 0;
+  const dark = hMinima(coarse, mask, w, h, hMin);
   const seeds = components(dark, w, h, true);
   // outline smoothing level 0–5: stronger blur before the watershed and a majority filter afterwards
   const smooth = p.smooth ?? 0, unit = Math.max(1, d * 0.02);
@@ -460,12 +466,26 @@ export function linePixels(x1, y1, x2, y2){
 // Cuts the cells the line crosses into pieces (only the cell labelled only, when given). Pieces smaller
 // than minPiece pixels stay with the largest piece. Line pixels join the neighbouring piece. New pieces
 // get labels next, next + 1, …. Returns the new labels as [[oldLabel, newLabel], …].
-export function splitCells(labels, w, h, x1, y1, x2, y2, next, minPiece = 20, only = 0){
+// Cuts cells along the line (x1, y1)–(x2, y2). Given the image (value) and a band width, the cut is not
+// straight: pixels within band of the line are flooded from both sides (watershed on the lightly
+// smoothed image), so the new boundary follows the brightest wall near the line.
+export function splitCells(labels, w, h, x1, y1, x2, y2, next, minPiece = 20, only = 0, value = null, band = 0){
   const cut = new Uint8Array(w * h), touched = new Set();
   for (const [x, y] of linePixels(x1, y1, x2, y2)) {
     if (x < 0 || y < 0 || x >= w || y >= h) continue;
     const i = y * w + x;
     if (labels[i] && (!only || labels[i] === only)) { cut[i] = 1; touched.add(labels[i]); }
+  }
+  if (value && band > 0) {
+    const len2 = (x2 - x1) ** 2 + (y2 - y1) ** 2 || 1;
+    const xa = Math.max(0, Math.floor(Math.min(x1, x2) - band)), xb = Math.min(w - 1, Math.ceil(Math.max(x1, x2) + band));
+    const ya = Math.max(0, Math.floor(Math.min(y1, y2) - band)), yb = Math.min(h - 1, Math.ceil(Math.max(y1, y2) + band));
+    for (let y = ya; y <= yb; y++) for (let x = xa; x <= xb; x++) {
+      const i = y * w + x;
+      if (!touched.has(labels[i])) continue;
+      const t = Math.max(0, Math.min(1, ((x + 0.5 - x1) * (x2 - x1) + (y + 0.5 - y1) * (y2 - y1)) / len2));
+      if (Math.hypot(x + 0.5 - x1 - t * (x2 - x1), y + 0.5 - y1 - t * (y2 - y1)) <= band) cut[i] = 1;
+    }
   }
   const created = [];
   for (const L of touched) {
@@ -482,6 +502,13 @@ export function splitCells(labels, w, h, x1, y1, x2, y2, next, minPiece = 20, on
     // assign the pieces, then grow them into the line pixels and the small pieces
     const own = new Int32Array(bw * bh);
     for (let j = 0; j < own.length; j++) if (comp.labels[j] && comp.sizes[comp.labels[j]] >= minPiece) own[j] = target[comp.labels[j]];
+    if (value) {
+      const cell = new Uint8Array(bw * bh), sub = new Float32Array(bw * bh);
+      for (let y = 0; y < bh; y++) for (let x = 0; x < bw; x++) { const i = (y + y0) * w + x + x0; cell[y * bw + x] = labels[i] === L ? 1 : 0; sub[y * bw + x] = value[i]; }
+      const grown = watershed(maskedBlur(sub, cell, bw, bh, 1), cell, own, bw, bh);
+      keepLargestPieces(grown, bw, bh);
+      for (let j = 0; j < own.length; j++) if (cell[j]) own[j] = grown[j];
+    }
     let left = true;
     while (left) {
       left = false;
@@ -503,6 +530,95 @@ export function splitCells(labels, w, h, x1, y1, x2, y2, next, minPiece = 20, on
 // Makes the pixels where inside is 1 (within the region mask) a new cell with label L. Cells that lose
 // pixels and fall apart keep their largest piece; pieces smaller than minPiece join the new cell, larger
 // ones become cells of their own (labels L + 1, …). Returns the next free label.
+// Splits cell L into the cells it seems to be made of, along fainter walls inside it. The cell is first
+// cut into many small basins (watershed from the minima of the lightly smoothed image); then the two
+// neighbouring pieces with the darkest shared boundary are joined, again and again, until every
+// boundary left is at least `strength` times as bright (above the cell's dark inside) as the cell's
+// own outline, and every piece has at least minPiece pixels. What remains are the real inner walls.
+// Returns [[L, new label], …] like splitCells; empty if no inner wall is found.
+export function autoSplit(labels, value, w, h, L, d, next, minPiece = 20, strength = 0.3){
+  let x0 = w, y0 = h, xe = -1, ye = -1;
+  for (let i = 0; i < labels.length; i++) if (labels[i] === L) { const x = i % w, y = (i - x) / w; if (x < x0) x0 = x; if (x > xe) xe = x; if (y < y0) y0 = y; if (y > ye) ye = y; }
+  if (xe < 0) return [];
+  const bw = xe - x0 + 1, bh = ye - y0 + 1, n = bw * bh;
+  const cell = new Uint8Array(n), sub = new Float32Array(n);
+  for (let y = 0; y < bh; y++) for (let x = 0; x < bw; x++) { const i = (y + y0) * w + x + x0; cell[y * bw + x] = labels[i] === L ? 1 : 0; sub[y * bw + x] = value[i]; }
+  const ridge = maskedBlur(sub, cell, bw, bh, Math.max(1, d * 0.015));
+  // dark level inside (median) and brightness of the cell's own outline
+  const inside = [], rim = [];
+  for (let y = 0; y < bh; y++) for (let x = 0; x < bw; x++) {
+    const j = y * bw + x;
+    if (!cell[j]) continue;
+    const out = x === 0 || y === 0 || x === bw - 1 || y === bh - 1 || !cell[j - 1] || !cell[j + 1] || !cell[j - bw] || !cell[j + bw];
+    (out ? rim : inside).push(ridge[j]);
+  }
+  if (!inside.length || !rim.length) return [];
+  inside.sort((a, b) => a - b);
+  const dark = inside[Math.floor(inside.length / 2)];
+  const wall = rim.reduce((a, v) => a + v, 0) / rim.length - dark;
+  if (!(wall > 0)) return [];
+  // many small basins
+  const basin = maskedBlur(sub, cell, bw, bh, Math.max(1, d * 0.03));
+  const seeds = components(hMinima(basin, cell, bw, bh, 0.03 * wall), bw, bh, true);
+  if (seeds.n < 2) return [];
+  const lab = watershed(ridge, cell, seeds.labels, bw, bh);
+  // distance to the outside of the cell (chamfer 3-4, in thirds of a pixel): boundary pixels close to
+  // the outline take its brightness, so they say nothing about an inner wall and are not counted
+  const dist = new Float32Array(n);
+  for (let j = 0; j < n; j++) dist[j] = cell[j] ? 1e9 : 0;
+  const at = (x, y) => (x < 0 || y < 0 || x >= bw || y >= bh ? 0 : dist[y * bw + x]);
+  for (let y = 0; y < bh; y++) for (let x = 0; x < bw; x++) { const j = y * bw + x; if (cell[j]) dist[j] = Math.min(dist[j], at(x - 1, y) + 3, at(x, y - 1) + 3, at(x - 1, y - 1) + 4, at(x + 1, y - 1) + 4); }
+  for (let y = bh - 1; y >= 0; y--) for (let x = bw - 1; x >= 0; x--) { const j = y * bw + x; if (cell[j]) dist[j] = Math.min(dist[j], at(x + 1, y) + 3, at(x, y + 1) + 3, at(x + 1, y + 1) + 4, at(x - 1, y + 1) + 4); }
+  const clear = 3 * Math.max(3, d * 0.05);
+  // boundaries between pieces: sum and count of the brighter pixel of each touching pair
+  const K = seeds.n, size = new Float64Array(K + 1), edges = new Map();
+  const key = (a, b) => (a < b ? a * (K + 1) + b : b * (K + 1) + a);
+  for (let y = 0; y < bh; y++) for (let x = 0; x < bw; x++) {
+    const j = y * bw + x, a = lab[j];
+    if (!a) continue;
+    size[a]++;
+    for (const k of [x < bw - 1 ? j + 1 : -1, y < bh - 1 ? j + bw : -1]) {
+      if (k < 0 || !lab[k] || lab[k] === a) continue;
+      const e = key(a, lab[k]), far = dist[j] >= clear && dist[k] >= clear, v = far ? Math.max(ridge[j], ridge[k]) : 0;
+      const s = edges.get(e); if (s) { s[0] += v; s[1] += far ? 1 : 0; } else edges.set(e, [v, far ? 1 : 0]);
+    }
+  }
+  const parent = Int32Array.from({length: K + 1}, (_, i) => i);
+  const find = a => { while (parent[a] !== a) { parent[a] = parent[parent[a]]; a = parent[a]; } return a; };
+  for (;;) {
+    // collect boundaries between the current pieces
+    const cur = new Map();
+    for (const [e, [sum, cnt]] of edges) {
+      const a = find(Math.floor(e / (K + 1))), b = find(e % (K + 1));
+      if (a === b) continue;
+      const k2 = key(a, b), s = cur.get(k2);
+      if (s) { s[0] += sum; s[1] += cnt; } else cur.set(k2, [sum, cnt]);
+    }
+    let best = null, bestScore = Infinity;
+    for (const [e, [sum, cnt]] of cur) {
+      const a = Math.floor(e / (K + 1)), b = e % (K + 1);
+      const contrast = cnt ? (sum / cnt - dark) / wall : 0;
+      // pieces that are too small are joined first, to the neighbour they share the darkest boundary with
+      const score = (size[a] < minPiece || size[b] < minPiece ? -10 : 0) + contrast;
+      if (score < bestScore) { bestScore = score; best = [a, b]; }
+    }
+    if (!best || bestScore >= strength) break;
+    const [a, b] = best;
+    parent[b] = a; size[a] += size[b]; size[b] = 0;
+  }
+  const pieces = new Map();
+  for (let j = 0; j < n; j++) if (lab[j]) { const r = find(lab[j]); pieces.set(r, (pieces.get(r) || 0) + 1); }
+  if (pieces.size < 2) return [];
+  const order = [...pieces.keys()].sort((a, b) => pieces.get(b) - pieces.get(a));
+  const target = new Map([[order[0], L]]), created = [];
+  for (const k of order.slice(1)) { target.set(k, next); created.push([L, next]); next++; }
+  const out = new Int32Array(n);
+  for (let j = 0; j < n; j++) if (lab[j]) out[j] = target.get(find(lab[j]));
+  keepLargestPieces(out, bw, bh);
+  for (let y = 0; y < bh; y++) for (let x = 0; x < bw; x++) { const j = y * bw + x; if (cell[j] && out[j]) labels[(y + y0) * w + x + x0] = out[j]; }
+  return created;
+}
+
 export function drawCell(labels, mask, w, h, inside, L, minPiece = 20){
   const affected = new Set();
   for (let i = 0; i < labels.length; i++) if (inside[i] && mask[i]) { if (labels[i]) affected.add(labels[i]); labels[i] = L; }
