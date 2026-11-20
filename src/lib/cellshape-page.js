@@ -54,6 +54,7 @@ const TEXT = en ? {
     draw: 'Click around the cell’s outline; click the first point, double-click or press Enter to finish. Esc cancels.',
   },
   legend: (name, lo, hi, unit) => `${name}: ${lo} – ${hi}${unit}`,
+  greyNote: 'Grey: detected but not measured (cut by the region edge, outside the area range, or left out by hand). Blue: intercellular space.',
   copied: 'Copied',
   cols: {image: 'Image', region: 'Region', name: 'Name', cell: 'Cell', status: 'Status', count: 'Cells', tissueArea: 'Tissue area (µm²)', frame: 'Region drawn around', whole: 'Whole cells', cut: 'Cells cut by the edge', measured: 'Cells measured', density: 'Cell density (/mm²)', space: 'Intercellular space (%)', roiArea: 'Region area (µm²)', angle: 'Angle (°)', feretAngle: 'Feret angle (°)', x: 'Centroid x (µm)', y: 'Centroid y (µm)', pixel: 'Pixel size (µm)', surface: 'Surface direction (°)', diameter: 'Typical cell diameter (µm)', split: 'Splitting', smooth: 'Outline smoothing', faces: 'Wall-face cells searched', minArea: 'Minimum area (µm²)', maxArea: 'Maximum area (µm²)', edge: 'Edge cells excluded', version: 'Tool version', date: 'Date analysed'},
   stat: {mean: 'mean', sd: 'SD', median: 'median'},
@@ -102,6 +103,7 @@ const TEXT = en ? {
     draw: '細胞の輪郭に沿ってクリックしていき、最初の点のクリック・ダブルクリック・Enterキーで閉じます。Escキーで取り消します。',
   },
   legend: (name, lo, hi, unit) => `${name}：${lo} – ${hi}${unit}`,
+  greyNote: '灰色：検出したが計測していない細胞（領域の縁にかかる・面積が範囲外・手で除外）。青：細胞間隙。',
   copied: 'コピーしました',
   cols: {image: '画像', region: '領域', name: '名前', cell: '番号', status: '状態', count: '細胞数', tissueArea: '組織の面積 (µm²)', frame: '領域の描き方', whole: '縁にかからない細胞', cut: '縁にかかる細胞', measured: '計測数', density: '細胞密度 (/mm²)', space: '細胞間隙 (%)', roiArea: '領域の面積 (µm²)', angle: '角度 (°)', feretAngle: 'フェレ径の角度 (°)', x: '重心 x (µm)', y: '重心 y (µm)', pixel: '1ピクセルの長さ (µm)', surface: '表面の向き (°)', diameter: '細胞の直径の目安 (µm)', split: '分け方', smooth: '輪郭のなめらかさ', faces: '面の細胞を探した', minArea: '最小面積 (µm²)', maxArea: '最大面積 (µm²)', edge: '縁の細胞を除外', version: 'ツールのバージョン', date: '解析日'},
   stat: {mean: '平均', sd: '標準偏差', median: '中央値'},
@@ -274,11 +276,16 @@ function renderAll(){
   const metric = $('color').value, range = metric === 'cell' ? null : colorRange(metric);
   S.rois.forEach(r => renderOverlay(r, metric, range));
   const legend = $('legend');
+  // Cells that are not measured are drawn in grey, which is easy to mistake for missed cells.
+  const grey = S.rois.some(r => r.cells.some(c => c.status !== 'ok'));
+  let html = '';
   if (range) {
     const m = BY_KEY[metric];
-    legend.innerHTML = `<span class="cs-ramp"></span>${esc(TEXT.legend(mName(m), range.lo.toFixed(m.d), range.hi.toFixed(m.d), m.unit ? ` ${m.unit}` : ''))}`;
-    legend.hidden = false;
-  } else legend.hidden = true;
+    html = `<span class="cs-ramp"></span>${esc(TEXT.legend(mName(m), range.lo.toFixed(m.d), range.hi.toFixed(m.d), m.unit ? ` ${m.unit}` : ''))}`;
+  }
+  if (grey) html += `${html ? '<br/>' : ''}${esc(TEXT.greyNote)}`;
+  legend.innerHTML = html;
+  legend.hidden = !html;
   redraw();
 }
 function renderOverlay(r, metric, range){
