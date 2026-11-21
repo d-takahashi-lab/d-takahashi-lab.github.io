@@ -24,8 +24,8 @@ export const tools:Tool[] = [
  {
   slug:'cellshape', name:'Cell Shape Analyzer', version:CELLSHAPE_VERSION, updated:'2026-11-20',
   summary:{
-   ja:'葉・茎・根の切片などの顕微鏡画像で表皮・柵状組織・皮層などの領域を囲むと、その中の細胞を色分けして数え、輪郭をトレースして面積・縦横比・円形度・表面との角度などを計算します。',
-   en:'Outline a region such as the epidermis, palisade mesophyll or cortex in a microscope image of a section of a leaf, stem or root: the cells inside are coloured, counted and traced, and their area, aspect ratio, circularity, angle to the surface and other measures are calculated.',
+   ja:'葉・茎・根の切片などの顕微鏡画像で表皮・柵状組織・皮層などの領域を囲むと、その中の細胞を色分けして数え、輪郭をトレースして面積・縦横比・円形度・充実度などを計算します。',
+   en:'Outline a region such as the epidermis, palisade mesophyll or cortex in a microscope image of a section of a leaf, stem or root: the cells inside are coloured, counted and traced, and their area, aspect ratio, circularity, solidity and other measures are calculated.',
   },
   history:[
    {version:'1.0',date:'2026-11-20',ja:'公開',en:'First release'},

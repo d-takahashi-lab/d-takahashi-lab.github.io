@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {measure, segment, polygonMask, polygonArea, splitCells, mergeCells, areAdjacent, classify, summarise, axisDifference, tracedPerimeter, absorbSlivers, drawCell, boxCountDimension, smoothOutlines, keepLargestPieces, autoSplit} from '../src/lib/cellshape.js';
+import {measure, segment, polygonMask, polygonArea, splitCells, mergeCells, areAdjacent, classify, summarise, tracedPerimeter, absorbSlivers, drawCell, boxCountDimension, smoothOutlines, keepLargestPieces, autoSplit} from '../src/lib/cellshape.js';
 import {shapes, W, H} from './cellshape-shapes.mjs';
 
 const close = (a, b, tol, what) => assert.ok(Math.abs(a - b) <= tol, `${what}: ${a} vs ${b}`);
@@ -53,13 +53,10 @@ test('traced outlines enclose exactly the pixels of each cell', () => {
   for (const c of measure(shapes(), all(W, H), W, H)) assert.equal(polygonArea(c.outline), c.px, `label ${c.label}`);
 });
 
-test('scale converts lengths and areas to µm; angle to the surface is folded into 0–90°', () => {
-  const c = byLabel(measure(shapes(), all(W, H), W, H, {scale: 0.5, refAngle: 90}))[1];
+test('scale converts lengths and areas to µm', () => {
+  const c = byLabel(measure(shapes(), all(W, H), W, H, {scale: 0.5}))[1];
   assert.equal(c.area, 90);
   close(c.feret, Math.hypot(15, 6), 1e-9, 'Feret in µm');
-  assert.equal(c.surfaceAngle, 90);
-  assert.equal(axisDifference(170, 10), 20);
-  assert.equal(axisDifference(10, 100), 90);
   assert.equal(tracedPerimeter([[0, 0], [2, 0], [2, 2], [0, 2]]), 8 - 4 * (2 - Math.SQRT2));
 });
 

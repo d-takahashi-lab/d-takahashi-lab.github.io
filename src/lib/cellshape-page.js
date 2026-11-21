@@ -2,7 +2,7 @@
 // and shows, saves and copies the results. All image analysis lives in cellshape.js.
 // The page language comes from <html lang>.
 import {decodeTiff, isTiff} from './tiff.js';
-import {VERSION, toGray, polygonMask, segment, measure, classify, summarise, splitCells, autoSplit, mergeCells, areAdjacent, drawCell, axisDifference} from './cellshape.js';
+import {VERSION, toGray, polygonMask, segment, measure, classify, summarise, splitCells, autoSplit, mergeCells, areAdjacent, drawCell} from './cellshape.js';
 
 const root = document.getElementById('cs');
 const en = document.documentElement.lang === 'en';
@@ -19,18 +19,16 @@ const TEXT = en ? {
   loading: 'Loading the image…',
   scaledTiff: bits => `This is a ${bits}-bit image: brightness was scaled to 8 bits for display and analysis (0.05–99.95th percentile).`,
   tiffErrors: {bigtiff: 'BigTIFF files cannot be read. Save the image as an ordinary TIFF or PNG.', compression: 'This TIFF uses a compression that cannot be read here (e.g. JPEG). Save it uncompressed, with LZW, or as PNG.', bits: 'Only 8-, 16- and 32-bit TIFF images can be read.'},
-  exampleLoaded: e => `Example image loaded: a cross-section with a vascular bundle in the middle, fluorescence, 10× objective. The scale (${e.barUm} µm = ${e.barPx} px) and a cell diameter are already set. Name and outline a region (step 4).`,
+  exampleLoaded: e => `Example image loaded: a cross-section with a vascular bundle in the middle, fluorescence, 10× objective. The scale (${e.barUm} µm = ${e.barPx} px) and a cell diameter are already set. Name and outline a region (step 3).`,
   replace: 'Load a new image? The regions drawn on the current image will be discarded.',
   needImage: 'Choose an image first.',
   needScale: 'Set the scale first (step 2): trace the scale bar or type the pixel size.',
-  needRoi: 'Outline a region first (step 4).',
+  needRoi: 'Outline a region first (step 3).',
   tooSmallRoi: 'The region is too small.',
   tooSmallCell: 'The typical cell diameter is smaller than 4 pixels. Check the scale and the diameter.',
   detecting: 'Detecting cells…',
   scaleSet: (px, um, s) => `Scale bar: ${px.toFixed(1)} px = ${um} µm → ${fmtSig(s)} µm per pixel`,
   scaleSaved: 'Using the pixel size from your last session in this browser. Check it matches this image.',
-  refInfo: a => `${a.toFixed(1)}° from the image horizontal (counter-clockwise)`,
-  refDefault: 'Image horizontal (0°)',
   notAdjacent: 'These two cells do not touch. Choose neighbouring cells.',
   noSplit: 'The line did not cut a cell into two. Draw it right across one cell, from wall to wall, with its middle inside that cell.',
   noAuto: 'No wall was found inside this cell. Cut it with “Cut along a line”, drawing the line along the wall.',
@@ -40,11 +38,10 @@ const TEXT = en ? {
   nameOf: n => `Name of region ${n}`,
   remove: 'Delete',
   wheel: key => `Hold ${key} and scroll to zoom`,
-  noDraw: 'The outline must lie inside a region. Outline a region first (step 4).',
+  noDraw: 'The outline must lie inside a region. Outline a region first (step 3).',
   hints: {
     none: '',
     scale: 'Click the two ends of the scale bar.',
-    ref: 'Click two points along the surface of the leaf, stem or root.',
     roi: 'Click to place corners; click the first point, double-click or press Enter to close. Then outline the next region. Esc cancels the outline being drawn; press Esc again, the button, or choose a correction to finish.',
     info: 'Click a cell to see its values. Drag to move; ⌘ (Ctrl) + scroll to zoom.',
     exclude: 'Click a cell to leave it out of the measurements; click again to include it.',
@@ -58,7 +55,7 @@ const TEXT = en ? {
   legend: (name, lo, hi, unit) => `${name}: ${lo} – ${hi}${unit}`,
   greyNote: 'Grey: detected but not measured (cut by the region edge, outside the area range, or left out by hand). Blue: intercellular space.',
   copied: 'Copied',
-  cols: {image: 'Image', region: 'Region', name: 'Name', cell: 'Cell', status: 'Status', count: 'Cells', tissueArea: 'Tissue area (µm²)', frame: 'Region drawn around', whole: 'Whole cells', cut: 'Cells cut by the edge', measured: 'Cells measured', density: 'Cell density (/mm²)', space: 'Intercellular space (%)', roiArea: 'Region area (µm²)', angle: 'Angle (°)', feretAngle: 'Feret angle (°)', x: 'Centroid x (µm)', y: 'Centroid y (µm)', pixel: 'Pixel size (µm)', surface: 'Surface direction (°)', diameter: 'Typical cell diameter (µm)', split: 'Splitting', smooth: 'Outline smoothing', faces: 'Wall-face cells searched', minArea: 'Minimum area (µm²)', maxArea: 'Maximum area (µm²)', edge: 'Edge cells excluded', version: 'Tool version', date: 'Date analysed'},
+  cols: {image: 'Image', region: 'Region', name: 'Name', cell: 'Cell', status: 'Status', count: 'Cells', tissueArea: 'Tissue area (µm²)', frame: 'Region drawn around', whole: 'Whole cells', cut: 'Cells cut by the edge', measured: 'Cells measured', density: 'Cell density (/mm²)', space: 'Intercellular space (%)', roiArea: 'Region area (µm²)', angle: 'Angle (°)', feretAngle: 'Feret angle (°)', x: 'Centroid x (µm)', y: 'Centroid y (µm)', pixel: 'Pixel size (µm)', diameter: 'Typical cell diameter (µm)', split: 'Splitting', smooth: 'Outline smoothing', faces: 'Wall-face cells searched', minArea: 'Minimum area (µm²)', maxArea: 'Maximum area (µm²)', edge: 'Edge cells excluded', version: 'Tool version', date: 'Date analysed'},
   stat: {mean: 'mean', sd: 'SD', median: 'median'},
   yes: 'yes', no: 'no',
   frames: {tissue: 'whole tissue', part: 'part of a tissue'},
@@ -70,18 +67,16 @@ const TEXT = en ? {
   loading: '画像を読み込んでいます…',
   scaledTiff: bits => `${bits}ビットの画像なので、明るさを8ビットに変換して表示・解析します（0.05〜99.95パーセンタイルの範囲）。`,
   tiffErrors: {bigtiff: 'BigTIFF形式は読み込めません。通常のTIFFかPNGで保存し直してください。', compression: 'このTIFFの圧縮形式（JPEG圧縮など）は読み込めません。無圧縮・LZW圧縮のTIFFかPNGで保存し直してください。', bits: '8・16・32ビットのTIFFだけが読み込めます。'},
-  exampleLoaded: e => `例の画像（中央に維管束がある横断切片の蛍光像、10倍対物レンズ）を読み込みました。スケール（${e.barUm} µm = ${e.barPx}ピクセル）と細胞の直径の目安は設定済みです。手順4で名前を付けて、領域を囲んでみてください。`,
+  exampleLoaded: e => `例の画像（中央に維管束がある横断切片の蛍光像、10倍対物レンズ）を読み込みました。スケール（${e.barUm} µm = ${e.barPx}ピクセル）と細胞の直径の目安は設定済みです。手順3で名前を付けて、領域を囲んでみてください。`,
   replace: '新しい画像を読み込みますか？ 今の画像に描いた領域は消えます。',
   needImage: '先に画像を選んでください。',
   needScale: '先にスケールを決めてください（手順2）。スケールバーをなぞるか、1ピクセルの長さを入力します。',
-  needRoi: '先に領域を囲んでください（手順4）。',
+  needRoi: '先に領域を囲んでください（手順3）。',
   tooSmallRoi: '領域が小さすぎます。',
   tooSmallCell: '細胞の直径の目安が4ピクセルより小さくなっています。スケールと直径を確かめてください。',
   detecting: '細胞を検出しています…',
   scaleSet: (px, um, s) => `スケールバー：${px.toFixed(1)}ピクセル = ${um} µm → 1ピクセル ${fmtSig(s)} µm`,
   scaleSaved: 'このブラウザで前回使った値を入れています。この画像に合っているか確かめてください。',
-  refInfo: a => `画像の横から反時計回りに${a.toFixed(1)}°`,
-  refDefault: '画像の横方向（0°）',
   notAdjacent: 'この2つの細胞は接していません。隣り合う細胞を選んでください。',
   noSplit: '線で細胞が2つに分かれませんでした。1つの細胞を横切るように、壁から壁まで線を引いてください（線の中点がその細胞の中に来るようにします）。',
   noAuto: 'この細胞の中に壁が見つかりませんでした。「線を引いて切り分ける」で、壁に沿って線を引いてください。',
@@ -91,11 +86,10 @@ const TEXT = en ? {
   nameOf: n => `領域${n}の名前`,
   remove: '削除',
   wheel: key => `${key}キーを押しながらスクロールすると拡大・縮小します`,
-  noDraw: '輪郭は領域の中に描いてください。先に領域を囲みます（手順4）。',
+  noDraw: '輪郭は領域の中に描いてください。先に領域を囲みます（手順3）。',
   hints: {
     none: '',
     scale: 'スケールバーの両端をクリックしてください。',
-    ref: '葉・茎・根の表面に沿って2点をクリックしてください。',
     roi: 'クリックで角を置き、最初の点のクリック・ダブルクリック・Enterキーで閉じます。続けて次の領域を囲めます。Escキーで描きかけを取り消し、もう一度Escキーかボタンを押すか、手直しの種類を選ぶと終わります。',
     info: '細胞をクリックすると値を表示します。ドラッグで移動、⌘（Ctrl）キー＋スクロールで拡大・縮小します。',
     exclude: 'クリックした細胞を計測から外します。もう一度クリックすると戻します。',
@@ -109,7 +103,7 @@ const TEXT = en ? {
   legend: (name, lo, hi, unit) => `${name}：${lo} – ${hi}${unit}`,
   greyNote: '灰色：検出したが計測していない細胞（領域の縁にかかる・面積が範囲外・手で除外）。青：細胞間隙。',
   copied: 'コピーしました',
-  cols: {image: '画像', region: '領域', name: '名前', cell: '番号', status: '状態', count: '細胞数', tissueArea: '組織の面積 (µm²)', frame: '領域の描き方', whole: '縁にかからない細胞', cut: '縁にかかる細胞', measured: '計測数', density: '細胞密度 (/mm²)', space: '細胞間隙 (%)', roiArea: '領域の面積 (µm²)', angle: '角度 (°)', feretAngle: 'フェレ径の角度 (°)', x: '重心 x (µm)', y: '重心 y (µm)', pixel: '1ピクセルの長さ (µm)', surface: '表面の向き (°)', diameter: '細胞の直径の目安 (µm)', split: '分け方', smooth: '輪郭のなめらかさ', faces: '面の細胞を探した', minArea: '最小面積 (µm²)', maxArea: '最大面積 (µm²)', edge: '縁の細胞を除外', version: 'ツールのバージョン', date: '解析日'},
+  cols: {image: '画像', region: '領域', name: '名前', cell: '番号', status: '状態', count: '細胞数', tissueArea: '組織の面積 (µm²)', frame: '領域の描き方', whole: '縁にかからない細胞', cut: '縁にかかる細胞', measured: '計測数', density: '細胞密度 (/mm²)', space: '細胞間隙 (%)', roiArea: '領域の面積 (µm²)', angle: '角度 (°)', feretAngle: 'フェレ径の角度 (°)', x: '重心 x (µm)', y: '重心 y (µm)', pixel: '1ピクセルの長さ (µm)', diameter: '細胞の直径の目安 (µm)', split: '分け方', smooth: '輪郭のなめらかさ', faces: '面の細胞を探した', minArea: '最小面積 (µm²)', maxArea: '最大面積 (µm²)', edge: '縁の細胞を除外', version: 'ツールのバージョン', date: '解析日'},
   stat: {mean: '平均', sd: '標準偏差', median: '中央値'},
   yes: 'はい', no: 'いいえ',
   frames: {tissue: '組織全体', part: '組織の一部'},
@@ -131,7 +125,6 @@ const MEASURES = [
   {key: 'fractal', ja: 'フラクタル次元', en: 'Fractal dimension', d: 3},
   {key: 'feret', ja: 'フェレ径', en: 'Feret diameter', unit: 'µm', d: 1},
   {key: 'minFeret', ja: '最小フェレ径', en: 'Min. Feret diameter', unit: 'µm', d: 1},
-  {key: 'surfaceAngle', ja: '表面との角度', en: 'Angle to surface', unit: '°', d: 1},
 ];
 const BY_KEY = Object.fromEntries(MEASURES.map(m => [m.key, m]));
 const mName = m => en ? m.en : m.ja;
@@ -148,9 +141,8 @@ const num = id => { const v = parseFloat($(id).value); return Number.isFinite(v)
 const S = {
   img: null,                 // {w, h, name, canvas, rgba}
   scale: NaN,                // µm per pixel
-  ref: 0,                    // surface direction (degrees, counter-clockwise from horizontal)
   rois: [], sel: -1, nextId: 1,
-  tool: null,                // 'scale' | 'ref' | 'roi' while drawing
+  tool: null,                // 'scale' | 'roi' while drawing
   pts: [],                   // points of the line or polygon being drawn (image coordinates)
   hover: null,
   pick: null,                // {roi, label}: cell shown in the info panel or first cell to join
@@ -272,7 +264,6 @@ function colorRange(metric){
   if (!v.length) return null;
   const q = p => v[Math.min(v.length - 1, Math.max(0, Math.round(p * (v.length - 1))))];
   let lo = q(0.05), hi = q(0.95);
-  if (metric === 'surfaceAngle') { lo = 0; hi = 90; }
   if (!(hi > lo)) hi = lo + 1;
   return {lo, hi};
 }
@@ -358,14 +349,13 @@ async function loadFile(file, example){
   $('drop').hidden = true;
   sizeViewer();
   $('image-info').textContent = TEXT.imageInfo(file.name, im.w, im.h);
-  ['draw-scale', 'draw-ref', 'reset-ref', 'draw-roi', 'detect'].forEach(id => { $(id).disabled = false; });
+  ['draw-scale', 'draw-roi', 'detect'].forEach(id => { $(id).disabled = false; });
   $('modes').disabled = false;
   if (example) {
     // settings of the example come from the button's data attributes; its scale is not remembered as
     // the user's own
     S.scale = example.barUm / example.barPx; $('scale').value = fmtSig(S.scale); $('bar').value = example.barUm;
     $('diameter').value = example.diameter; $('faces').checked = example.faces === 'true';
-    setRef(0);
     message(TEXT.exampleLoaded(example));
   } else message([im.note, S.scale > 0 ? TEXT.scaleSaved : ''].filter(Boolean).join('\n'));
   fit(); refresh();
@@ -506,7 +496,7 @@ function limits(p){
 }
 function remeasure(roi, render = true){
   if (!roi.labels) return;
-  roi.cells = measure(roi.labels, roi.mask, roi.w, roi.h, {scale: S.scale, x0: roi.x0, y0: roi.y0, refAngle: S.ref});
+  roi.cells = measure(roi.labels, roi.mask, roi.w, roi.h, {scale: S.scale, x0: roi.x0, y0: roi.y0});
   classify(roi.cells, limits(roi.params), roi.manual);
   roi.byLabel = new Map(roi.cells.map(c => [c.label, c]));
   if (render) { refresh(); renderAll(); }
@@ -517,7 +507,7 @@ $('detect').addEventListener('click', () => detect(S.rois[S.sel]));
 // Re-detect the selected region when the image channel changes.
 ['channel', 'invert'].forEach(id => $(id).addEventListener('change', () => { const r = S.rois[S.sel]; if (r?.labels) detect(r); }));
 
-/* ---------- Scale and surface direction ---------- */
+/* ---------- Scale ---------- */
 function setScale(s){
   S.scale = s;
   try { localStorage.setItem('cellshape-scale', String(s)); } catch {}
@@ -525,33 +515,21 @@ function setScale(s){
   refresh(); renderAll();
 }
 $('scale').addEventListener('change', () => { const s = num('scale'); if (s > 0) { setScale(s); message(''); } });
-function setRef(a){
-  S.ref = a;
-  $('ref-info').textContent = a ? TEXT.refInfo(a) : TEXT.refDefault;
-  S.rois.forEach(r => r.cells.forEach(c => { c.surfaceAngle = axisDifference(c.angle, a); }));
-  refresh(); renderAll();
-}
-$('reset-ref').addEventListener('click', () => setRef(0));
 function finishLine(){
   const [[x1, y1], [x2, y2]] = S.pts;
   const len = Math.hypot(x2 - x1, y2 - y1);
   if (S.tool === 'scale' && len > 0) {
     const um = num('bar');
     if (um > 0) { const s = um / len; $('scale').value = fmtSig(s); setScale(s); message(TEXT.scaleSet(len, um, s)); }
-  } else if (S.tool === 'ref' && len > 0) {
-    let a = Math.atan2(-(y2 - y1), x2 - x1) * 180 / Math.PI;
-    a = ((a % 180) + 180) % 180;
-    setRef(a);
   }
   setTool(null);
 }
 function setTool(t){
   S.tool = S.tool === t ? null : t; S.pts = []; S.pick = null;
-  ['scale', 'ref', 'roi'].forEach(x => $('draw-' + x).classList.toggle('is-active', S.tool === x));
+  ['scale', 'roi'].forEach(x => $('draw-' + x).classList.toggle('is-active', S.tool === x));
   hint(); redraw();
 }
 $('draw-scale').addEventListener('click', () => setTool('scale'));
-$('draw-ref').addEventListener('click', () => setTool('ref'));
 $('draw-roi').addEventListener('click', () => setTool('roi'));
 function closeRoi(){
   const pts = S.pts;
@@ -604,7 +582,7 @@ function undo(){
 }
 $('undo').addEventListener('click', undo);
 // Esc abandons what is under way: a line or outline being drawn, the first cell picked for joining, or
-// the scale, surface or region tool.
+// the scale or region tool.
 const busy = () => !!(S.tool || S.pts.length || (S.pick && mode() === 'merge'));
 function cancelAction(){
   // Esc drops the points being placed; with none, it ends the tool (the region tool stays on between regions)
@@ -630,7 +608,7 @@ function cellAt(ix, iy){
 }
 function click(ix, iy, sx, sy){
   if (!S.img) return;
-  if (S.tool === 'scale' || S.tool === 'ref') {
+  if (S.tool === 'scale') {
     S.pts.push([ix, iy]);
     if (S.pts.length === 2) finishLine();
     return redraw();
@@ -829,13 +807,13 @@ function regionRows(){
   const rows = summaries();
   const head = [TEXT.cols.image, ...regionBasics(rows[0]).map(c => c[0])];
   MEASURES.forEach(m => head.push(...['mean', 'sd', 'median'].map(k => `${mLabel(m)} ${TEXT.stat[k]}`)));
-  head.push(TEXT.cols.frame, TEXT.cols.pixel, TEXT.cols.surface, TEXT.cols.diameter, TEXT.cols.split, TEXT.cols.smooth, TEXT.cols.faces, TEXT.cols.minArea, TEXT.cols.maxArea, TEXT.cols.edge, TEXT.cols.version, TEXT.cols.date);
+  head.push(TEXT.cols.frame, TEXT.cols.pixel, TEXT.cols.diameter, TEXT.cols.split, TEXT.cols.smooth, TEXT.cols.faces, TEXT.cols.minArea, TEXT.cols.maxArea, TEXT.cols.edge, TEXT.cols.version, TEXT.cols.date);
   const yn = v => v ? TEXT.yes : TEXT.no;
   return [head, ...rows.map(row => {
     const {r, s} = row, lim = limits(r.params);
     const out = [S.img.name, ...regionBasics(row).map(([, v, d]) => d == null ? v : csvNum(v, d))];
     MEASURES.forEach(m => out.push(...['mean', 'sd', 'median'].map(k => csvNum(s[m.key][k], m.d + 2))));
-    out.push(TEXT.frames[r.params.frame || 'tissue'], fmtSig(S.scale), csvNum(S.ref, 1), r.params.diameter, r.params.split, r.params.smooth, yn(r.params.faces), csvNum(lim.minArea, 1), csvNum(lim.maxArea, 1), yn(lim.excludeEdge), VERSION, today());
+    out.push(TEXT.frames[r.params.frame || 'tissue'], fmtSig(S.scale), r.params.diameter, r.params.split, r.params.smooth, yn(r.params.faces), csvNum(lim.minArea, 1), csvNum(lim.maxArea, 1), yn(lim.excludeEdge), VERSION, today());
     return out;
   })];
 }

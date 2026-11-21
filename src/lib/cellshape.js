@@ -739,16 +739,9 @@ export function boxCountDimension(labels, w, h, L, bx0, by0, bx1, by1, sizes = B
   return -sxy / sxx;
 }
 
-// Folds the difference between two axis directions (degrees) into 0–90.
-export function axisDifference(a, b){
-  let d = ((a - b) % 180 + 180) % 180;
-  return d > 90 ? 180 - d : d;
-}
-
 // Measures every labelled region. mask marks the drawn region: cells touching its edge are flagged.
-// scale is µm per pixel, x0/y0 the offset of the arrays in the image, refAngle the reference direction
-// (degrees, ImageJ convention) used for the angle to the surface.
-export function measure(labels, mask, w, h, {scale = 1, x0 = 0, y0 = 0, refAngle = 0} = {}){
+// scale is µm per pixel, x0/y0 the offset of the arrays in the image.
+export function measure(labels, mask, w, h, {scale = 1, x0 = 0, y0 = 0} = {}){
   let n = 0;
   for (let i = 0; i < labels.length; i++) if (labels[i] > n) n = labels[i];
   const cnt = new Float64Array(n + 1), sx = new Float64Array(n + 1), sy = new Float64Array(n + 1);
@@ -790,7 +783,6 @@ export function measure(labels, mask, w, h, {scale = 1, x0 = 0, y0 = 0, refAngle
       area: A * s2, perimeter: perim * s, pa: perim / (A * s),
       fractal: boxCountDimension(labels, w, h, L, bx0[L], by0[L], bx1[L], by1[L]),
       major: major * s, minor: minor * s, angle,
-      surfaceAngle: axisDifference(angle, refAngle),
       aspect: major / minor,
       circularity: perim > 0 ? Math.min(1, 4 * Math.PI * A / (perim * perim)) : 0,
       roundness: 4 * A / (Math.PI * major * major),
@@ -813,7 +805,7 @@ export function classify(cells, {minArea = 0, maxArea = Infinity, excludeEdge = 
   return cells;
 }
 
-export const METRICS = ['area', 'perimeter', 'pa', 'major', 'minor', 'aspect', 'circularity', 'roundness', 'solidity', 'fractal', 'feret', 'minFeret', 'surfaceAngle'];
+export const METRICS = ['area', 'perimeter', 'pa', 'major', 'minor', 'aspect', 'circularity', 'roundness', 'solidity', 'fractal', 'feret', 'minFeret'];
 
 function stats(values){
   const n = values.length;
