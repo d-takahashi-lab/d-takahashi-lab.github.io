@@ -32,12 +32,13 @@ export const tools:Tool[] = [
   ],
  },
  {
-  slug:'leafarea', name:'Leaf Area Analyzer', version:LEAFAREA_VERSION, updated:'2026-11-20',
+  slug:'leafarea', name:'Leaf Area Analyzer', version:LEAFAREA_VERSION, updated:'2026-11-21',
   summary:{
-   ja:'植物を上から撮影した写真で、シャーレやポットなどの領域を囲むと、その中の緑色の部分を株ごとに分けて数え、葉の面積（投影面積）・凸包の面積・直径などを計算します。タイムラプスなど同じ位置で撮った写真は、フォルダごとまとめて解析し、株ごとの成長を表にできます。',
-   en:'Outline a region such as a plate or a pot in a photograph of plants taken from above: the green parts inside are separated into plants and counted, and their leaf area (projected area), convex hull area, diameter and other measures are calculated. A series taken from the same position, such as a time-lapse, can be analysed as a whole folder, giving the growth of each plant in one table.',
+   ja:'植物を上から撮影した写真で、シャーレやポットなどの領域を囲むと、その中の緑色の部分を株ごとに分けて数え、葉の面積（投影面積）・凸包の面積・直径などを計算します。タイムラプスなど同じ位置で撮った写真は、フォルダごとまとめて解析し、株ごとの成長を表とグラフにできます。',
+   en:'Outline a region such as a plate or a pot in a photograph of plants taken from above: the green parts inside are separated into plants and counted, and their leaf area (projected area), convex hull area, diameter and other measures are calculated. A series taken from the same position, such as a time-lapse, can be analysed as a whole folder, giving the growth of each plant as a table and a graph.',
   },
   history:[
+   {version:'1.1',date:'2026-11-21',ja:'まとめて解析した結果に、撮影日時を横軸にした変化のグラフ（領域ごとの平均・株ごと）を追加。計算方法は変更なし',en:'Added a graph of the batch results against the date taken (mean per region or each plant). Calculations unchanged'},
    {version:'1.0',date:'2026-11-20',ja:'公開',en:'First release'},
   ],
  },

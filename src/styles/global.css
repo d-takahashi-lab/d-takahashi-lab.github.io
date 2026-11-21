@@ -473,6 +473,8 @@ html[lang=en] .alumni-year li { grid-template-columns:minmax(0,12em) 4em; }
 .la-batch-img[hidden] { display: none; }
 .la-batch-table tbody tr { cursor: pointer; }
 .la-batch-table tbody tr.is-selected { background: var(--surface); }
+.la-growth-head { margin-top: var(--space-6); font-size: var(--text-body); font-weight: 500; }
+.la-growth { max-width: 980px; cursor: pointer; }
 @media(max-width:900px) {
  .tool-grid { grid-template-columns: minmax(0,1fr); gap: var(--space-6); }
  .cs-viewer { height: 62vh; }

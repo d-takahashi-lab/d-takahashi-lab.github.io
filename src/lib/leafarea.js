@@ -5,7 +5,7 @@
 
 import {components, traceOutline, tracedPerimeter, convexHull, polygonArea, feret} from './cellshape.js';
 
-export const VERSION = '1.0';
+export const VERSION = '1.1';
 
 /* ---------- Colour ---------- */
 // White reference: the median of each channel over the image (every step-th pixel). The background

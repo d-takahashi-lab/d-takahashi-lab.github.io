@@ -45,7 +45,7 @@ const TEXT = en ? {
     none: '',
     scale: 'Click the two ends of the scale bar.',
     ref: 'Click two points along the surface of the leaf, stem or root.',
-    roi: 'Click to place corners; click the first point, double-click or press Enter to close. Esc cancels.',
+    roi: 'Click to place corners; click the first point, double-click or press Enter to close. Then outline the next region. Esc cancels the outline being drawn; press Esc again or the button to finish.',
     info: 'Click a cell to see its values. Drag to move; ⌘ (Ctrl) + scroll to zoom.',
     exclude: 'Click a cell to leave it out of the measurements; click again to include it.',
     space: 'Click a compartment to mark it as intercellular space; click again to unmark it.',
@@ -96,7 +96,7 @@ const TEXT = en ? {
     none: '',
     scale: 'スケールバーの両端をクリックしてください。',
     ref: '葉・茎・根の表面に沿って2点をクリックしてください。',
-    roi: 'クリックで角を置き、最初の点のクリック・ダブルクリック・Enterキーで閉じます。Escキーで取り消します。',
+    roi: 'クリックで角を置き、最初の点のクリック・ダブルクリック・Enterキーで閉じます。続けて次の領域を囲めます。Escキーで描きかけを取り消し、もう一度Escキーかボタンで終わります。',
     info: '細胞をクリックすると値を表示します。ドラッグで移動、⌘（Ctrl）キー＋スクロールで拡大・縮小します。',
     exclude: 'クリックした細胞を計測から外します。もう一度クリックすると戻します。',
     space: 'クリックした区画を細胞間隙にします。もう一度クリックすると戻します。',
@@ -555,7 +555,8 @@ $('draw-ref').addEventListener('click', () => setTool('ref'));
 $('draw-roi').addEventListener('click', () => setTool('roi'));
 function closeRoi(){
   const pts = S.pts;
-  if (pts.length >= 3) { setTool(null); addRoi(pts); }
+  // the region tool stays on, so the next region can be outlined straight away
+  if (pts.length >= 3) { S.pts = []; addRoi(pts); hint(); redraw(); }
 }
 // A polygon is being drawn: a region (tool 'roi') or a cell outline (mode 'draw').
 const drawingPolygon = () => S.tool === 'roi' || (!S.tool && mode() === 'draw');
@@ -604,9 +605,11 @@ $('undo').addEventListener('click', undo);
 // the scale, surface or region tool.
 const busy = () => !!(S.tool || S.pts.length || (S.pick && mode() === 'merge'));
 function cancelAction(){
+  // Esc drops the points being placed; with none, it ends the tool (the region tool stays on between regions)
+  const placing = S.pts.length > 0;
   S.pts = [];
   if (S.pick && mode() === 'merge') S.pick = null;
-  if (S.tool) setTool(S.tool); else { hint(); redraw(); }
+  if (S.tool && !placing) setTool(S.tool); else { hint(); redraw(); }
   message('');
 }
 
@@ -725,6 +728,8 @@ canvas.addEventListener('dblclick', e => {
   // the two clicks of a double-click each placed a point; keep one
   const n = S.pts.length;
   if (n >= 2) { const [a, b] = [toScreen(...S.pts[n - 2]), toScreen(...S.pts[n - 1])]; if (Math.hypot(a[0] - b[0], a[1] - b[1]) < 6) S.pts.pop(); }
+  // a double-click on the first point: the first click closed the polygon, the second started the next one
+  if (S.pts.length < 3) { S.pts = []; return redraw(); }
   closePolygon();
 });
 // Zoom only with ⌘/Ctrl/Alt held or a trackpad pinch (sent as Ctrl + wheel), so that plain scrolling

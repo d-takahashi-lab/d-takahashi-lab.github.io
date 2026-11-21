@@ -40,8 +40,8 @@ const TEXT = en ? {
   hints: {
     none: '',
     scale: 'Click the two ends of the known length (for example across a plate or along a ruler).',
-    roi: 'Click to place corners; click the first point, double-click or press Enter to close. Esc cancels.',
-    circle: 'Click the centre of the circle, then a point on its edge. Esc cancels.',
+    roi: 'Click to place corners; click the first point, double-click or press Enter to close. Then outline the next region. Esc cancels the outline being drawn; press Esc again or the button to finish.',
+    circle: 'Click the centre of the circle, then a point on its edge. Then draw the next region. Esc or the button finishes.',
     info: 'Click a plant to see its values. Drag to move; ⌘ (Ctrl) + scroll to zoom.',
     exclude: 'Click a plant to leave it out of the results; click again to include it.',
     merge: 'Click the two plants to join, one after the other.',
@@ -54,6 +54,9 @@ const TEXT = en ? {
   batch: {
     needSetup: 'First set up the analysis on one image of the series: the scale (step 2) and the regions (step 3).',
     noImages: 'No images (JPEG, PNG or TIFF) were found.',
+    run: n => `Analyse all ${n} images in the folder`,
+    folderInfo: (folder, n) => ` — 1 of ${n} images in “${folder}”`,
+    folderLoaded: n => `The first of the ${n} images is open (in the order taken, or by file name when some have no date). Set the scale and regions on it, check the plants, then analyse them all in step 6.`,
     progress: (i, n, name) => `Analysing ${i} of ${n}: ${name}`,
     done: (n, skipped) => `${n} image${n === 1 ? '' : 's'} analysed.${skipped ? ` ${skipped} skipped:` : ''}`,
     cancelled: (n) => `Stopped after ${n} image${n === 1 ? '' : 's'}.`,
@@ -64,6 +67,13 @@ const TEXT = en ? {
     open: 'Open this image to check or correct it',
     edited: 'Corrected by hand',
     footer: (v, url, date, n, scale) => `Analysed with Leaf Area Analyzer version ${v} (${url}) on ${date}: ${n} images; pixel size ${fmtSig(scale)} mm.`,
+  },
+  growth: {
+    x: {h: 'Elapsed time (h)', d: 'Elapsed time (days)', n: 'Image'},
+    empty: 'No measured plants yet.',
+    fileTimes: n => `${n} image${n === 1 ? ' has' : 's have'} no date taken (EXIF); the time the file was last changed is used instead.`,
+    noTimes: 'Some images have no date, so they are shown in order.',
+    hint: 'Click the graph to show that image above. The dashed line marks the image shown.',
   },
   cols: {image: 'Image', taken: 'Date taken', hours: 'Elapsed time (h)', note: 'Note', region: 'Region', name: 'Name', plant: 'Plant', status: 'Status', count: 'Plants', total: 'Total area (mm²)', left: 'Left out', x: 'Centroid x (mm)', y: 'Centroid y (mm)', pixel: 'Pixel size (mm)', threshold: 'Greenness threshold', auto: 'Automatic threshold', gap: 'Joining distance (mm)', minArea: 'Minimum area (mm²)', edge: 'Plants at the edge left out', white: 'White reference (R, G, B)', version: 'Tool version', date: 'Date analysed'},
   stat: {mean: 'mean', sd: 'SD', median: 'median'},
@@ -98,8 +108,8 @@ const TEXT = en ? {
   hints: {
     none: '',
     scale: '長さの分かるもの（シャーレの直径や定規など）の両端をクリックしてください。',
-    roi: 'クリックで角を置き、最初の点のクリック・ダブルクリック・Enterキーで閉じます。Escキーで取り消します。',
-    circle: '円の中心をクリックし、次に円周上の1点をクリックしてください。Escキーで取り消します。',
+    roi: 'クリックで角を置き、最初の点のクリック・ダブルクリック・Enterキーで閉じます。続けて次の領域を囲めます。Escキーで描きかけを取り消し、もう一度Escキーかボタンで終わります。',
+    circle: '円の中心をクリックし、次に円周上の1点をクリックしてください。続けて次の領域を描けます。Escキーかボタンで終わります。',
     info: '株をクリックすると値を表示します。ドラッグで移動、⌘（Ctrl）キー＋スクロールで拡大・縮小します。',
     exclude: 'クリックした株を結果から外します。もう一度クリックすると戻します。',
     merge: 'つなぐ2つの株を順にクリックしてください。',
@@ -112,6 +122,9 @@ const TEXT = en ? {
   batch: {
     needSetup: '先に、シリーズの1枚でスケール（手順2）と領域（手順3）を決めてください。',
     noImages: '画像（JPEG・PNG・TIFF）が見つかりませんでした。',
+    run: n => `フォルダの画像${n}枚をすべて解析`,
+    folderInfo: (folder, n) => `　フォルダ「${folder}」の${n}枚の1枚目`,
+    folderLoaded: n => `${n}枚のうち最初の画像（撮影日時の順、日時のない画像があればファイル名の順）を開きました。この画像でスケールと領域を決め、株を確かめてから、手順6で全部を解析します。`,
     progress: (i, n, name) => `${n}枚中${i}枚目を解析しています：${name}`,
     done: (n, skipped) => `${n}枚を解析しました。${skipped ? `${skipped}枚は飛ばしました：` : ''}`,
     cancelled: (n) => `${n}枚で止めました。`,
@@ -122,6 +135,13 @@ const TEXT = en ? {
     open: 'この画像を開いて確かめる・手直しする',
     edited: '手直しあり',
     footer: (v, url, date, n, scale) => `Leaf Area Analyzer バージョン${v}（${url}）で${date}に解析。画像${n}枚、1ピクセル ${fmtSig(scale)} mm`,
+  },
+  growth: {
+    x: {h: '経過時間 (h)', d: '経過日数 (日)', n: '画像の番号'},
+    empty: '計測した株がまだありません。',
+    fileTimes: n => `${n}枚は撮影日時（EXIF）がないため、ファイルの更新日時を使っています。`,
+    noTimes: '日時の分からない画像があるため、画像の順番で表示しています。',
+    hint: 'グラフをクリックすると、その画像を上に表示します。点線は表示中の画像です。',
   },
   cols: {image: '画像', taken: '撮影日時', hours: '経過時間 (h)', note: '備考', region: '領域', name: '名前', plant: '番号', status: '状態', count: '株数', total: '面積の合計 (mm²)', left: '除外', x: '重心 x (mm)', y: '重心 y (mm)', pixel: '1ピクセルの長さ (mm)', threshold: '緑のしきい値', auto: '自動のしきい値', gap: 'まとめる距離 (mm)', minArea: '最小面積 (mm²)', edge: '縁の株を除外', white: '白の基準 (R, G, B)', version: 'ツールのバージョン', date: '解析日'},
   stat: {mean: '平均', sd: '標準偏差', median: '中央値'},
@@ -570,7 +590,8 @@ const drawingPolygon = () => S.tool === 'roi' || (!S.tool && (mode() === 'add' |
 function closePolygon(){
   const pts = S.pts;
   if (pts.length < 3) return;
-  if (S.tool === 'roi') { setTool(null); addRoi({poly: pts}); return; }
+  // the region tool stays on, so the next region can be outlined straight away
+  if (S.tool === 'roi') { S.pts = []; addRoi({poly: pts}); hint(); redraw(); return; }
   S.pts = [];
   paint(pts, mode() === 'add');
   redraw();
@@ -611,9 +632,11 @@ function undo(){
 $('undo').addEventListener('click', undo);
 const busy = () => !!(S.tool || S.pts.length || (S.pick && mode() === 'merge'));
 function cancelAction(){
+  // Esc drops the points being placed; with none, it ends the tool (the region tool stays on between regions)
+  const placing = S.pts.length > 0;
   S.pts = [];
   if (S.pick && mode() === 'merge') S.pick = null;
-  if (S.tool) setTool(S.tool); else { hint(); redraw(); }
+  if (S.tool && !placing) setTool(S.tool); else { hint(); redraw(); }
   message('');
 }
 
@@ -654,8 +677,9 @@ function click(ix, iy, sx, sy){
     S.pts.push([ix, iy]);
     if (S.pts.length === 2) {
       const [[cx, cy], [ex, ey]] = S.pts;
-      setTool(null);
+      S.pts = [];
       addRoi({circle: [cx, cy, Math.hypot(ex - cx, ey - cy)]});
+      hint();
     }
     return redraw();
   }
@@ -741,6 +765,8 @@ canvas.addEventListener('dblclick', e => {
   // the two clicks of a double-click each placed a point; keep one
   const n = S.pts.length;
   if (n >= 2) { const [a, b] = [toScreen(...S.pts[n - 2]), toScreen(...S.pts[n - 1])]; if (Math.hypot(a[0] - b[0], a[1] - b[1]) < 6) S.pts.pop(); }
+  // a double-click on the first point: the first click closed the polygon, the second started the next one
+  if (S.pts.length < 3) { S.pts = []; return redraw(); }
   closePolygon();
 });
 // Zoom only with ⌘/Ctrl/Alt held or a trackpad pinch (sent as Ctrl + wheel), so that plain scrolling
@@ -908,15 +934,37 @@ function thumbnail(im, regions){
 // Keeps what the results need and drops the pixel data.
 function slim(g){ delete g.labels; delete g.overlay; g.plants.forEach(q => { delete q.outlines; }); return g; }
 
-async function runBatch(list){
-  if (!S.img || !(S.scale > 0) || !S.rois.length) return batchMessage(TEXT.batch.needSetup);
-  const files = [...list].filter(f => IMAGE_FILE.test(f.name));
-  if (!files.length) return batchMessage(TEXT.batch.noImages);
+// The images of the folder chosen in step 1, in the order taken when every image has an EXIF date,
+// otherwise by file name (1, 2, …, 10).
+let series = null;           // {items: [{file, taken, exif}], folder}
+async function orderImages(list){
   const items = [];
-  for (const file of files) items.push({file, ...(await takenAt(file))});
-  // in the order taken when every image has an EXIF date, otherwise by file name (1, 2, …, 10)
+  for (const file of [...list].filter(f => IMAGE_FILE.test(f.name))) items.push({file, ...(await takenAt(file))});
   const byDate = items.every(x => x.exif);
-  items.sort((a, b) => (byDate && a.taken !== b.taken ? (a.taken < b.taken ? -1 : 1) : 0) || naturalCompare(a.file.name, b.file.name));
+  return items.sort((a, b) => (byDate && a.taken !== b.taken ? (a.taken < b.taken ? -1 : 1) : 0) || naturalCompare(a.file.name, b.file.name));
+}
+// A folder is chosen: its first image opens for setting up, and step 6 analyses them all.
+$('folder').webkitdirectory = true;   // not in the HTML types, so set here
+$('folder').addEventListener('change', async e => {
+  const list = [...e.target.files];
+  e.target.value = '';
+  if (!list.length) return;
+  message(TEXT.loading);
+  const items = await orderImages(list);
+  if (!items.length) return message(TEXT.batch.noImages);
+  const folder = list[0].webkitRelativePath?.split('/')[0] || items[0].file.name.replace(/\.[^.]+$/, '');
+  series = {items, folder};
+  $('batch-run').textContent = TEXT.batch.run(items.length);
+  $('batch-run').disabled = false;
+  batchMessage('');
+  await loadFile(items[0].file);
+  $('image-info').textContent += TEXT.batch.folderInfo(folder, items.length);
+  message([$('message').textContent, TEXT.batch.folderLoaded(items.length)].filter(Boolean).join('\n'));
+});
+async function runBatch(){
+  if (!series) return;
+  if (!S.img || !(S.scale > 0) || !S.rois.length) return batchMessage(TEXT.batch.needSetup);
+  const {items, folder} = series;
   const W = S.img.w, H = S.img.h, scale = S.scale;
   const base = S.rois.map(r => ({
     id: r.id, name: r.name, shape: r.shape, poly: r.poly, labelAt: r.labelAt, x0: r.x0, y0: r.y0, w: r.w, h: r.h, mask: r.mask, params: {...r.params},
@@ -936,11 +984,10 @@ async function runBatch(list){
     return setups.get(key);
   };
   if (batch) batch.entries.forEach(e => { if (e.thumb) URL.revokeObjectURL(e.thumb); });
-  const folder = files[0].webkitRelativePath?.split('/')[0];
-  batch = {entries: [], scale, view: 0, opened: -1, folder: folder || items[0].file.name.replace(/\.[^.]+$/, '')};
+  batch = {entries: [], scale, view: 0, opened: -1, folder};
   stopBatch = false;
   $('batch-stop').hidden = false;
-  ['batch-folder', 'batch-files'].forEach(id => { $(id).disabled = true; });
+  ['folder', 'batch-run'].forEach(id => { $(id).disabled = true; });
   for (let k = 0; k < items.length && !stopBatch; k++) {
     const {file, taken, exif} = items[k];
     batchMessage(TEXT.batch.progress(k + 1, items.length, file.name));
@@ -978,13 +1025,10 @@ async function runBatch(list){
   const reasons = [...new Set(batch.entries.filter(e => !e.regions.length).map(e => e.note))];
   batchMessage((stopBatch ? TEXT.batch.cancelled(batch.entries.length) : TEXT.batch.done(batch.entries.length - skipped, skipped)) + (reasons.length ? '\n' + reasons.join('\n') : ''));
   $('batch-stop').hidden = true;
-  ['batch-folder', 'batch-files'].forEach(id => { $(id).disabled = false; });
+  ['folder', 'batch-run'].forEach(id => { $(id).disabled = false; });
   showBatch();
 }
-// folder picking (not in the HTML types, so set here)
-$('batch-folder').webkitdirectory = true;
-$('batch-folder').addEventListener('change', e => { runBatch(e.target.files); e.target.value = ''; });
-$('batch-files').addEventListener('change', e => { runBatch(e.target.files); e.target.value = ''; });
+$('batch-run').addEventListener('click', runBatch);
 $('batch-stop').addEventListener('click', () => { stopBatch = true; });
 
 // Hours since the earliest image.
@@ -1014,6 +1058,7 @@ function showBatch(){
       names.map(m => { const g = x.regions.find(q => q.id === m.id); if (!g) return '<td>—</td>'; const s = summarise(g.plants); return `<td>${meanSd(s.area, area.d)} (${s.count})</td>`; }).join('') +
       `<td class="cs-left">${esc(x.note)}</td></tr>`).join('') + '</tbody></table>';
   ['batch-csv-plants', 'batch-csv-table', 'batch-csv-regions', 'batch-copy'].forEach(id => { $(id).disabled = false; });
+  drawGrowth();
 }
 $('batch-slider').addEventListener('input', e => { batch.view = +e.target.value; showBatch(); });
 $('batch-table').addEventListener('click', e => { const tr = e.target.closest('tr[data-i]'); if (tr) { batch.view = +tr.dataset.i; showBatch(); } });
@@ -1034,6 +1079,151 @@ $('batch-update').addEventListener('click', async () => {
   e.thumb = await thumbnail(S.img, e.regions);
   e.regions.forEach(slim);
   batch.view = batch.opened; showBatch();
+});
+
+/* ---------- Growth chart ---------- */
+// The chosen measure against the time taken: the mean ± SD of the measured plants of each region, or one
+// line per plant (plants keep their numbers through the series). Only measured plants count, as in the tables.
+MEASURES.forEach(m => { const o = document.createElement('option'); o.value = m.key; o.textContent = mLabel(m); $('growth-measure').append(o); });
+const CHART = {W: 760, H: 440, ml: 74, mt: 20, mb: 62};
+const CHART_INK = '#171717', CHART_MUTED = '#626262', CHART_LINE = '#E6E6E3';
+let growth = null;           // the data drawn last, for clicks and saving
+const measureCtx = document.createElement('canvas').getContext('2d');
+const textWidth = text => { measureCtx.font = `13px ${FONT}`; return measureCtx.measureText(text).width; };
+function niceTicks(min, max, count = 6){
+  const span = max - min;
+  if (!(span > 0)) return [min];
+  const step0 = span / count, mag = 10 ** Math.floor(Math.log10(step0)), e = step0 / mag;
+  const step = (e >= 7.5 ? 10 : e >= 3.5 ? 5 : e >= 1.5 ? 2 : 1) * mag;
+  const out = [];
+  for (let v = Math.ceil(min / step) * step; v <= max + step * 1e-9; v += step) out.push(Number(v.toFixed(10)));
+  return out;
+}
+function growthData(){
+  const m = MEASURES.find(q => q.key === $('growth-measure').value) || MEASURES[0];
+  const mode = $('growth-mode').value, select = $('growth-x');
+  // without a date for every image, only the image order can be used
+  const dated = batch.entries.every(e => e.taken);
+  [...select.options].forEach(o => { o.disabled = !dated && o.value !== 'n'; });
+  if (!dated) select.value = 'n';
+  const xMode = select.value;
+  const first = batch.entries.map(e => e.taken).filter(Boolean).sort()[0];
+  const xs = batch.entries.map((e, i) => xMode === 'n' ? i + 1 : hoursBetween(first, e.taken) / (xMode === 'd' ? 24 : 1));
+  const series = new Map();
+  const line = (key, g, label) => {
+    if (!series.has(key)) series.set(key, {id: g.id, name: g.name, label, color: ROI_COLORS[(g.id - 1) % ROI_COLORS.length], points: []});
+    return series.get(key);
+  };
+  batch.entries.forEach((e, i) => {
+    if (!Number.isFinite(xs[i])) return;
+    e.regions.forEach(g => {
+      if (mode === 'mean') {
+        const s = summarise(g.plants)[m.key];
+        if (Number.isFinite(s?.mean)) line(`${g.id}`, g, null).points.push({x: xs[i], y: s.mean, sd: s.sd, i});
+      } else g.plants.forEach(p => { if (p.status === 'ok' && Number.isFinite(p[m.key])) line(`${g.id}-${p.label}`, g, p.label).points.push({x: xs[i], y: p[m.key], i}); });
+    });
+  });
+  const list = [...series.values()].sort((a, b) => a.id - b.id || a.label - b.label);
+  list.forEach(s => s.points.sort((a, b) => a.x - b.x));
+  return {m, mode, xMode, xs, series: list, fileTimes: batch.entries.filter(e => e.taken && !e.exif).length, dated};
+}
+// marker: index of the image to mark with a dashed line (on screen only).
+function growthSVG(d, marker = -1){
+  const {W, H, ml, mt, mb} = CHART, mr = d.mode === 'plants' ? 48 : 24, pw = W - ml - mr, ph = H - mt - mb;
+  const valid = d.xs.filter(Number.isFinite), pts = d.series.flatMap(s => s.points);
+  let x0 = Math.min(...valid), x1 = Math.max(...valid);
+  if (!(x1 > x0)) { x0 -= 1; x1 += 1; }
+  const xp = (x1 - x0) * 0.04; x0 -= xp; x1 += xp;
+  const top = Math.max(...pts.map(p => p.y + (Number.isFinite(p.sd) ? p.sd : 0)));
+  // room above the highest point for the legend (one line per region) in the top left
+  const nRegions = new Set(d.series.map(r => r.id)).size, room = nRegions * 20 + 26;
+  const y0 = 0, y1 = top > 0 ? top * Math.max(1.06, ph / (ph - room)) : 1;
+  const X = v => ml + (v - x0) / (x1 - x0) * pw, Y = v => mt + (1 - (v - y0) / (y1 - y0)) * ph;
+  const f = v => v.toFixed(2);
+  let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" font-family="${FONT}" role="img" aria-label="${esc(mName(d.m))}">`;
+  s += `<rect width="${W}" height="${H}" fill="#FFFFFF"/>`;
+  const tick = 5;
+  niceTicks(x0, x1).filter(v => d.xMode !== 'n' || Number.isInteger(v)).forEach(v => {
+    s += `<line x1="${f(X(v))}" x2="${f(X(v))}" y1="${mt + ph - tick}" y2="${mt + ph}" stroke="${CHART_INK}" stroke-width="1.2"/>`;
+    s += `<text x="${f(X(v))}" y="${mt + ph + 20}" font-size="13" fill="${CHART_INK}" text-anchor="middle">${v}</text>`;
+  });
+  niceTicks(y0, y1).forEach(v => {
+    s += `<line x1="${ml}" x2="${ml + tick}" y1="${f(Y(v))}" y2="${f(Y(v))}" stroke="${CHART_INK}" stroke-width="1.2"/>`;
+    s += `<text x="${ml - 8}" y="${f(Y(v) + 4)}" font-size="13" fill="${CHART_INK}" text-anchor="end">${v}</text>`;
+  });
+  if (marker >= 0 && Number.isFinite(d.xs[marker])) s += `<line x1="${f(X(d.xs[marker]))}" x2="${f(X(d.xs[marker]))}" y1="${mt}" y2="${mt + ph}" stroke="${CHART_MUTED}" stroke-width="1" stroke-dasharray="5 4"/>`;
+  const plants = d.mode === 'plants';
+  d.series.forEach(r => {
+    const path = r.points.map((p, k) => `${k ? 'L' : 'M'}${f(X(p.x))} ${f(Y(p.y))}`).join('');
+    s += `<path d="${path}" fill="none" stroke="${r.color}" stroke-width="${plants ? 1.4 : 2}" stroke-linejoin="round"/>`;
+    r.points.forEach(p => {
+      if (Number.isFinite(p.sd) && p.sd > 0) {
+        const cx = f(X(p.x)), a = f(Y(p.y - p.sd)), b = f(Y(p.y + p.sd));
+        s += `<path d="M${cx} ${a}V${b}M${f(X(p.x) - 4)} ${a}h8M${f(X(p.x) - 4)} ${b}h8" stroke="${r.color}" stroke-width="1.2" fill="none"/>`;
+      }
+      s += `<circle cx="${f(X(p.x))}" cy="${f(Y(p.y))}" r="${plants ? 2.5 : 4}" fill="${r.color}" stroke="#FFFFFF" stroke-width="${plants ? 0.6 : 1}"/>`;
+    });
+  });
+  // plant numbers at the end of their lines, with a white halo
+  // (moved apart vertically where they would overlap)
+  if (plants) {
+    const ends = d.series.filter(r => r.points.length).map(r => { const p = r.points[r.points.length - 1]; return {r, x: X(p.x) + 5, y: Y(p.y) + 4}; });
+    ends.sort((a, b) => a.y - b.y).forEach((l, k) => { if (k && l.y < ends[k - 1].y + 12) l.y = ends[k - 1].y + 12; });
+    ends.forEach(l => { s += `<text x="${f(l.x)}" y="${f(l.y)}" font-size="11" fill="${l.r.color}" stroke="#FFFFFF" stroke-width="3" stroke-linejoin="round" paint-order="stroke">${l.r.label}</text>`; });
+  }
+  s += `<rect x="${ml}" y="${mt}" width="${pw}" height="${ph}" fill="none" stroke="${CHART_INK}" stroke-width="1.2"/>`;
+  // legend: one entry per region, in the top left (growth curves rise to the right)
+  const regions = [];
+  d.series.forEach(r => { if (!regions.some(g => g.id === r.id)) regions.push(r); });
+  if (regions.length) {
+    const lw = Math.ceil(Math.max(...regions.map(r => textWidth(r.name)))) + 52, lx = ml + 8, ly = mt + 8;
+    s += `<rect x="${lx}" y="${ly}" width="${lw}" height="${regions.length * 20 + 10}" fill="#FFFFFF" fill-opacity="0.9" stroke="${CHART_LINE}"/>`;
+    regions.forEach((r, k) => {
+      const yy = ly + 18 + k * 20;
+      s += `<line x1="${lx + 10}" x2="${lx + 32}" y1="${yy - 4}" y2="${yy - 4}" stroke="${r.color}" stroke-width="2"/><circle cx="${lx + 21}" cy="${yy - 4}" r="3.5" fill="${r.color}"/>`;
+      s += `<text x="${lx + 40}" y="${yy}" font-size="13" fill="${CHART_INK}">${esc(r.name)}</text>`;
+    });
+  }
+  const yl = d.mode === 'mean' ? `${mLabel(d.m)}${en ? ', mean ± SD' : '：平均 ± 標準偏差'}` : mLabel(d.m);
+  s += `<text x="${ml + pw / 2}" y="${H - 14}" font-size="15" fill="${CHART_INK}" text-anchor="middle">${esc(TEXT.growth.x[d.xMode])}</text>`;
+  s += `<text transform="translate(20 ${mt + ph / 2}) rotate(-90)" font-size="15" fill="${CHART_INK}" text-anchor="middle">${esc(yl)}</text>`;
+  growth = {...d, X, x0, x1};
+  return s + '</svg>';
+}
+function drawGrowth(){
+  if (!batch?.entries.length) return;
+  const d = growthData(), has = d.series.some(r => r.points.length);
+  $('growth').innerHTML = has ? growthSVG(d, batch.view) : `<p class="tool-empty">${esc(TEXT.growth.empty)}</p>`;
+  if (!has) growth = null;
+  ['growth-png', 'growth-svg'].forEach(id => { $(id).disabled = !has; });
+  $('growth-note').textContent = [!d.dated ? TEXT.growth.noTimes : d.fileTimes ? TEXT.growth.fileTimes(d.fileTimes) : '', has ? TEXT.growth.hint : ''].filter(Boolean).join(' ');
+}
+['growth-measure', 'growth-mode', 'growth-x'].forEach(id => $(id).addEventListener('change', drawGrowth));
+// a click shows the image taken nearest to that time
+$('growth').addEventListener('click', e => {
+  const svg = $('growth').querySelector('svg');
+  if (!svg || !growth) return;
+  const box = svg.getBoundingClientRect(), px = (e.clientX - box.left) * CHART.W / box.width;
+  let best = -1;
+  growth.xs.forEach((x, i) => { if (Number.isFinite(x) && (best < 0 || Math.abs(growth.X(x) - px) < Math.abs(growth.X(growth.xs[best]) - px))) best = i; });
+  if (best >= 0 && best !== batch.view) { batch.view = best; showBatch(); }
+});
+const growthFile = ext => `${batch.folder}_${growth.m.key}${growth.mode === 'plants' ? '_plants' : ''}.${ext}`;
+const growthBlob = () => new Blob([growthSVG(growthData())], {type: 'image/svg+xml;charset=utf-8'});
+$('growth-svg').addEventListener('click', () => { if (growth) download(growthBlob(), growthFile('svg')); });
+$('growth-png').addEventListener('click', () => {
+  if (!growth) return;
+  const url = URL.createObjectURL(growthBlob()), img = new Image();
+  img.onload = () => {
+    const sc = 3, c = document.createElement('canvas');
+    c.width = CHART.W * sc; c.height = CHART.H * sc;
+    const g = c.getContext('2d');
+    g.fillStyle = '#FFFFFF'; g.fillRect(0, 0, c.width, c.height);
+    g.drawImage(img, 0, 0, c.width, c.height);
+    URL.revokeObjectURL(url);
+    c.toBlob(b => download(b, growthFile('png')), 'image/png');
+  };
+  img.src = url;
 });
 
 const batchHead = () => [TEXT.cols.image, TEXT.cols.taken, TEXT.cols.hours];
