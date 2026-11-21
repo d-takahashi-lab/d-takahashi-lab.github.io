@@ -19,7 +19,7 @@ const TEXT = en ? {
   loading: 'Loading the image…',
   scaledTiff: bits => `This is a ${bits}-bit image: brightness was scaled to 8 bits for display and analysis (0.05–99.95th percentile).`,
   tiffErrors: {bigtiff: 'BigTIFF files cannot be read. Save the image as an ordinary TIFF or PNG.', compression: 'This TIFF uses a compression that cannot be read here (e.g. JPEG). Save it uncompressed, with LZW, or as PNG.', bits: 'Only 8-, 16- and 32-bit TIFF images can be read.'},
-  exampleLoaded: e => `Example image loaded: a leaf cross-section, fluorescence, 40× objective. The scale (${e.barUm} µm = ${e.barPx} px) and a cell diameter are already set. Name and outline a region such as the palisade mesophyll (step 4).`,
+  exampleLoaded: e => `Example image loaded: a cross-section with a vascular bundle in the middle, fluorescence, 10× objective. The scale (${e.barUm} µm = ${e.barPx} px) and a cell diameter are already set. Name and outline a region (step 4).`,
   replace: 'Load a new image? The regions drawn on the current image will be discarded.',
   needImage: 'Choose an image first.',
   needScale: 'Set the scale first (step 2): trace the scale bar or type the pixel size.',
@@ -70,7 +70,7 @@ const TEXT = en ? {
   loading: '画像を読み込んでいます…',
   scaledTiff: bits => `${bits}ビットの画像なので、明るさを8ビットに変換して表示・解析します（0.05〜99.95パーセンタイルの範囲）。`,
   tiffErrors: {bigtiff: 'BigTIFF形式は読み込めません。通常のTIFFかPNGで保存し直してください。', compression: 'このTIFFの圧縮形式（JPEG圧縮など）は読み込めません。無圧縮・LZW圧縮のTIFFかPNGで保存し直してください。', bits: '8・16・32ビットのTIFFだけが読み込めます。'},
-  exampleLoaded: e => `例の画像（葉の横断切片の蛍光像、40倍対物レンズ）を読み込みました。スケール（${e.barUm} µm = ${e.barPx}ピクセル）と細胞の直径の目安は設定済みです。手順4で名前を付けて、柵状組織などの領域を囲んでみてください。`,
+  exampleLoaded: e => `例の画像（中央に維管束がある横断切片の蛍光像、10倍対物レンズ）を読み込みました。スケール（${e.barUm} µm = ${e.barPx}ピクセル）と細胞の直径の目安は設定済みです。手順4で名前を付けて、領域を囲んでみてください。`,
   replace: '新しい画像を読み込みますか？ 今の画像に描いた領域は消えます。',
   needImage: '先に画像を選んでください。',
   needScale: '先にスケールを決めてください（手順2）。スケールバーをなぞるか、1ピクセルの長さを入力します。',
@@ -377,7 +377,7 @@ $('example').addEventListener('click', async e => {
     const res = await fetch(button.dataset.src);
     if (!res.ok) throw new Error();
     const {barUm, barPx, diameter, faces} = button.dataset;
-    await loadFile(new File([await res.blob()], 'example-leaf-section.webp', {type: 'image/webp'}), {barUm: +barUm, barPx: +barPx, diameter: +diameter, faces});
+    await loadFile(new File([await res.blob()], 'example-section.webp', {type: 'image/webp'}), {barUm: +barUm, barPx: +barPx, diameter: +diameter, faces});
   } catch { message(TEXT.cannotRead); }
   button.disabled = false;
 });
