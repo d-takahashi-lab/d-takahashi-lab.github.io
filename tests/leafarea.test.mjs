@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {whiteReference, greenIndex, otsu, autoThreshold, MIN_THRESHOLD, detectPlants, fillHoles, groupPieces, measurePlants, classify, summarise, splitPlant, plantOnLine, addArea, eraseArea, circleMask, matchPlants} from '../src/lib/leafarea.js';
+import {whiteReference, greenIndex, brightness, otsu, autoThreshold, MIN_THRESHOLD, detectPlants, fillHoles, groupPieces, measurePlants, classify, summarise, splitPlant, plantOnLine, addArea, eraseArea, circleMask, matchPlants} from '../src/lib/leafarea.js';
 
 const close = (a, b, tol, what) => assert.ok(Math.abs(a - b) <= tol, `${what}: ${a} vs ${b}`);
 const all = n => new Uint8Array(n).fill(1);
@@ -146,4 +146,31 @@ test('plants keep their numbers in the next photograph', () => {
   const fresh = [{label: 1, x: 31, y: 41}, {label: 2, x: 11, y: 9}, {label: 3, x: 52, y: 12}, {label: 4, x: 90, y: 90}];
   const map = matchPlants(old, fresh, 10);
   assert.deepEqual([...map.entries()].sort((a, b) => a[0] - b[0]), [[1, 3], [2, 1], [3, 2], [4, 4]]);
+});
+
+test('dark parts that are hardly green join a plant only when connected to it', () => {
+  // a green leaf, a dark grey petiole running from it, and a separate dark grey mark (handwriting)
+  const w = 60, h = 20, GREY = [70, 60, 58];
+  const rgba = photo(w, h, (x, y) => x < 10 && y < 10 ? LEAF : (y > 4 && y < 6 && x < 30) || (x > 45 && x < 55 && y > 12 && y < 16) ? GREY : null);
+  const ref = whiteReference(rgba, w, h, 1), index = greenIndex(rgba, w, h, ref), bright = brightness(rgba, w, h, ref);
+  close(bright[19 * w + 40], 1, 1e-6, 'background brightness');
+  assert.ok(Math.abs(index[5 * w + 20]) < 0.05 && bright[5 * w + 20] < 0.5, 'the petiole is grey and dark');
+  const opts = {threshold: 0.3, minPx: 4, gapPx: 0};
+  const plain = detectPlants(index, all(w * h), w, h, opts);
+  assert.equal(plain.labels[5 * w + 20], 0, 'without the brightness, the petiole is missed');
+  const withDark = detectPlants(index, all(w * h), w, h, {...opts, bright, darkLevel: 0.7});
+  assert.equal(withDark.n, 1);
+  assert.equal(withDark.labels[5 * w + 20], withDark.labels[0], 'petiole joins the leaf');
+  assert.equal(withDark.labels[14 * w + 50], 0, 'a dark mark away from the plants is not a plant');
+});
+
+test('dark parts are judged against the region’s own background', () => {
+  // a leaf on dark soil (as in a pot): the soil is darker than the white reference but is the background here
+  const w = 40, h = 40, SOIL = [80, 66, 63];
+  const rgba = photo(w, h, (x, y) => x >= 10 && x < 20 && y >= 10 && y < 20 ? LEAF : SOIL);
+  const ref = [190, 158, 152], index = greenIndex(rgba, w, h, ref), bright = brightness(rgba, w, h, ref);
+  assert.ok(bright[0] < 0.5, 'the soil is darker than the reference');
+  const {labels} = detectPlants(index, all(w * h), w, h, {threshold: 0.3, minPx: 4, gapPx: 0, bright, darkLevel: 0.7});
+  let px = 0; for (const v of labels) if (v) px++;
+  assert.equal(px, 100, 'only the leaf, not the soil');
 });

@@ -45,7 +45,7 @@ const TEXT = en ? {
     none: '',
     scale: 'Click the two ends of the scale bar.',
     ref: 'Click two points along the surface of the leaf, stem or root.',
-    roi: 'Click to place corners; click the first point, double-click or press Enter to close. Then outline the next region. Esc cancels the outline being drawn; press Esc again or the button to finish.',
+    roi: 'Click to place corners; click the first point, double-click or press Enter to close. Then outline the next region. Esc cancels the outline being drawn; press Esc again, the button, or choose a correction to finish.',
     info: 'Click a cell to see its values. Drag to move; ⌘ (Ctrl) + scroll to zoom.',
     exclude: 'Click a cell to leave it out of the measurements; click again to include it.',
     space: 'Click a compartment to mark it as intercellular space; click again to unmark it.',
@@ -96,7 +96,7 @@ const TEXT = en ? {
     none: '',
     scale: 'スケールバーの両端をクリックしてください。',
     ref: '葉・茎・根の表面に沿って2点をクリックしてください。',
-    roi: 'クリックで角を置き、最初の点のクリック・ダブルクリック・Enterキーで閉じます。続けて次の領域を囲めます。Escキーで描きかけを取り消し、もう一度Escキーかボタンで終わります。',
+    roi: 'クリックで角を置き、最初の点のクリック・ダブルクリック・Enterキーで閉じます。続けて次の領域を囲めます。Escキーで描きかけを取り消し、もう一度Escキーかボタンを押すか、手直しの種類を選ぶと終わります。',
     info: '細胞をクリックすると値を表示します。ドラッグで移動、⌘（Ctrl）キー＋スクロールで拡大・縮小します。',
     exclude: 'クリックした細胞を計測から外します。もう一度クリックすると戻します。',
     space: 'クリックした区画を細胞間隙にします。もう一度クリックすると戻します。',
@@ -587,6 +587,8 @@ function drawOutline(pts){
 /* ---------- Corrections ---------- */
 const mode = () => document.querySelector('input[name=cs-mode]:checked').value;
 document.querySelectorAll('input[name=cs-mode]').forEach(el => el.addEventListener('change', () => { S.pts = []; S.pick = null; hint(); redraw(); }));
+// choosing a correction (even the one already chosen) ends drawing regions or lines, so clicks reach the plants
+document.querySelectorAll('input[name=cs-mode]').forEach(el => el.addEventListener('click', () => { if (S.tool) setTool(S.tool); }));
 function snapshot(roi){
   history.push({roi, labels: roi.labels.slice(), manual: {...roi.manual}, next: roi.next});
   if (history.length > 20) history.shift();

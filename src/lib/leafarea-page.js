@@ -4,7 +4,7 @@
 import {decodeTiff, isTiff} from './tiff.js';
 import {exifDate, hoursBetween} from './exif.js';
 import {polygonMask, mergeCells} from './cellshape.js';
-import {VERSION, whiteReference, greenIndex, autoThreshold, detectPlants, measurePlants, classify, summarise, splitPlant, plantOnLine, addArea, eraseArea, circleMask, matchPlants} from './leafarea.js';
+import {VERSION, whiteReference, greenIndex, brightness, autoThreshold, detectPlants, measurePlants, classify, summarise, splitPlant, plantOnLine, addArea, eraseArea, circleMask, matchPlants} from './leafarea.js';
 
 const root = document.getElementById('la');
 const en = document.documentElement.lang === 'en';
@@ -40,8 +40,8 @@ const TEXT = en ? {
   hints: {
     none: '',
     scale: 'Click the two ends of the known length (for example across a plate or along a ruler).',
-    roi: 'Click to place corners; click the first point, double-click or press Enter to close. Then outline the next region. Esc cancels the outline being drawn; press Esc again or the button to finish.',
-    circle: 'Click the centre of the circle, then a point on its edge. Then draw the next region. Esc or the button finishes.',
+    roi: 'Click to place corners; click the first point, double-click or press Enter to close. Then outline the next region. Esc cancels the outline being drawn; press Esc again, the button, or choose a correction to finish.',
+    circle: 'Click the centre of the circle, then a point on its edge. Then draw the next region. Esc, the button, or choosing a correction finishes.',
     info: 'Click a plant to see its values. Drag to move; ⌘ (Ctrl) + scroll to zoom.',
     exclude: 'Click a plant to leave it out of the results; click again to include it.',
     merge: 'Click the two plants to join, one after the other.',
@@ -75,7 +75,7 @@ const TEXT = en ? {
     noTimes: 'Some images have no date, so they are shown in order.',
     hint: 'Click the graph to show that image above. The dashed line marks the image shown.',
   },
-  cols: {image: 'Image', taken: 'Date taken', hours: 'Elapsed time (h)', note: 'Note', region: 'Region', name: 'Name', plant: 'Plant', status: 'Status', count: 'Plants', total: 'Total area (mm²)', left: 'Left out', x: 'Centroid x (mm)', y: 'Centroid y (mm)', pixel: 'Pixel size (mm)', threshold: 'Greenness threshold', auto: 'Automatic threshold', gap: 'Joining distance (mm)', minArea: 'Minimum area (mm²)', edge: 'Plants at the edge left out', white: 'White reference (R, G, B)', version: 'Tool version', date: 'Date analysed'},
+  cols: {image: 'Image', taken: 'Date taken', hours: 'Elapsed time (h)', note: 'Note', region: 'Region', name: 'Name', plant: 'Plant', status: 'Status', count: 'Plants', total: 'Total area (mm²)', left: 'Left out', x: 'Centroid x (mm)', y: 'Centroid y (mm)', pixel: 'Pixel size (mm)', threshold: 'Greenness threshold', auto: 'Automatic threshold', dark: 'Darker parts included (fraction of background brightness)', gap: 'Joining distance (mm)', minArea: 'Minimum area (mm²)', edge: 'Plants at the edge left out', white: 'White reference (R, G, B)', version: 'Tool version', date: 'Date analysed'},
   stat: {mean: 'mean', sd: 'SD', median: 'median'},
   yes: 'yes', no: 'no',
   footer: (v, url, date, image, scale) => `Analysed with Leaf Area Analyzer version ${v} (${url}) on ${date}. Image: ${image}; pixel size ${fmtSig(scale)} mm.`,
@@ -108,8 +108,8 @@ const TEXT = en ? {
   hints: {
     none: '',
     scale: '長さの分かるもの（シャーレの直径や定規など）の両端をクリックしてください。',
-    roi: 'クリックで角を置き、最初の点のクリック・ダブルクリック・Enterキーで閉じます。続けて次の領域を囲めます。Escキーで描きかけを取り消し、もう一度Escキーかボタンで終わります。',
-    circle: '円の中心をクリックし、次に円周上の1点をクリックしてください。続けて次の領域を描けます。Escキーかボタンで終わります。',
+    roi: 'クリックで角を置き、最初の点のクリック・ダブルクリック・Enterキーで閉じます。続けて次の領域を囲めます。Escキーで描きかけを取り消し、もう一度Escキーかボタンを押すか、手直しの種類を選ぶと終わります。',
+    circle: '円の中心をクリックし、次に円周上の1点をクリックしてください。続けて次の領域を描けます。Escキーかボタンを押すか、手直しの種類を選ぶと終わります。',
     info: '株をクリックすると値を表示します。ドラッグで移動、⌘（Ctrl）キー＋スクロールで拡大・縮小します。',
     exclude: 'クリックした株を結果から外します。もう一度クリックすると戻します。',
     merge: 'つなぐ2つの株を順にクリックしてください。',
@@ -143,7 +143,7 @@ const TEXT = en ? {
     noTimes: '日時の分からない画像があるため、画像の順番で表示しています。',
     hint: 'グラフをクリックすると、その画像を上に表示します。点線は表示中の画像です。',
   },
-  cols: {image: '画像', taken: '撮影日時', hours: '経過時間 (h)', note: '備考', region: '領域', name: '名前', plant: '番号', status: '状態', count: '株数', total: '面積の合計 (mm²)', left: '除外', x: '重心 x (mm)', y: '重心 y (mm)', pixel: '1ピクセルの長さ (mm)', threshold: '緑のしきい値', auto: '自動のしきい値', gap: 'まとめる距離 (mm)', minArea: '最小面積 (mm²)', edge: '縁の株を除外', white: '白の基準 (R, G, B)', version: 'ツールのバージョン', date: '解析日'},
+  cols: {image: '画像', taken: '撮影日時', hours: '経過時間 (h)', note: '備考', region: '領域', name: '名前', plant: '番号', status: '状態', count: '株数', total: '面積の合計 (mm²)', left: '除外', x: '重心 x (mm)', y: '重心 y (mm)', pixel: '1ピクセルの長さ (mm)', threshold: '緑のしきい値', auto: '自動のしきい値', dark: '暗い部分も含める（背景の明るさに対する割合）', gap: 'まとめる距離 (mm)', minArea: '最小面積 (mm²)', edge: '縁の株を除外', white: '白の基準 (R, G, B)', version: 'ツールのバージョン', date: '解析日'},
   stat: {mean: '平均', sd: '標準偏差', median: '中央値'},
   yes: 'はい', no: 'いいえ',
   footer: (v, url, date, image, scale) => `Leaf Area Analyzer バージョン${v}（${url}）で${date}に解析。画像：${image}、1ピクセル ${fmtSig(scale)} mm`,
@@ -417,13 +417,17 @@ viewer.addEventListener('drop', e => { e.preventDefault(); viewer.classList.remo
 
 /* ---------- Regions ---------- */
 function params(){
-  return {auto: $('auto').checked, threshold: +$('threshold').value, gap: nonNeg('gap'), minArea: nonNeg('min'), excludeEdge: $('edge').checked};
+  // dark: plant parts darker than this fraction of the background brightness are included (0: off)
+  return {auto: $('auto').checked, threshold: +$('threshold').value, dark: $('dark').checked ? +$('dark-level').value : 0, gap: nonNeg('gap'), minArea: nonNeg('min'), excludeEdge: $('edge').checked};
 }
 function setParams(p){
   $('auto').checked = p.auto; $('threshold').value = p.threshold; showThreshold(p);
   $('gap').value = Number.isFinite(p.gap) ? p.gap : ''; $('min').value = Number.isFinite(p.minArea) ? p.minArea : '';
   $('edge').checked = p.excludeEdge;
+  $('dark').checked = p.dark > 0; if (p.dark > 0) $('dark-level').value = p.dark;
+  showDark();
 }
+function showDark(){ $('dark-out').value = `${Math.round(+$('dark-level').value * 100)}%`; $('dark-level').disabled = !$('dark').checked; }
 function showThreshold(p){
   $('threshold-out').value = (+p.threshold).toFixed(2);
   $('auto-out').textContent = Number.isFinite(p.autoValue) ? TEXT.autoValue(p.autoValue) : '';
@@ -508,7 +512,9 @@ $('rois').addEventListener('change', e => {
 // Settings belong to the selected region and take effect at once: the threshold, joining distance and
 // minimum area detect the plants again, the edge rule only changes which plants are counted.
 $('threshold').addEventListener('input', () => { $('auto').checked = false; showThreshold(params()); });
-['auto', 'threshold', 'gap', 'min'].forEach(id => $(id).addEventListener('change', () => {
+$('dark-level').addEventListener('input', showDark);
+$('dark').addEventListener('input', showDark);
+['auto', 'threshold', 'dark', 'dark-level', 'gap', 'min'].forEach(id => $(id).addEventListener('change', () => {
   const r = S.rois[S.sel];
   if (r?.labels) detect(r); else showThreshold(params());
 }));
@@ -534,7 +540,8 @@ function detect(roi, render = true, fromForm = true){
   p.autoValue = autoThreshold(index, roi.mask);
   if (p.auto) p.threshold = Math.round(p.autoValue * 100) / 100;
   const s2 = S.scale * S.scale;
-  const {labels} = detectPlants(index, roi.mask, roi.w, roi.h, {threshold: p.threshold, minPx: (Number.isFinite(p.minArea) ? p.minArea : 0) / s2, gapPx: (Number.isFinite(p.gap) ? p.gap : 0) / S.scale});
+  const bright = p.dark > 0 ? brightness(rgba, roi.w, roi.h, S.img.white) : null;
+  const {labels} = detectPlants(index, roi.mask, roi.w, roi.h, {threshold: p.threshold, minPx: (Number.isFinite(p.minArea) ? p.minArea : 0) / s2, gapPx: (Number.isFinite(p.gap) ? p.gap : 0) / S.scale, bright, darkLevel: p.dark});
   if (roi.labels) snapshot(roi);
   roi.labels = labels; roi.manual = {};
   // follow the numbering of the previous image
@@ -616,6 +623,8 @@ function paint(pts, add){
 /* ---------- Corrections ---------- */
 const mode = () => document.querySelector('input[name=la-mode]:checked').value;
 document.querySelectorAll('input[name=la-mode]').forEach(el => el.addEventListener('change', () => { S.pts = []; S.pick = null; hint(); redraw(); }));
+// choosing a correction (even the one already chosen) ends drawing regions or lines, so clicks reach the plants
+document.querySelectorAll('input[name=la-mode]').forEach(el => el.addEventListener('click', () => { if (S.tool) setTool(S.tool); }));
 function snapshot(roi){
   history.push({roi, labels: roi.labels.slice(), manual: {...roi.manual}, next: roi.next});
   if (history.length > 20) history.shift();
@@ -860,13 +869,13 @@ function regionRows(){
   const rows = summaries();
   const head = [TEXT.cols.image, ...regionBasics(rows[0]).map(c => c[0])];
   MEASURES.forEach(m => head.push(...['mean', 'sd', 'median'].map(k => `${mLabel(m)} ${TEXT.stat[k]}`)));
-  head.push(TEXT.cols.pixel, TEXT.cols.threshold, TEXT.cols.auto, TEXT.cols.gap, TEXT.cols.minArea, TEXT.cols.edge, TEXT.cols.white, TEXT.cols.version, TEXT.cols.date);
+  head.push(TEXT.cols.pixel, TEXT.cols.threshold, TEXT.cols.auto, TEXT.cols.dark, TEXT.cols.gap, TEXT.cols.minArea, TEXT.cols.edge, TEXT.cols.white, TEXT.cols.version, TEXT.cols.date);
   const yn = v => v ? TEXT.yes : TEXT.no;
   return [head, ...rows.map(row => {
     const {r, s} = row, p = r.params;
     const out = [S.img.name, ...regionBasics(row).map(([, v, d]) => d == null ? v : csvNum(v, d))];
     MEASURES.forEach(m => out.push(...['mean', 'sd', 'median'].map(k => csvNum(s[m.key][k], m.d + 2))));
-    out.push(fmtSig(S.scale), csvNum(p.threshold, 3), yn(p.auto), Number.isFinite(p.gap) ? p.gap : 0, Number.isFinite(p.minArea) ? p.minArea : 0, yn(p.excludeEdge), S.img.white.join(' '), VERSION, today());
+    out.push(fmtSig(S.scale), csvNum(p.threshold, 3), yn(p.auto), p.dark > 0 ? p.dark : TEXT.no, Number.isFinite(p.gap) ? p.gap : 0, Number.isFinite(p.minArea) ? p.minArea : 0, yn(p.excludeEdge), S.img.white.join(' '), VERSION, today());
     return out;
   })];
 }
@@ -1002,10 +1011,11 @@ async function runBatch(){
     if (scale !== batch.scale) entry.note = TEXT.batch.resized(im.w, im.h);
     const white = entry.white = whiteReference(im.rgba, im.w, im.h);
     for (const r of setup.regions) {
-      const index = greenIndex(cropRgba(im.rgba, im.w, r), r.w, r.h, white);
+      const crop = cropRgba(im.rgba, im.w, r), index = greenIndex(crop, r.w, r.h, white);
       const p = {...r.params, autoValue: autoThreshold(index, r.mask)};
       if (p.auto) p.threshold = Math.round(p.autoValue * 100) / 100;
-      const {labels} = detectPlants(index, r.mask, r.w, r.h, {threshold: p.threshold, minPx: (Number.isFinite(p.minArea) ? p.minArea : 0) / s2, gapPx: (Number.isFinite(p.gap) ? p.gap : 0) / scale});
+      const bright = p.dark > 0 ? brightness(crop, r.w, r.h, white) : null;
+      const {labels} = detectPlants(index, r.mask, r.w, r.h, {threshold: p.threshold, minPx: (Number.isFinite(p.minArea) ? p.minArea : 0) / s2, gapPx: (Number.isFinite(p.gap) ? p.gap : 0) / scale, bright, darkLevel: p.dark});
       const plants = measurePlants(labels, r.mask, r.w, r.h, {scale, x0: r.x0, y0: r.y0});
       const old = [...r.track.values()];
       const map = matchPlants(old, plants, Math.max(1, ...old.map(q => q.diameter)));
@@ -1249,14 +1259,14 @@ function batchRegionRows(){
   const head = [...batchHead()];
   head.push(TEXT.cols.region, TEXT.cols.name, TEXT.cols.count, TEXT.cols.left, TEXT.cols.total);
   MEASURES.forEach(m => head.push(...['mean', 'sd', 'median'].map(k => `${mLabel(m)} ${TEXT.stat[k]}`)));
-  head.push(TEXT.cols.pixel, TEXT.cols.threshold, TEXT.cols.auto, TEXT.cols.gap, TEXT.cols.minArea, TEXT.cols.edge, TEXT.cols.white, TEXT.cols.note, TEXT.cols.version, TEXT.cols.date);
+  head.push(TEXT.cols.pixel, TEXT.cols.threshold, TEXT.cols.auto, TEXT.cols.dark, TEXT.cols.gap, TEXT.cols.minArea, TEXT.cols.edge, TEXT.cols.white, TEXT.cols.note, TEXT.cols.version, TEXT.cols.date);
   const yn = v => v ? TEXT.yes : TEXT.no, rows = [head];
   for (const e of batch.entries) {
     if (!e.regions.length) { rows.push([...batchStart(e), ...Array(head.length - 6).fill(''), e.note, VERSION, today()]); continue; }
     for (const g of e.regions) {
       const s = summarise(g.plants), p = g.params, out = [...batchStart(e), g.id, g.name, s.count, s.left, csvNum(s.total, 4)];
       MEASURES.forEach(m => out.push(...['mean', 'sd', 'median'].map(k => csvNum(s[m.key][k], m.d + 2))));
-      out.push(fmtSig(e.scale ?? batch.scale), csvNum(p.threshold, 3), yn(p.auto), Number.isFinite(p.gap) ? p.gap : 0, Number.isFinite(p.minArea) ? p.minArea : 0, yn(p.excludeEdge), e.white.join(' '), e.note, VERSION, today());
+      out.push(fmtSig(e.scale ?? batch.scale), csvNum(p.threshold, 3), yn(p.auto), p.dark > 0 ? p.dark : TEXT.no, Number.isFinite(p.gap) ? p.gap : 0, Number.isFinite(p.minArea) ? p.minArea : 0, yn(p.excludeEdge), e.white.join(' '), e.note, VERSION, today());
       rows.push(out);
     }
   }
@@ -1274,4 +1284,5 @@ document.querySelectorAll('[data-copy]').forEach(button => button.addEventListen
   copyText(document.getElementById(button.dataset.copy).textContent.trim(), button);
 }));
 showThreshold(params());
+showDark();
 hint();

@@ -5,7 +5,7 @@
 
 import {components, traceOutline, tracedPerimeter, convexHull, polygonArea, feret} from './cellshape.js';
 
-export const VERSION = '1.1';
+export const VERSION = '1.2';
 
 /* ---------- Colour ---------- */
 // White reference: the median of each channel over the image (every step-th pixel). The background
@@ -28,6 +28,14 @@ export function greenIndex(rgba, w, h, ref){
     const r = rgba[j] * kr, g = rgba[j + 1] * kg, b = rgba[j + 2] * kb, s = r + g + b;
     out[i] = s > 0.06 ? (2 * g - r - b) / s : 0;
   }
+  return out;
+}
+
+// Brightness relative to the white reference (background ≈ 1): the mean of the three balanced channels.
+// Petioles and leaf margins that are hardly green are still clearly darker than the background.
+export function brightness(rgba, w, h, ref){
+  const n = w * h, out = new Float32Array(n), [kr, kg, kb] = ref.map(v => 1 / (3 * v));
+  for (let i = 0, j = 0; i < n; i++, j += 4) out[i] = rgba[j] * kr + rgba[j + 1] * kg + rgba[j + 2] * kb;
   return out;
 }
 
@@ -59,14 +67,24 @@ export function autoThreshold(index, mask){
 // Finds plants inside mask from the greenness index. Steps:
 // 1. Plant pixels: greenness at least t, plus pixels connected to them with greenness at least t / 2
 //    (hysteresis), which picks up thin petioles and shaded leaf margins without picking up isolated noise.
+//    With bright (brightness) and darkLevel, connected pixels darker than darkLevel times the median
+//    brightness of the region's background are taken too: petioles and leaf margins that are dark but
+//    hardly green.
 // 2. Holes inside plant pixels smaller than minPx (glare on a leaf) are filled.
 // 3. Pieces closer than gapPx to each other belong to the same plant (a rosette whose petioles are too
 //    thin to see stays one plant); gapPx = 0 keeps every piece separate.
 // 4. Plants smaller than minPx in total are dropped.
 // Returns {labels (0 = not a plant; 1…n numbered in raster order of their first pixel), n}.
-export function detectPlants(index, mask, w, h, {threshold, minPx = 0, gapPx = 0}){
+export function detectPlants(index, mask, w, h, {threshold, minPx = 0, gapPx = 0, bright = null, darkLevel = 0}){
   const n = w * h, strong = new Uint8Array(n), weak = new Uint8Array(n);
-  for (let i = 0; i < n; i++) if (mask[i]) { if (index[i] >= threshold) strong[i] = 1; if (index[i] >= threshold / 2) weak[i] = 1; }
+  // the background brightness of this region: the median over its pixels that are not green
+  // (so a region with a darker background than the rest of the photograph, such as soil, is judged by its own)
+  const dark = bright && darkLevel > 0 ? darkLevel * regionMedian(bright, mask, index, threshold / 2) : -Infinity;
+  for (let i = 0; i < n; i++) if (mask[i]) {
+    if (index[i] >= threshold) strong[i] = 1;
+    // pale green, or darker than darkLevel times the background brightness
+    if (index[i] >= threshold / 2 || bright?.[i] <= dark) weak[i] = 1;
+  }
   const wc = components(weak, w, h, true), keepC = new Uint8Array(wc.n + 1);
   for (let i = 0; i < n; i++) if (strong[i]) keepC[wc.labels[i]] = 1;
   const plant = new Uint8Array(n);
@@ -87,6 +105,16 @@ export function detectPlants(index, mask, w, h, {threshold, minPx = 0, gapPx = 0
     labels[i] = to[g];
   }
   return {labels, n: next};
+}
+
+// Median of values over the mask where index is below below (histogram of 1024 bins between 0 and 2).
+function regionMedian(values, mask, index, below){
+  const B = 1024, hist = new Float64Array(B);
+  let n = 0;
+  for (let i = 0; i < values.length; i++) if (mask[i] && index[i] < below) { hist[Math.max(0, Math.min(B - 1, Math.floor(values[i] / 2 * B)))]++; n++; }
+  if (!n) return 1;
+  for (let k = 0, c = 0; k < B; k++) { c += hist[k]; if (c >= n / 2) return (k + 0.5) * 2 / B; }
+  return 1;
 }
 
 // Fills holes of fewer than maxPx pixels: background pieces (4-connected) inside the mask that do not

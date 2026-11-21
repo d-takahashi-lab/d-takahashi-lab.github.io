@@ -38,6 +38,7 @@ export const tools:Tool[] = [
    en:'Outline a region such as a plate or a pot in a photograph of plants taken from above: the green parts inside are separated into plants and counted, and their leaf area (projected area), convex hull area, diameter and other measures are calculated. A series taken from the same position, such as a time-lapse, can be analysed as a whole folder, giving the growth of each plant as a table and a graph.',
   },
   history:[
+   {version:'1.2',date:'2026-11-21',ja:'緑の薄い暗い部分（葉柄や葉の縁）も、株につながっていれば含めるようにした（初期設定。背景の明るさの70%より暗い部分）。面積は以前の版より大きくなる',en:'Darker parts that are hardly green (petioles, leaf margins) are now included when connected to a plant (on by default: darker than 70% of the background brightness). Areas are larger than with earlier versions'},
    {version:'1.1',date:'2026-11-21',ja:'まとめて解析した結果に、撮影日時を横軸にした変化のグラフ（領域ごとの平均・株ごと）を追加。計算方法は変更なし',en:'Added a graph of the batch results against the date taken (mean per region or each plant). Calculations unchanged'},
    {version:'1.0',date:'2026-11-20',ja:'公開',en:'First release'},
   ],
