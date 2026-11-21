@@ -294,7 +294,7 @@ function renderAll(){
 }
 function renderOverlay(r, metric, range){
   if (!r.labels) { r.overlay = null; return; }
-  const {w, h, labels} = r, fill = $('show-fill').checked;
+  const {w, h, labels} = r, fill = $('show-fill').checked, lines = $('show-line').checked;
   const colors = new Map();
   for (const c of r.cells) {
     let rgb, a = 95, line = [255, 255, 255, 235];
@@ -313,7 +313,7 @@ function renderOverlay(r, metric, range){
     const col = colors.get(L);
     if (!col) continue;
     const edge = x === 0 || y === 0 || x === w - 1 || y === h - 1 || labels[i - 1] !== L || labels[i + 1] !== L || labels[i - w] !== L || labels[i + w] !== L;
-    const c = edge ? col.line : col.fill;
+    const c = edge && lines ? col.line : col.fill;
     d[i * 4] = c[0]; d[i * 4 + 1] = c[1]; d[i * 4 + 2] = c[2]; d[i * 4 + 3] = c[3];
   }
   g.putImageData(im, 0, 0);
@@ -760,7 +760,7 @@ window.addEventListener('keydown', e => {
   else if (e.key === 'Enter' && drawingPolygon()) closePolygon();
   else if (e.key === 'Backspace' && S.pts.length) { e.preventDefault(); S.pts.pop(); redraw(); }
 });
-['color', 'show-fill'].forEach(id => $(id).addEventListener('change', renderAll));
+['color', 'show-fill', 'show-line'].forEach(id => $(id).addEventListener('change', renderAll));
 $('show-number').addEventListener('change', redraw);
 
 /* ---------- Messages, info and results ---------- */
