@@ -21,10 +21,11 @@ const TEXT = en ? {
   outside: 'LT50 lies outside the measured temperatures (extrapolated, so less reliable).',
   failed: 'Could not be calculated',
   head: ['Group', 'LT50 (°C)', '95% CI', 'SE', 'Slope k', 'Lower', 'Upper', 'R²', 'n'],
-  copyHead: ['Group', 'LT50 (°C)', '95% CI lower', '95% CI upper', 'SE', 'Slope k', 'Lower asymptote', 'Upper asymptote', 'R2', 'n'],
+  // the same names as the table on screen, with the confidence interval in two columns
+  copyHead: ['Group', 'LT50 (°C)', '95% CI lower', '95% CI upper', 'SE', 'Slope k', 'Lower', 'Upper', 'R²', 'n'],
   copied: 'Copied',
   colorFor: g => `Colour of ${g}`,
-  footer: (v, url, date) => `Calculated with LT50 Calculator version ${v} (${url}) on ${date}`,
+  footer: (v, url, date) => `Calculated with LT50 Calculator version ${v} (${url}) on ${date}.`,
 } : {
   unnamed: 'データ', degree: '℃',
   empty: 'データを貼り付けると、ここに曲線が表示されます。',
@@ -40,10 +41,10 @@ const TEXT = en ? {
   outside: 'LT50が測定した温度の範囲外です（外挿なので信頼性は低めです）。',
   failed: '計算できません',
   head: ['グループ', 'LT50 (℃)', '95%信頼区間', '標準誤差', '傾き k', '下限', '上限', 'R²', 'n'],
-  copyHead: ['グループ', 'LT50(℃)', '95%CI下限', '95%CI上限', '標準誤差', '傾きk', '下限', '上限', 'R2', 'n'],
+  copyHead: ['グループ', 'LT50 (℃)', '95%信頼区間の下限', '95%信頼区間の上限', '標準誤差', '傾き k', '下限', '上限', 'R²', 'n'],
   copied: 'コピーしました',
   colorFor: g => `${g}の色`,
-  footer: (v, url, date) => `LT50 Calculator バージョン${v}（${url}）で${date}に計算`,
+  footer: (v, url, date) => `LT50 Calculator バージョン${v}（${url}）で${date}に計算。`,
 };
 
 const SAMPLE = (en

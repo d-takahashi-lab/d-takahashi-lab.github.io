@@ -61,7 +61,7 @@ const citationJa=`高橋大輔 (${year}) LT50 Calculator, バージョン ${tool
 
     <div class="tool-buttons">
      <button type="button" class="tool-button primary" id="lt50-run">{t('計算する','Calculate')}</button>
-     <button type="button" class="tool-button" id="lt50-sample">{t('サンプルを入れる','Load sample')}</button>
+     <button type="button" class="tool-button" id="lt50-sample">{t('例のデータで試す','Try the example data')}</button>
      <button type="button" class="tool-button" id="lt50-clear">{t('消去','Clear')}</button>
     </div>
     <p class="tool-format" id="lt50-format" aria-live="polite"></p>
@@ -73,9 +73,9 @@ const citationJa=`高橋大輔 (${year}) LT50 Calculator, バージョン ${tool
     <div class="tool-table" id="lt50-table"></div>
     <p class="tool-colors" id="lt50-colors" hidden><span>{t('表の色の丸を押すと、系列の色を変えられます。','Click a coloured dot in the table to change that series’ colour.')}</span><button type="button" id="lt50-reset-colors">{t('色を元に戻す','Reset colours')}</button></p>
     <div class="tool-buttons">
+     <button type="button" class="tool-button" id="lt50-copy" disabled>{t('結果をコピー（Excelに貼れる形式）','Copy results (for Excel)')}</button>
      <button type="button" class="tool-button" id="lt50-png" disabled>{t('グラフを保存（PNG）','Save graph (PNG)')}</button>
      <button type="button" class="tool-button" id="lt50-svg" disabled>{t('グラフを保存（SVG）','Save graph (SVG)')}</button>
-     <button type="button" class="tool-button" id="lt50-copy" disabled>{t('結果をコピー（Excelに貼れる形式）','Copy results (for Excel)')}</button>
     </div>
    </div>
   </div>
@@ -101,7 +101,7 @@ const citationJa=`高橋大輔 (${year}) LT50 Calculator, バージョン ${tool
    <button type="button" class="tool-button" data-copy="lt50-cite-en">{t('英語の引用文をコピー','Copy citation')}</button>
    {!en&&<button type="button" class="tool-button" data-copy="lt50-cite-ja">日本語の引用文をコピー</button>}
   </div>
-  <p class="body-note">{t('「結果をコピー」で貼り付けた表にも、計算に使ったバージョンが記録されます。','Results copied with “Copy results” also record the version used.')}</p>
+  <p class="body-note">{t('コピーした結果にも、計算に使ったバージョンが記録されます。','Copied results also record the version used.')}</p>
  </section>
 
  <section class="section tool-section" id="disclaimer">

@@ -13,7 +13,7 @@ const REGION_COLORS = ['#2B6684', '#5E8B2A', '#B07D12', '#9A4A8C', '#A2402F', '#
 const roiColor = r => { const names = [...new Set(S.rois.map(x => x.name.trim()))]; return REGION_COLORS[names.indexOf(r.name.trim()) % REGION_COLORS.length]; };
 const roiLabel = r => r.name.trim() ? `${r.id} ${r.name.trim()}` : String(r.id);
 const TEXT = en ? {
-  status: {ok: 'Measured', edge: 'Cut by the region edge', small: 'Below the minimum area', large: 'Above the maximum area', excluded: 'Left out by hand', space: 'Intercellular space'},
+  status: {ok: 'Measured', edge: 'Touches the region edge', small: 'Below the minimum area', large: 'Above the maximum area', excluded: 'Left out by hand', space: 'Intercellular space'},
   imageInfo: (name, w, h) => `${name} — ${w} × ${h} px`,
   cannotRead: 'This image could not be read. Please use TIFF, PNG or JPEG.',
   loading: 'Loading the image…',
@@ -107,7 +107,7 @@ const TEXT = en ? {
   stat: {mean: '平均', sd: '標準偏差', median: '中央値'},
   yes: 'はい', no: 'いいえ',
   frames: {tissue: '組織全体', part: '組織の一部'},
-  footer: (v, url, date, image, scale) => `Cell Shape Analyzer バージョン${v}（${url}）で${date}に解析。画像：${image}、1ピクセル ${fmtSig(scale)} µm`,
+  footer: (v, url, date, image, scale) => `Cell Shape Analyzer バージョン${v}（${url}）で${date}に解析。画像：${image}、1ピクセル ${fmtSig(scale)} µm。`,
 };
 
 // The measures, in the order used everywhere: the cell panel, the results table, both CSV files and the
@@ -768,7 +768,7 @@ function refresh(){
   renderRoiList();
   hint();
   const rows = summaries();
-  ['csv-cells', 'csv-regions', 'copy', 'png'].forEach(id => { $(id).disabled = !rows.length; });
+  ['copy', 'csv-cells', 'png'].forEach(id => { $(id).disabled = !rows.length; });
   $('undo').disabled = !history.length;
   if (!rows.length) { $('table').innerHTML = EMPTY_TABLE; return; }
   const head = [...regionBasics(rows[0]).map(c => c[0]), ...MEASURES.map(mLabel)];
@@ -801,30 +801,33 @@ const csvCell = v => { const s = String(v ?? ''); return /[",\n]/.test(s) ? `"${
 const csv = rows => '﻿' + rows.map(r => r.map(csvCell).join(',')).join('\r\n') + '\r\n';
 const baseName = () => (S.img?.name || 'image').replace(/\.[^.]+$/, '');
 const csvNum = (v, d) => Number.isFinite(v) ? Number(v.toFixed(d)) : '';
-// Region results as rows of cells for the CSV file and the copied table (same columns as the table on
-// screen, with each measure split into mean, SD and median, followed by the settings used).
+// The settings a region was detected with, so that copied results and saved files record how they were made.
+const settingsHead = () => [TEXT.cols.frame, TEXT.cols.pixel, TEXT.cols.diameter, TEXT.cols.split, TEXT.cols.smooth, TEXT.cols.faces, TEXT.cols.minArea, TEXT.cols.maxArea, TEXT.cols.edge, TEXT.cols.version, TEXT.cols.date];
+function settingsCols(r){
+  const lim = limits(r.params), yn = v => v ? TEXT.yes : TEXT.no;
+  return [TEXT.frames[r.params.frame || 'tissue'], fmtSig(S.scale), r.params.diameter, r.params.split, r.params.smooth, yn(r.params.faces), csvNum(lim.minArea, 1), csvNum(lim.maxArea, 1), yn(lim.excludeEdge), VERSION, today()];
+}
+// Region results as rows of cells for the copied table (same columns as the table on screen, with each
+// measure split into mean, SD and median, followed by the settings used).
 function regionRows(){
   const rows = summaries();
   const head = [TEXT.cols.image, ...regionBasics(rows[0]).map(c => c[0])];
   MEASURES.forEach(m => head.push(...['mean', 'sd', 'median'].map(k => `${mLabel(m)} ${TEXT.stat[k]}`)));
-  head.push(TEXT.cols.frame, TEXT.cols.pixel, TEXT.cols.diameter, TEXT.cols.split, TEXT.cols.smooth, TEXT.cols.faces, TEXT.cols.minArea, TEXT.cols.maxArea, TEXT.cols.edge, TEXT.cols.version, TEXT.cols.date);
-  const yn = v => v ? TEXT.yes : TEXT.no;
+  head.push(...settingsHead());
   return [head, ...rows.map(row => {
-    const {r, s} = row, lim = limits(r.params);
+    const {r, s} = row;
     const out = [S.img.name, ...regionBasics(row).map(([, v, d]) => d == null ? v : csvNum(v, d))];
     MEASURES.forEach(m => out.push(...['mean', 'sd', 'median'].map(k => csvNum(s[m.key][k], m.d + 2))));
-    out.push(TEXT.frames[r.params.frame || 'tissue'], fmtSig(S.scale), r.params.diameter, r.params.split, r.params.smooth, yn(r.params.faces), csvNum(lim.minArea, 1), csvNum(lim.maxArea, 1), yn(lim.excludeEdge), VERSION, today());
+    out.push(...settingsCols(r));
     return out;
   })];
 }
 
+// Every cell, with the settings of its region (the region summary is in the copied results).
 $('csv-cells').addEventListener('click', () => {
-  const rows = [[TEXT.cols.image, TEXT.cols.region, TEXT.cols.name, TEXT.cols.cell, TEXT.cols.status, ...MEASURES.map(mLabel), TEXT.cols.angle, TEXT.cols.feretAngle, TEXT.cols.x, TEXT.cols.y]];
-  S.rois.forEach(r => r.cells.forEach(c => rows.push([S.img.name, r.id, r.name.trim(), c.label, TEXT.status[c.status], ...MEASURES.map(m => csvNum(c[m.key], m.d + 2)), csvNum(c.angle, 2), csvNum(c.feretAngle, 2), csvNum(c.x, 2), csvNum(c.y, 2)])));
+  const rows = [[TEXT.cols.image, TEXT.cols.region, TEXT.cols.name, TEXT.cols.cell, TEXT.cols.status, ...MEASURES.map(mLabel), TEXT.cols.angle, TEXT.cols.feretAngle, TEXT.cols.x, TEXT.cols.y, ...settingsHead()]];
+  S.rois.forEach(r => { const set = settingsCols(r); r.cells.forEach(c => rows.push([S.img.name, r.id, r.name.trim(), c.label, TEXT.status[c.status], ...MEASURES.map(m => csvNum(c[m.key], m.d + 2)), csvNum(c.angle, 2), csvNum(c.feretAngle, 2), csvNum(c.x, 2), csvNum(c.y, 2), ...set])); });
   download(new Blob([csv(rows)], {type: 'text/csv'}), `${baseName()}_cells.csv`);
-});
-$('csv-regions').addEventListener('click', () => {
-  download(new Blob([csv(regionRows())], {type: 'text/csv'}), `${baseName()}_regions.csv`);
 });
 $('copy').addEventListener('click', e => {
   const lines = regionRows().map(r => r.join('\t'));

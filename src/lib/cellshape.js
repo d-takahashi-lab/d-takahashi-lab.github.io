@@ -3,7 +3,7 @@
 // Images are row-major arrays of width w and height h. Coordinates are pixels with y pointing down;
 // reported angles follow ImageJ (counter-clockwise from the x axis, as if y pointed up).
 
-export const VERSION = '1.0';
+export const VERSION = '1.1';
 
 /* ---------- Image preparation ---------- */
 // Grey values 0–1 from RGBA pixels. 'auto' takes the brightest channel, which keeps the full signal

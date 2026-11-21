@@ -43,10 +43,10 @@ const TEXT = en ? {
     roi: 'Click to place corners; click the first point, double-click or press Enter to close. Then outline the next region. Esc cancels the outline being drawn; press Esc again, the button, or choose a correction to finish.',
     circle: 'Click the centre of the circle, then a point on its edge. Then draw the next region. Esc, the button, or choosing a correction finishes.',
     info: 'Click a plant to see its values. Drag to move; ⌘ (Ctrl) + scroll to zoom.',
-    exclude: 'Click a plant to leave it out of the results; click again to include it.',
+    exclude: 'Click a plant to leave it out of the measurements; click again to include it.',
     merge: 'Click the two plants to join, one after the other.',
     mergeSecond: 'Now click the plant to join to it.',
-    split: 'Click two points on a line between the two plants. The plant the line crosses is divided along it.',
+    split: 'Click two points on a line between the two plants. The plant the line crosses is cut along it.',
     add: 'Click around the area to add; click the first point, double-click or press Enter to finish. It joins the plant it overlaps most.',
     erase: 'Click around the area to remove from the plants; click the first point, double-click or press Enter to finish.',
   },
@@ -111,10 +111,10 @@ const TEXT = en ? {
     roi: 'クリックで角を置き、最初の点のクリック・ダブルクリック・Enterキーで閉じます。続けて次の領域を囲めます。Escキーで描きかけを取り消し、もう一度Escキーかボタンを押すか、手直しの種類を選ぶと終わります。',
     circle: '円の中心をクリックし、次に円周上の1点をクリックしてください。続けて次の領域を描けます。Escキーかボタンを押すか、手直しの種類を選ぶと終わります。',
     info: '株をクリックすると値を表示します。ドラッグで移動、⌘（Ctrl）キー＋スクロールで拡大・縮小します。',
-    exclude: 'クリックした株を結果から外します。もう一度クリックすると戻します。',
+    exclude: 'クリックした株を計測から外します。もう一度クリックすると戻します。',
     merge: 'つなぐ2つの株を順にクリックしてください。',
     mergeSecond: 'つなぐもう1つの株をクリックしてください。',
-    split: '2つの株の間に線を引くように、2点をクリックしてください。線が横切る株を、その線で2つに分けます。',
+    split: '2つの株の間に線を引くように、2点をクリックしてください。線が横切る株を、その線で切り分けます。',
     add: '足す範囲をクリックで囲み、最初の点のクリック・ダブルクリック・Enterキーで閉じます。いちばん重なる株に加わります。',
     erase: '株から消す範囲をクリックで囲み、最初の点のクリック・ダブルクリック・Enterキーで閉じます。',
   },
@@ -134,7 +134,7 @@ const TEXT = en ? {
     view: (i, n, name, taken) => `${i} / ${n}　${name}${taken ? `　${taken}` : ''}`,
     open: 'この画像を開いて確かめる・手直しする',
     edited: '手直しあり',
-    footer: (v, url, date, n, scale) => `Leaf Area Analyzer バージョン${v}（${url}）で${date}に解析。画像${n}枚、1ピクセル ${fmtSig(scale)} mm`,
+    footer: (v, url, date, n, scale) => `Leaf Area Analyzer バージョン${v}（${url}）で${date}に解析。画像${n}枚、1ピクセル ${fmtSig(scale)} mm。`,
   },
   growth: {
     x: {h: '経過時間 (h)', d: '経過日数 (日)', n: '画像の番号'},
@@ -146,7 +146,7 @@ const TEXT = en ? {
   cols: {image: '画像', taken: '撮影日時', hours: '経過時間 (h)', note: '備考', region: '領域', name: '名前', plant: '番号', status: '状態', count: '株数', total: '面積の合計 (mm²)', left: '除外', x: '重心 x (mm)', y: '重心 y (mm)', pixel: '1ピクセルの長さ (mm)', threshold: '緑のしきい値', auto: '自動のしきい値', dark: '暗い部分も含める（背景の明るさに対する割合）', gap: 'まとめる距離 (mm)', minArea: '最小面積 (mm²)', edge: '縁の株を除外', white: '白の基準 (R, G, B)', version: 'ツールのバージョン', date: '解析日'},
   stat: {mean: '平均', sd: '標準偏差', median: '中央値'},
   yes: 'はい', no: 'いいえ',
-  footer: (v, url, date, image, scale) => `Leaf Area Analyzer バージョン${v}（${url}）で${date}に解析。画像：${image}、1ピクセル ${fmtSig(scale)} mm`,
+  footer: (v, url, date, image, scale) => `Leaf Area Analyzer バージョン${v}（${url}）で${date}に解析。画像：${image}、1ピクセル ${fmtSig(scale)} mm。`,
 };
 
 // The measures, in the order used everywhere: the plant panel, the results table, both CSV files and the
