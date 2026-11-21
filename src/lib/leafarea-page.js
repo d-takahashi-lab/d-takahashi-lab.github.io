@@ -830,7 +830,7 @@ function refresh(){
   renderRoiList();
   hint();
   const rows = summaries();
-  ['csv-plants', 'csv-regions', 'copy', 'png'].forEach(id => { $(id).disabled = !rows.length; });
+  ['csv-plants', 'copy', 'png'].forEach(id => { $(id).disabled = !rows.length; });
   $('undo').disabled = !history.length;
   if (!rows.length) { $('table').innerHTML = EMPTY_TABLE; return; }
   const head = [...regionBasics(rows[0]).map(c => c[0]), ...MEASURES.map(mLabel)];
@@ -880,13 +880,16 @@ function regionRows(){
   })];
 }
 
+// The settings each plant was detected with, so that a saved file records how it was made.
+const settingsHead = () => [TEXT.cols.pixel, TEXT.cols.threshold, TEXT.cols.auto, TEXT.cols.dark, TEXT.cols.gap, TEXT.cols.minArea, TEXT.cols.edge, TEXT.cols.white, TEXT.cols.version, TEXT.cols.date];
+const settingsCols = (p, scale, white) => [fmtSig(scale), csvNum(p.threshold, 3), p.auto ? TEXT.yes : TEXT.no, p.dark > 0 ? p.dark : TEXT.no, Number.isFinite(p.gap) ? p.gap : 0, Number.isFinite(p.minArea) ? p.minArea : 0, p.excludeEdge ? TEXT.yes : TEXT.no, white.join(' '), VERSION, today()];
+const plantHead = () => [TEXT.cols.region, TEXT.cols.name, TEXT.cols.plant, TEXT.cols.status, ...MEASURES.map(mLabel), TEXT.cols.x, TEXT.cols.y, ...settingsHead()];
+const plantCols = (g, p, scale, white) => [g.id, g.name, p.label, TEXT.status[p.status], ...MEASURES.map(m => csvNum(p[m.key], m.d + 2)), csvNum(p.x, 2), csvNum(p.y, 2), ...settingsCols(g.params, scale, white)];
+// Every plant, with the settings of its region (the region summary is in the copied results).
 $('csv-plants').addEventListener('click', () => {
-  const rows = [[TEXT.cols.image, TEXT.cols.region, TEXT.cols.name, TEXT.cols.plant, TEXT.cols.status, ...MEASURES.map(mLabel), TEXT.cols.x, TEXT.cols.y]];
-  S.rois.forEach(r => r.plants.forEach(p => rows.push([S.img.name, r.id, r.name, p.label, TEXT.status[p.status], ...MEASURES.map(m => csvNum(p[m.key], m.d + 2)), csvNum(p.x, 2), csvNum(p.y, 2)])));
+  const rows = [[TEXT.cols.image, ...plantHead()]];
+  S.rois.forEach(r => r.plants.forEach(p => rows.push([S.img.name, ...plantCols(r, p, S.scale, S.img.white)])));
   download(new Blob([csv(rows)], {type: 'text/csv'}), `${baseName()}_plants.csv`);
-});
-$('csv-regions').addEventListener('click', () => {
-  download(new Blob([csv(regionRows())], {type: 'text/csv'}), `${baseName()}_regions.csv`);
 });
 $('copy').addEventListener('click', e => {
   const lines = regionRows().map(r => r.join('\t'));
@@ -1067,7 +1070,7 @@ function showBatch(){
     batch.entries.map((x, i) => `<tr data-i="${i}" class="${i === batch.view ? 'is-selected' : ''}"><th scope="row">${esc(x.name)}</th><td>${esc(x.taken)}</td><td>${elapsed(x)}</td>` +
       names.map(m => { const g = x.regions.find(q => q.id === m.id); if (!g) return '<td>—</td>'; const s = summarise(g.plants); return `<td>${meanSd(s.area, area.d)} (${s.count})</td>`; }).join('') +
       `<td class="cs-left">${esc(x.note)}</td></tr>`).join('') + '</tbody></table>';
-  ['batch-csv-plants', 'batch-csv-table', 'batch-csv-regions', 'batch-copy'].forEach(id => { $(id).disabled = false; });
+  ['batch-csv-plants', 'batch-csv-table', 'batch-copy'].forEach(id => { $(id).disabled = false; });
   drawGrowth();
 }
 $('batch-slider').addEventListener('input', e => { batch.view = +e.target.value; showBatch(); });
@@ -1241,8 +1244,8 @@ const batchStart = e => [e.name, e.taken, elapsed(e)];
 const batchName = suffix => `${batch.folder}_${suffix}.csv`;
 // Every plant in every image (long format).
 $('batch-csv-plants').addEventListener('click', () => {
-  const rows = [[...batchHead(), TEXT.cols.region, TEXT.cols.name, TEXT.cols.plant, TEXT.cols.status, ...MEASURES.map(mLabel), TEXT.cols.x, TEXT.cols.y]];
-  batch.entries.forEach(e => e.regions.forEach(g => g.plants.forEach(p => rows.push([...batchStart(e), g.id, g.name, p.label, TEXT.status[p.status], ...MEASURES.map(m => csvNum(p[m.key], m.d + 2)), csvNum(p.x, 2), csvNum(p.y, 2)]))));
+  const rows = [[...batchHead(), ...plantHead()]];
+  batch.entries.forEach(e => e.regions.forEach(g => g.plants.forEach(p => rows.push([...batchStart(e), ...plantCols(g, p, e.scale ?? batch.scale, e.white)]))));
   download(new Blob([csv(rows)], {type: 'text/csv'}), batchName('plants'));
 });
 // The area of each plant: one row per image, one column per plant (for growth curves).
@@ -1272,7 +1275,6 @@ function batchRegionRows(){
   }
   return rows;
 }
-$('batch-csv-regions').addEventListener('click', () => download(new Blob([csv(batchRegionRows())], {type: 'text/csv'}), batchName('regions')));
 $('batch-copy').addEventListener('click', e => {
   const lines = batchRegionRows().map(r => r.join('\t'));
   lines.push('', TEXT.batch.footer(VERSION, root.dataset.url, today(), batch.entries.length, batch.scale));
